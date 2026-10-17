@@ -43,6 +43,9 @@ namespace Ror2Meeeee.Core.Pipeline
 
     public static class MultiplierPipeline
     {
+        // Teto rígido: com o stack já no teto, nem a cópia original entra (o pickup some; o compartilhamento não dá nada).
+        public static bool AtHardCap(int currentStack, MultiplierRules rules) => rules.StackCap > 0 && currentStack >= rules.StackCap;
+
         // Cópias EXTRAS a conceder (além das Count que o jogo já concedeu). 0 = nada.
         public static int Resolve(PickupContext ctx, MultiplierRules rules)
         {

@@ -13,7 +13,6 @@ namespace Ror2Meeeee
     // ItemDef.AttemptGrant: só pickup real; itens iniciais, conversões e itens de monstros não passam por aqui.
     public sealed class MultiplierFeature : Feature
     {
-        private readonly LimitedCalcFeature _limited;
         private readonly ConfigEntry<int> _value;
         private readonly ConfigEntry<bool> _includeLunar;
         private readonly ConfigEntry<bool> _includeVoid;
@@ -23,16 +22,15 @@ namespace Ror2Meeeee
         private long _logged; // concessões logadas na run (amostragem)
         private bool _granting; // guarda de reentrância: a concessão extra nunca multiplica de novo
 
-        public MultiplierFeature(Cfg cfg, ManualLogSource log, LimitedCalcFeature limited) : base("Multiplier", cfg, log,
+        public MultiplierFeature(Cfg cfg, ManualLogSource log) : base("Multiplier", cfg, log,
             "Multiplicador de itens: cada item que um jogador pega rende várias cópias (veja Value). Itens iniciais, de monstros, scrap e temporários não multiplicam. Só o host precisa ligar.",
             enabledByDefault: true)
         {
-            _limited = limited;
             _value = cfg.Bind("Multiplier", "Value", MultiplierRules.DefaultMultiplier,
                 $"Quantas cópias no total cada item coletado rende (1 = normal, 2 = dobra, 10 = dez cópias). Menor que 1 volta para {MultiplierRules.DefaultMultiplier}.");
             _includeLunar = cfg.Bind("Multiplier", "IncludeLunar", true, "Também multiplica itens lunares (azuis). Desligado: lunares vêm em 1 cópia.");
             _includeVoid = cfg.Bind("Multiplier", "IncludeVoid", true, "Também multiplica itens void (roxos). Desligado: void vêm em 1 cópia.");
-            _stackCap = cfg.Bind("Multiplier", "StackCap", 0, "Máximo de cópias de um mesmo item por jogador depois de multiplicar (0 = sem limite). Itens com Cálculo limitado ligado ignoram este limite.");
+            _stackCap = cfg.Bind("Multiplier", "StackCap", 150, "Teto de cópias de um mesmo item por jogador (qualquer item). A multiplicação e o compartilhamento param no teto; item pego com o stack já no teto some (aviso no chat). Impressora, caldeirão e give_item não passam por aqui. 0 = sem limite.");
 
             _value.SettingChanged += (_, __) => Refresh();
             _includeLunar.SettingChanged += (_, __) => Refresh();
@@ -105,6 +103,27 @@ namespace Ror2Meeeee
                 Fail(e);
             }
 
+            // Teto rígido: item já no StackCap some ao ser pego (sem conceder nada). Temporário/alugado não conta.
+            if (hasContext && kind != ItemKind.Temporary && MultiplierPipeline.AtHardCap(stackBefore, _rules))
+            {
+                context.shouldDestroy = true;
+                context.shouldNotify = false;
+                try
+                {
+                    var who = body.GetUserName();
+                    Chat.SendBroadcastChat(new Chat.SimpleChatMessage
+                    {
+                        baseToken = $"<color=#e5c07b>{who}</color>: {Language.GetString(itemDef.nameToken)} já está no teto ({_rules.StackCap}); o item sumiu."
+                    });
+                    Log.LogInfo($"[Multiplier] {itemDef.name}: {who} no teto ({stackBefore}/{_rules.StackCap}); pickup descartado.");
+                }
+                catch (Exception e)
+                {
+                    Fail(e);
+                }
+                return;
+            }
+
             orig(ref context);
 
             if (!hasContext || dropped) return;
@@ -114,10 +133,8 @@ namespace Ror2Meeeee
                 var pcmc = master ? master.playerCharacterMasterController : null;
                 var alive = body.healthComponent && body.healthComponent.alive;
                 var connected = pcmc && pcmc.isConnected;
-                var exempt = _limited.Covers(itemDef);
-
                 var extra = MultiplierPipeline.Resolve(
-                    new PickupContext(kind, 1, stackBefore, alive, connected, exempt), _rules);
+                    new PickupContext(kind, 1, stackBefore, alive, connected, false), _rules);
                 if (extra <= 0) return;
 
                 _granting = true;

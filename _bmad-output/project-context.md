@@ -17,7 +17,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 
 ## Technology Stack & Versions
 
-- Jogo: Risk of Rain 2 1.5.0 (log do jogo: `ver. 1.5.0#1210*`; Steam build 25475991), Unity 2021.3.45f2 (Mono)
+- Jogo: Risk of Rain 2 1.5.0 (log do jogo: `ver. 1.5.0#1224`; Steam build 25921972; até 2026-10-16 era #1210/25475991), Unity 2021.3.45f2 (Mono)
 - BepInEx 5.4.21 (NÃO BepInEx 6); RoR2BepInExPack 1.45.0
 - HookGenPatcher é obrigatório (gera `MMHOOK_RoR2.dll`; o RoR2BepInExPack NÃO o inclui)
 - R2API: só os submódulos realmente usados, declarados via `[BepInDependency]`. `Items` e `Language`

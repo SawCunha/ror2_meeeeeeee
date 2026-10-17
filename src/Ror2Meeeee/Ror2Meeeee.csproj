@@ -77,6 +77,10 @@
       <HintPath>$(R2modmanProfile)/BepInEx/plugins/RiskofThunder-R2API_Networking/R2API.Networking/R2API.Networking.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="R2API.Elites">
+      <HintPath>$(R2modmanProfile)/BepInEx/plugins/RiskofThunder-R2API_Elites/R2API.Elites/R2API.Elites.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="R2API.Core">
       <HintPath>$(R2modmanProfile)/BepInEx/plugins/RiskofThunder-R2API_Core/R2API.Core/R2API.Core.dll</HintPath>
       <Private>false</Private>

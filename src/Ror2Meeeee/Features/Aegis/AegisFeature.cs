@@ -80,8 +80,33 @@ namespace Ror2Meeeee
                 "O primeiro agressor ofereceu seu sangue. O Vazio considerou a oferta insuficiente e convocou todos os presentes para pagar a diferença.",
                 log, "RoR2/DLC1/BearVoid/PickupBearVoid.prefab");
             ModItem.Corrupt(_def, _voidDef, log);
+            if (_def) _def.pickupModelPrefab = ShieldModel(ItemName, new Color32(120, 10, 20, 255), new Color32(200, 160, 60, 255), Color.black, log) ?? _def.pickupModelPrefab;
+            if (_voidDef) _voidDef.pickupModelPrefab = ShieldModel(VoidName, new Color32(50, 15, 80, 255), new Color32(150, 70, 220, 255), new Color(0.5f, 0.15f, 0.8f), log) ?? _voidDef.pickupModelPrefab;
             _blockFx = Load("RoR2/Base/Bear/BearProc.prefab", log);
             _waveFx = Load("RoR2/DLC1/ExplodeOnDeathVoid/ExplodeOnDeathVoidExplosionEffect.prefab", log);
+        }
+
+        // Escudo redondo de revolução: verso plano, borda grossa, frente em domo raso e umbo no centro.
+        // Perfil (raio, altura) do centro do verso até o topo do umbo; V escolhe a faixa (0,25 = corpo, 0,75 = metal).
+        private static readonly Vector2[] ShieldProfile =
+        {
+            new Vector2(0f, -0.03f), new Vector2(0.46f, -0.03f), new Vector2(0.5f, -0.02f), new Vector2(0.52f, 0f),
+            new Vector2(0.52f, 0.05f), new Vector2(0.49f, 0.07f), new Vector2(0.46f, 0.05f), new Vector2(0.3f, 0.08f),
+            new Vector2(0.14f, 0.1f), new Vector2(0.12f, 0.11f), new Vector2(0.11f, 0.15f), new Vector2(0.07f, 0.19f), new Vector2(0f, 0.2f),
+        };
+        private static readonly float[] ShieldV = { 0.25f, 0.25f, 0.75f, 0.75f, 0.75f, 0.75f, 0.75f, 0.25f, 0.25f, 0.75f, 0.75f, 0.75f, 0.75f };
+
+        private static GameObject ShieldModel(string name, Color32 body, Color32 metal, Color emission, ManualLogSource log)
+        {
+            var verts = new List<Vector3>();
+            var uvs = new List<Vector2>();
+            var tris = new List<int>();
+            // Em pé, frente para +Z: o pickup gira em torno do eixo vertical.
+            ProcModel.AddLathe(ShieldProfile, ShieldV, 32, Matrix4x4.Rotate(Quaternion.Euler(90f, 0f, 0f)), verts, uvs, tris);
+            var tex = ProcModel.Bands(name + "Tex",
+                (body, Color32.Lerp(body, new Color32(0, 0, 0, 255), 0.35f)),
+                (metal, Color32.Lerp(metal, new Color32(255, 255, 255, 255), 0.25f)));
+            return ProcModel.Build(name, verts, uvs, tris, tex, 0.4f, emission, log);
         }
 
         private static GameObject Load(string key, ManualLogSource log)

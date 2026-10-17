@@ -34,11 +34,11 @@ namespace Ror2Meeeee
             "Teto de projéteis dos jogadores para o FPS: itens que disparam em massa (Sticky Bomb, Molten Perforator, estacas) soltam menos projéteis, cada um mais forte, com o mesmo dano total. Só no host; projéteis de monstros não mudam.",
             enabledByDefault: true)
         {
-            _list = cfg.Bind("ProjectileBudget", "Prefabs", "StickyBomb,FireMeatBall,LightningStake",
+            _list = cfg.Bind("ProjectileBudget", "Prefabs", "StickyBomb,FireMeatBall,LightningStake,DaggerProjectile,EngiGrenadeProjectile,ShurikenProjectile",
                 "Projéteis (nome do prefab, como no log do Probe) com teto por tipo. Separados por vírgula.");
-            _perType = cfg.Bind("ProjectileBudget", "PerTypeMaxPerSecond", 30,
+            _perType = cfg.Bind("ProjectileBudget", "PerTypeMaxPerSecond", 15,
                 "Máximo por segundo de cada projétil da lista (todos os jogadores somados). 0 = sem teto por tipo.");
-            _global = cfg.Bind("ProjectileBudget", "GlobalMaxPerSecond", 300,
+            _global = cfg.Bind("ProjectileBudget", "GlobalMaxPerSecond", 80,
                 "Máximo por segundo de projéteis de jogadores e ajudantes, de qualquer tipo. 0 = sem teto global.");
             ReadConfig();
             _list.SettingChanged += (_, __) => ReadConfig();

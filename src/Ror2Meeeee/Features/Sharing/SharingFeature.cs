@@ -22,7 +22,6 @@ namespace Ror2Meeeee
         public const string Token = "ROR2MEEEEE_ARTIFACT_COMMUNISM";
 
         private static ArtifactDef _artifact;
-        private readonly LimitedCalcFeature _limited;
         private readonly ConfigEntry<bool> _multiplierEnabled;
         private readonly ConfigEntry<int> _value;
         private readonly ConfigEntry<bool> _includeLunar;
@@ -35,17 +34,16 @@ namespace Ror2Meeeee
 
         // Cria a feature sem opção de liga/desliga (quem controla é o artefato) e liga as entradas de config do
         // Multiplicador (mesmas chaves, mesma instância no BepInEx).
-        public SharingFeature(Cfg cfg, ManualLogSource log, LimitedCalcFeature limited)
+        public SharingFeature(Cfg cfg, ManualLogSource log)
             : base("Sharing", cfg, log, (ConfigEntry<bool>)null)
         {
-            _limited = limited;
             // Mesmas definições da MultiplierFeature: o BepInEx devolve a mesma entrada.
             _multiplierEnabled = cfg.BindEnabled("Multiplier");
             _value = cfg.Bind("Multiplier", "Value", MultiplierRules.DefaultMultiplier,
                 $"Quantas cópias no total cada item coletado rende (1 = normal, 2 = dobra, 10 = dez cópias). Menor que 1 volta para {MultiplierRules.DefaultMultiplier}.");
             _includeLunar = cfg.Bind("Multiplier", "IncludeLunar", true, "Também multiplica itens lunares (azuis). Desligado: lunares vêm em 1 cópia.");
             _includeVoid = cfg.Bind("Multiplier", "IncludeVoid", true, "Também multiplica itens void (roxos). Desligado: void vêm em 1 cópia.");
-            _stackCap = cfg.Bind("Multiplier", "StackCap", 0, "Máximo de cópias de um mesmo item por jogador depois de multiplicar (0 = sem limite). Itens com Cálculo limitado ligado ignoram este limite.");
+            _stackCap = cfg.Bind("Multiplier", "StackCap", 150, "Teto de cópias de um mesmo item por jogador (qualquer item). A multiplicação e o compartilhamento param no teto; item pego com o stack já no teto some (aviso no chat). Impressora, caldeirão e give_item não passam por aqui. 0 = sem limite.");
         }
 
         // Chamar no Awake do plugin (antes de o ArtifactCatalog existir).
@@ -159,7 +157,7 @@ namespace Ror2Meeeee
                 if (others.Count == 0) return;
 
                 var shares = SharingPipeline.Resolve(
-                    new PickupContext(kind, 1, 0, true, true, _limited.Covers(itemDef)), rules, true, false, recipients);
+                    new PickupContext(kind, 1, 0, true, true, false), rules, true, false, recipients);
 
                 _granting = true;
                 try

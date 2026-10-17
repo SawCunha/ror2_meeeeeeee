@@ -46,6 +46,32 @@ namespace Ror2Meeeee
                 $"<style=cStack>(+{p} por acúmulo)</style>. As cópias de todo o time somam.",
                 "Energia emprestada de algum lugar que ainda não percebeu.",
                 log, "RoR2/Base/EquipmentMagazine/PickupBattery.prefab");
+            if (_def) _def.pickupModelPrefab = BatteryModel(log) ?? _def.pickupModelPrefab;
+        }
+
+        // Bateria deitada (como o ícone): corpo de metal gasto, anéis escuros nas pontas, faixa ciano no meio e
+        // terminal ciano numa ponta. Perfil (raio, altura) do terminal até a tampa oposta; V = faixa (corpo, anel, ciano).
+        private static readonly Vector2[] BatteryProfile =
+        {
+            new Vector2(0f, -0.5f), new Vector2(0.06f, -0.5f), new Vector2(0.06f, -0.44f), new Vector2(0.2f, -0.44f),
+            new Vector2(0.22f, -0.42f), new Vector2(0.22f, -0.34f), new Vector2(0.2f, -0.34f), new Vector2(0.2f, -0.08f),
+            new Vector2(0.205f, -0.08f), new Vector2(0.205f, 0.08f), new Vector2(0.2f, 0.08f), new Vector2(0.2f, 0.34f),
+            new Vector2(0.22f, 0.34f), new Vector2(0.22f, 0.42f), new Vector2(0.2f, 0.44f), new Vector2(0f, 0.44f),
+        };
+        private const float Body = 0.17f, Ring = 0.5f, Glow = 0.83f;
+        private static readonly float[] BatteryV = { Glow, Glow, Glow, Ring, Ring, Ring, Body, Body, Glow, Glow, Body, Body, Ring, Ring, Ring, Ring };
+
+        private static GameObject BatteryModel(ManualLogSource log)
+        {
+            var verts = new List<Vector3>();
+            var uvs = new List<Vector2>();
+            var tris = new List<int>();
+            ProcModel.AddLathe(BatteryProfile, BatteryV, 24, Matrix4x4.Rotate(Quaternion.Euler(0f, 0f, 90f)), verts, uvs, tris);
+            var tex = ProcModel.Bands(ItemName + "Tex",
+                (new Color32(105, 95, 80, 255), new Color32(130, 85, 50, 255)),   // metal gasto com ferrugem
+                (new Color32(45, 45, 50, 255), new Color32(70, 70, 75, 255)),     // anéis escuros
+                (new Color32(80, 230, 255, 255), new Color32(170, 250, 255, 255))); // brilho ciano
+            return ProcModel.Build(ItemName, verts, uvs, tris, tex, 0.3f, Color.black, log);
         }
 
         public PortalBatteryFeature(Cfg cfg, ManualLogSource log) : base("PortalBattery", cfg, log,

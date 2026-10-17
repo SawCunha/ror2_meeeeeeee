@@ -1,5 +1,88 @@
 # Changelog
 
+## 0.10.0
+
+- **Bazar Maior** (`[Bazaar]`, novo, ligado; reescrita do BiggerBazaar 1.14.5): o Bazar entre Tempos ganha até 6 baús
+  com o item à mostra, comprados com o ouro que sobrou do estágio (o ouro não vira XP ao entrar no portal do bazar) ou
+  com moedas lunares (`PayWithLunarCoins`), e um casulo ao lado do Newt que troca moeda lunar por ouro. Peso, preço,
+  preço lunar e estoque por tier (10 compras por baú), sem limite de compras por jogador; limite de trocas no casulo;
+  10% de chance de baú de itens temporários.
+  Em relação ao original: preço = baú pequeno do estágio anterior × multiplicador (o original escalava duas vezes),
+  sorteio próprio (não mexe no RNG da run), item comprado cai no chão e passa pelo Multiplicador/Comunismo, a Sale Star
+  não é gasta à toa, o casulo não dispara Fogos, o Reciclador não troca o item à mostra, o Comando não troca o item
+  comprado, itens únicos do mod ficam fora da loja e o hack do Captain não abre os baús. Sem ShareSuite, sem preço dos
+  terminais originais do bazar e sem compra direto no inventário.
+- **Elites novos** (`[Elites]`, novo, ligado; reescrita do MoreElites 0.9.5 e do BlightedElites 1.2.2): Volátil,
+  Frenético e Fortalecedor (T1, com versão de Honra), Arruinado e Eco (T2). Só assets do jogo: o Frenético é o elite
+  amarelo do jogo e o Eco é o edEcho do jogo, que o diretor nunca sorteava. Em relação aos originais: mísseis e
+  teleporte só no host (não duplicam nos clientes), o aspecto Frenético usado por jogador não teleporta para (0,0,0),
+  o elite de Honra tem os stats de Honra do jogo, o Volátil não dá um Brilliant Behemoth que nunca sai, o Fortalecedor
+  não apaga um Warbanner de verdade, o projétil do Eco é registrado (chegava aos clientes sem catálogo) e os tiers vêm
+  do R2API.Elites, não de índices fixos. Nova dependência: **R2API_Elites 1.1.3**.
+- **Elite Dourado em IA** (`[GameFixes]`): drones, aliados e monstros Dourados soltavam pepitas de ouro a cada golpe
+  em quem não é jogador, sem o cooldown nem a chance que o jogador tem, até travar a partida. Agora seguem a regra do
+  jogador (mesma correção do GildedChunkSpamFix; não instale os dois).
+- **Artefato do Enxame** (`[GameFixes]`): as cópias do Enxame nasciam em cima do jogador ou não nasciam, porque o
+  jogo deixava zeradas as distâncias de spawn delas nos spawns normais do diretor. Agora recebem as distâncias do
+  spawn original (mesmo bug que o SwarmsFix corrige; não instale os dois).
+
+## 0.9.6
+
+- **Teto de projéteis** (`[ProjectileBudget]`), novos padrões medidos numa run de 3 jogadores (~8 mil itens, FPS
+  caindo para ~11 nas lutas): `DaggerProjectile`, `EngiGrenadeProjectile` e `ShurikenProjectile` entram na lista
+  `Prefabs`; `PerTypeMaxPerSecond` **15** (antes 30) e `GlobalMaxPerSecond` **80** (antes 300, que nunca era
+  atingido). O dano total continua o mesmo: menos projéteis, cada um mais forte.
+- **Lâminas Fantasmas** (`[GhostBlades]`): `MaxPerSecond` **15** (antes 30, que ficava sempre no teto).
+- **Partículas** (`[Particles]`): explosões (`OmniExplosionVFXQuick`) saem da isenção total e ganham teto próprio
+  maior: nova lista `Raised` (padrão `OmniExplosionVFXQuick`) com `RaisedMaxPerSecond` **60**. Sem teto, eram o
+  efeito mais frequente da run (190 mil+). `Exempt` passa a ter só os golpes do Mercenary.
+- **Correções de bugs do jogo** (`[GameFixes]`, novo, ligado): erros que se repetiam centenas de vezes por partida
+  (com pilha no log, custando FPS) deixam de acontecer:
+  - **Runic Lens**: se quem acertou morre antes do meteoro cair, o jogo repetia o erro a cada tick; o meteoro desse
+    golpe é cancelado.
+  - **Unstable Transmitter**: corpo com o item e sem inventário dava erro a cada frame; orbe cujo dono já morreu dava
+    erro ao tocar inimigos; inimigo sem modelo não era teleportado e perdia também sangramento, atordoamento e debuff
+    (agora fica onde está e recebe o resto do efeito).
+  - **War Bonds**: torreta do Engi com o item dava erro ao morrer.
+  - **Equipamento**: corpo sem inventário com pedido de uso de equipamento dava erro a cada tick.
+- **Log**: as linhas por uso do Ghor's Tome e do Bundle of Fireworks (`[LimitedCalc]`, centenas por run) só aparecem
+  com `General.VerboseLogging`.
+- Configs existentes mantêm os valores salvos: para pegar os novos padrões, apague as chaves (ou o `.cfg`) ou ajuste
+  na tela de mods.
+
+## 0.9.5
+
+- **Partículas**: teto padrão reduzido para **10/s por tipo de efeito** (antes 20/s), com exceções padrão para os
+  golpes do Mercenary (`BladeComboSwingEffect`) e explosões (`OmniExplosionVFXQuick`), que seguem completos.
+  Configs existentes mantêm os valores salvos de `MaxPerSecond` e `Exempt`.
+
+## 0.9.4
+
+- Atualizado para o **Risk of Rain 2 1.5.0#1224** (Steam build 25921972): sem o aviso de versão divergente no log.
+- **Égide Vampírica** e **Égide do Devorador** ganharam modelo 3D próprio (escudo redondo com umbo: vermelho e
+  dourado / roxo com brilho do Vazio), no chão e no logbook, no lugar do Rose Buckler e do Safer Spaces.
+- **Pregos Enferrujados / Espinhos do Vazio**: corrigidas 6 chaves de assets do jogo que nunca carregavam (ícone da
+  marca do Estilhaço, rastro dos pregos, efeito da detonação e modelo reserva). Some o `InvalidKeyException` no início.
+- Métrica de carga: o log ganha `[Carga] Awake em X ms` (registro de itens/artefatos e features/hooks separados).
+- **Partículas**: o corte local (`Disable`) virou **teto por segundo para todos os efeitos** (`MaxPerSecond`, padrão
+  20/s por tipo de efeito), menos os listados em `Exempt`. Vale também para o que cada jogador **envia** aos outros,
+  host incluído: quem tem o mod gera e transmite menos efeitos. Na troca de fase o log diz quantos efeitos o teto
+  segurou. A chave `Disable` antiga deixa de ser usada.
+- **Multiplicador**: `Multiplier.StackCap` passa a ter padrão **150** e vale para qualquer item multiplicado ou
+  compartilhado (antes os itens do Cálculo limitado eram isentos). Teto rígido: item pego com o stack já no teto
+  some, sem entrar no inventário, com aviso no chat; o compartilhamento não dá nada a quem já está no teto.
+  Impressora, caldeirão e `give_item` não passam por esse teto. Configs existentes mantêm o valor salvo.
+- **zzz cervo <3** ganhou modelo 3D próprio (cervo marrom de olhos esbugalhados, boca aberta e patas finas), no
+  lugar do Paul's Goat Hoof.
+- **Bateria do Portal** ganhou modelo 3D próprio (bateria deitada de metal gasto, anéis escuros e faixa/terminal
+  ciano), no lugar da Fuel Cell do jogo.
+
+## 0.9.3
+
+- **Partículas**: com `Particles.CountSpawns` ligado, a lista dos 20 efeitos mais frequentes da run (a mesma do
+  `ror2meeeee_effects`) sai sozinha no console e no `LogOutput.log` a cada fase nova (`[Particles] efeitos mais
+  frequentes após N fase(s)`). Roda em cada jogador, não só no host.
+
 ## 0.9.2
 
 - **Ghor's Tome** no cálculo limitado (`[LimitedCalc.GhorsTome]`, padrão `Aggregate`, `Limit = 5`): a chance de soltar

@@ -34,7 +34,7 @@ namespace Ror2Meeeee.Core.Pipeline
             for (var i = 0; i < others.Count; i++)
             {
                 var o = others[i];
-                if (!o.Alive || !o.Connected) continue;
+                if (!o.Alive || !o.Connected || MultiplierPipeline.AtHardCap(o.CurrentStack, rules)) continue;
                 var extra = MultiplierPipeline.Resolve(
                     new PickupContext(ctx.Kind, ctx.Count, o.CurrentStack, o.Alive, o.Connected, ctx.CapExempt), rules);
                 var total = (long)ctx.Count + extra;
