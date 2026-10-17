@@ -1,0 +1,86 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BepInEx.Core" Version="5.4.21" />
+    <PackageReference Include="UnityEngine.Modules" Version="2021.3.45" IncludeAssets="compile" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\chamado_da_horda.png" LogicalName="chamado_da_horda.png" />
+    <EmbeddedResource Include="Assets\mod_icon.png" LogicalName="mod_icon.png" />
+    <EmbeddedResource Include="Assets\cervo.png" LogicalName="cervo.png" />
+    <EmbeddedResource Include="Assets\cano_extra.png" LogicalName="cano_extra.png" />
+    <EmbeddedResource Include="Assets\prego.png" LogicalName="prego.png" />
+    <EmbeddedResource Include="Assets\prego_void.png" LogicalName="prego_void.png" />
+    <EmbeddedResource Include="Assets\artifacts\*.png" LogicalName="%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Ror2Meeeee.Core\Ror2Meeeee.Core.csproj" />
+    <Reference Include="RoR2">
+      <HintPath>$(GameDir)/Risk of Rain 2_Data/Managed/RoR2.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="com.unity.multiplayer-hlapi.Runtime">
+      <HintPath>$(GameDir)/Risk of Rain 2_Data/Managed/com.unity.multiplayer-hlapi.Runtime.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>$(GameDir)/Risk of Rain 2_Data/Managed/UnityEngine.UI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="AK.Wwise.Unity.MonoBehaviour">
+      <HintPath>$(GameDir)/Risk of Rain 2_Data/Managed/AK.Wwise.Unity.MonoBehaviour.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Unity.Addressables">
+      <HintPath>$(GameDir)/Risk of Rain 2_Data/Managed/Unity.Addressables.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Unity.ResourceManager">
+      <HintPath>$(GameDir)/Risk of Rain 2_Data/Managed/Unity.ResourceManager.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="LegacyResourcesAPI">
+      <HintPath>$(GameDir)/Risk of Rain 2_Data/Managed/LegacyResourcesAPI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="HGCSharpUtils">
+      <HintPath>$(GameDir)/Risk of Rain 2_Data/Managed/HGCSharpUtils.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="MMHOOK_RoR2">
+      <HintPath>$(R2modmanProfile)/BepInEx/plugins/MMHOOK/MMHOOK_RoR2.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="R2API.Items">
+      <HintPath>$(R2modmanProfile)/BepInEx/plugins/RiskofThunder-R2API_Items/R2API.Items/R2API.Items.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="R2API.Language">
+      <HintPath>$(R2modmanProfile)/BepInEx/plugins/RiskofThunder-R2API_Language/R2API.Language/R2API.Language.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="R2API.ContentManagement">
+      <HintPath>$(R2modmanProfile)/BepInEx/plugins/RiskofThunder-R2API_ContentManagement/R2API.ContentManagement/R2API.ContentManagement.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="RiskOfOptions">
+      <HintPath>$(R2modmanProfile)/BepInEx/plugins/Rune580-Risk_Of_Options/RiskOfOptions/RiskOfOptions.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="R2API.Networking">
+      <HintPath>$(R2modmanProfile)/BepInEx/plugins/RiskofThunder-R2API_Networking/R2API.Networking/R2API.Networking.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="R2API.Core">
+      <HintPath>$(R2modmanProfile)/BepInEx/plugins/RiskofThunder-R2API_Core/R2API.Core/R2API.Core.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+</Project>

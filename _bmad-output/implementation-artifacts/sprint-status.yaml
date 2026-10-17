@@ -1,0 +1,85 @@
+# generated: 2026-10-11 11:55
+# last_updated: 2026-10-11 11:55
+# project: ror2
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: _bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - Developer typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+# - Story 2.4 is conditional (only if Story 1.3 concludes A8 = no); Epic 6 is v2 (outside MVP)
+
+generated: 2026-10-11 11:55
+last_updated: 2026-10-11
+project: ror2
+project_key: NOKEY
+tracking_system: file-system
+story_location: _bmad-output/implementation-artifacts
+
+development_status:
+  epic-1: in-progress
+  1-1-plugin-hello-world-carregando-no-jogo: done
+  1-2-base-feature-com-kill-switch-e-falha-isolada: done
+  1-3-investigacao-do-ror2-dll: review
+  1-4-probe-de-medicao: review
+  1-5-comando-ror2meeeee-status: review
+  1-6-cenario-de-referencia-e-linha-de-base: in-progress
+  epic-1-retrospective: optional
+  epic-2: in-progress
+  2-1-bustling-fungus-com-custo-limitado: in-progress
+  2-2-bundle-of-fireworks-com-custo-limitado: in-progress
+  2-3-validacao-de-desempenho-e-de-efeito-reconhecivel: ready-for-dev
+  2-4-sincronizacao-do-limite-para-clientes-condicional: done
+  epic-2-retrospective: optional
+  epic-3: in-progress
+  3-1-pipeline-puro-de-multiplicacao-no-core: review
+  3-2-multiplicacao-no-pickup-no-host: in-progress
+  3-3-elegibilidade-e-jogadores-mortos: in-progress
+  3-4-teto-de-stacks-configuravel: in-progress
+  3-5-condicao-3-da-linha-de-base: ready-for-dev
+  epic-3-retrospective: optional
+  epic-4: in-progress
+  4-1-fator-de-dificuldade-e-curva-no-core: review
+  4-2-vida-e-dano-dos-inimigos-escalados: in-progress
+  4-3-quantidade-e-ritmo-escalados: in-progress
+  4-4-calibracao-em-playtest: backlog
+  4-5-artefato-do-dizimo: in-progress
+  4-6-artefato-taxade: in-progress
+  4-7-gasto-por-jogador: in-progress
+  epic-4-retrospective: optional
+  epic-5: in-progress
+  5-1-levantamento-e-medicao-das-particulas: in-progress
+  5-2-corte-configuravel-de-particulas: in-progress
+  5-3-validacao-de-gameplay-inalterado: backlog
+  epic-5-retrospective: optional
+  epic-6: in-progress
+  6-1-compartilhamento-no-pipeline-puro: review
+  6-2-replicacao-no-host: in-progress
+  6-3-validacao-de-desempenho-e-rede: backlog
+  epic-6-retrospective: optional

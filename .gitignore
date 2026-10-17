@@ -1,0 +1,14 @@
+bin/
+obj/
+BepInEx/
+.vs/
+MMHOOK_RoR2.dll
+*.dll
+!src/**/*.cs
+
+# Binários do r2modman (docs/)
+docs/ebkr-r2modman-*
+
+# Pacotes gerados
+dist/
+docs/

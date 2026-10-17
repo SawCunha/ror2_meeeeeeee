@@ -1,0 +1,41 @@
+# Decision Log — PRD Mod Risk of Rain 2
+
+- 2026-10-11 [event] PRD criado (intent Create) via gds-prd; usuário optou por gds-prd em vez de bmad-prd.
+- 2026-10-11 [input] Referência técnica: https://risk-of-thunder.github.io/R2Wiki/Mod-Creation/Getting-Started/First-Mod/
+- 2026-10-11 [assumption] Alvo: Risk of Rain 2 na versão mais recente (a verificar via pesquisa).
+- 2026-10-11 [decision] Propósito: mod de melhoria de desempenho para partidas com muitos itens/monstros/atualizações e multiplayer.
+- 2026-10-11 [decision] Motivação: mod personalizado com mecânicas próprias; requisito-chave = melhor uso de CPU.
+- 2026-10-11 [decision] Audiência: uso pessoal e amigos (stakes: hobby/grupo pequeno).
+- 2026-10-11 [context] Usuário nunca fez mod; experiente em Java (C# deve ser curva curta). 
+- 2026-10-11 [input] Referências: littlewolf/ShareItemsWithMoreFun e SqueakySquad/Squeakys_Item_Multiplier (Thunderstore).
+- 2026-10-11 [event] Pesquisa paralela disparada (versão/ecossistema, mods de referência, gargalos de desempenho).
+- 2026-10-11 [research] Gargalos de desempenho recebidos e salvos no addendum.md (aguardando versão/ecossistema e mods de referência).
+- 2026-10-11 [research] Mods de referência analisados e salvos no addendum.md (aguardando versão/ecossistema).
+- 2026-10-11 [research] Versão/ecossistema salvos no addendum.md. Jogo-alvo: patch 1.21 (Hallowed Concepts, 8/out/2026) — fonte única, a confirmar.
+- 2026-10-11 [risk] Ambiente do usuário é Linux; R2Wiki assume Visual Studio/Windows. Verificar toolchain (dotnet CLI/Rider + Proton/Steam).
+- 2026-10-11 [decision] Problema relatado pelo usuário: em vários momentos há alto consumo de RAM e queda de FPS, causados pela quantidade de itens com efeitos executados a cada tick de atualização. Métricas-alvo: FPS (frame time) e memória RAM, não só CPU.
+- 2026-10-11 [decision] Item com degradação observada pelo usuário: Bustling Fungus (https://riskofrain2.fandom.com/wiki/Bustling_Fungus). Causa não verificada; hipótese: zona de cura (HealingWard) processada a cada tick, com raio crescente por stack. Requer medição.
+- 2026-10-11 [decision] Cenário de referência: Bustling Fungus com 50+ stacks em 1 jogador, partida com 3 jogadores; outros itens acumulados, um jogador chegou a ~200 stacks de Bundle of Fireworks (https://riskofrain2.fandom.com/wiki/Bundle_of_Fireworks).
+- 2026-10-11 [decision] Escopo de mecânica: permitido mudar a mecânica dos itens (cálculo por stack) para evitar travamentos; permitido também aumentar a dificuldade do jogo para compensar a multiplicação de itens.
+- 2026-10-11 [open] Amigos instalam o mod ou só o host? Mecânicas novas além de reescrever o cálculo por stack? Não respondido.
+- 2026-10-11 [decision] Distribuição: todos os jogadores instalam o mod (não precisa ser server-side puro; todos na mesma versão).
+- 2026-10-11 [decision] Mecânicas novas: (1) multiplicação de itens; (2) compartilhamento do primeiro item pego; (3) dificuldade aumentada; (4) melhoria visual: desabilitar ou reduzir a duração das partículas geradas.
+- 2026-10-11 [tension] Multiplicar itens aumenta stacks, o que piora o desempenho que o mod quer resolver; o cálculo por stack precisa ser sublinear/limitado para as duas metas coexistirem. Possível conflito com Squeakys_Item_Multiplier e ShareItemsWithMoreFun se instalados junto.
+- 2026-10-11 [closed] Pendência de distribuição e mecânicas novas respondida.
+- 2026-10-11 [change] Rascunho Express do prd.md escrito (status draft). Proposta de faseamento: MVP = FR-1/FR-2/FR-12; multiplicação, compartilhamento e dificuldade em v2 — PROPOSTA, aguarda confirmação do usuário (itens explicitamente pedidos por ele).
+- 2026-10-11 [decision] Multiplicação de itens entra no MVP junto com o desempenho (é com ela ligada que se valida o desempenho).
+- 2026-10-11 [decision] Compartilhamento = todo item pego é replicado aos demais, quantidade integral (não só 1 unidade). Substitui a interpretação "primeiro item". Compartilhamento e dificuldade seguem em v2 (proposta, não contestada explicitamente; confirmar).
+- 2026-10-11 [decision] Metas numéricas de FPS/RAM ficam abertas até medir a linha de base. Observação do autor: queda para 2–3 FPS durante a partida.
+- 2026-10-11 [risk] Compartilhamento x multiplicador x nº de jogadores multiplica o total de stacks; FR-9a (não recursivo) é suposição.
+- 2026-10-11 [decision] Versão-alvo confirmada pelo usuário: a mais recente, liberada na semana passada (corrobora patch 1.21, 8/out/2026).
+- 2026-10-11 [decision] Desenvolvimento em Linux; uso e testes do jogo em Windows. Risco: validar build cross-OS.
+- 2026-10-11 [input] Artigo cjcocokrisp (Medium) colado pelo usuário (parcial); registrado no addendum. Impacto no PRD: FR-3 assume Risk of Options como menu de config opcional (ASSUMPTION).
+- 2026-10-11 [input] Artigo cjcocokrisp parte 2 colado e registrado. PRD: NFR-2 ganha 'config de gameplay vale a do host (ASSUMPTION)' e 'sem tráfego de rede por frame'.
+- 2026-10-11 [input] Usuário indicou https://github.com/risk-of-thunder como fonte de detalhes; pesquisa disparada (R2API, template, networking, código dos itens).
+- 2026-10-11 [research] Pesquisa risk-of-thunder registrada no addendum.md. Pendente verificação local: Inventory.GiveItem server-only; dotnet build no Linux; causa dos custos por descompilação.
+- 2026-10-11 [change] Após revisão (reconciliação + disciplina): PRD reescrito. FR-1 passa a ser medição/linha de base; tecnologia movida ao addendum; glossário ampliado; tabela de elegibilidade e ordem de operações adicionadas (valores padrão = ASSUMPTION); host autoritativo em NFR-2; UJ-2/UJ-3 e FR-9 a FR-11 marcados v2; FR-11 antigo (dificuldade adaptativa ao orçamento) removido; não-objetivos e contra-métricas ampliados; perguntas abertas consolidadas (§9).
+- 2026-10-11 [open] Phase-blockers aguardando o usuário: dificuldade no MVP?; compartilhamento em v2?; lunares/void multiplicam?; valor do multiplicador. PRD segue draft (não finalizado).
+- 2026-10-11 [decision] Usuário pediu "aplicar as correções e finalizar" sem responder uma a uma; aplicadas as recomendações propostas: dificuldade aumentada entra no MVP em versão mínima (FR-11); compartilhamento permanece em v2; lunares e void não multiplicam; multiplicador padrão x2 (todos como ASSUMPTION, reversíveis).
+- 2026-10-11 [deferred] Perguntas abertas §9 (dono: autor): limites de FR-2/FR-3/FR-7, partículas, dificuldade (o que sobe), causa dos custos, metas numéricas. Revisitar após linha de base (FR-1).
+- 2026-10-11 [event] PRD finalizado (status: final).
+- 2026-10-11 [decision] Usuário: multiplicador é campo aberto (sem teto do mod); lunares e void multiplicados ou não por escolha na tela de configuração (padrão: não). Atualiza FR-6, FR-8, tabela §4.2.

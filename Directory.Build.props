@@ -1,0 +1,9 @@
+<Project>
+  <PropertyGroup>
+    <LangVersion>preview</LangVersion>
+    <!-- Sobrescreva com -p:GameDir=... ou variável de ambiente GameDir -->
+    <GameDir Condition="'$(GameDir)' == ''">$(HOME)/.steam/debian-installation/steamapps/common/Risk of Rain 2</GameDir>
+    <R2modmanProfile Condition="'$(R2modmanProfile)' == ''">$(HOME)/.config/r2modmanPlus-local/RiskOfRain2/profiles/Default</R2modmanProfile>
+    <RestoreAdditionalProjectSources>https://nuget.bepinex.dev/v3/index.json</RestoreAdditionalProjectSources>
+  </PropertyGroup>
+</Project>
