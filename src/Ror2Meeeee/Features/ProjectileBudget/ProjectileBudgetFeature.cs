@@ -103,18 +103,18 @@ namespace Ror2Meeeee
                 if (NetworkServer.active && prefab && (_perTypeValue > 0 || _globalValue > 0) && IsPlayerSide(info.owner))
                 {
                     var now = Time.time;
-                    var listed = _perTypeValue > 0 && Listed(prefab);
+                    // Janela por prefab para todo projétil de jogador: fora da lista ela não tem teto (0) e só guarda o dano
+                    // cortado pelo teto global, somado ao próximo disparo do mesmo tipo.
+                    var perType = _perTypeValue > 0 && Listed(prefab) ? _perTypeValue : 0;
                     var key = prefab.GetInstanceID();
-                    var w = listed && _windows.TryGetValue(key, out var found) ? found : default;
-                    var fire = true;
-                    var damage = info.damage;
-                    if (listed) fire = ProjectileBudget.Decide(ref w, now, _perTypeValue, damage, out damage);
+                    _windows.TryGetValue(key, out var w);
+                    var fire = ProjectileBudget.Decide(ref w, now, perType, info.damage, out var damage);
                     if (fire && _globalValue > 0)
                     {
                         fire = ProjectileBudget.Decide(ref _globalWindow, now, _globalValue, 0f, out _);
-                        if (!fire && listed) w.PendingDamage += damage; // estourou o global: o dano volta para o tipo
+                        if (!fire) w.PendingDamage += damage; // estourou o global: o dano volta para o tipo
                     }
-                    if (listed) _windows[key] = w;
+                    _windows[key] = w;
                     if (!fire) { _skipped++; return; }
                     info.damage = damage; // struct: cópia local, com o dano agregado
                 }

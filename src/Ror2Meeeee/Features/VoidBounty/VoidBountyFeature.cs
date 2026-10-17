@@ -19,7 +19,7 @@ namespace Ror2Meeeee
     // Precisa do DLC Survivors of the Void ativo na run: sem ele não há itens do Void para sortear.
     public sealed class VoidBountyFeature : Feature
     {
-        public const string Name = "Ror2MeeeeeVoidBounty";
+        public const string ArtifactName = "Ror2MeeeeeVoidBounty";
         public const string Token = "ROR2MEEEEE_ARTIFACT_VOIDBOUNTY";
         private const int HealthBoostStacks = 5; // BoostHp: +10% por stack
 
@@ -36,7 +36,7 @@ namespace Ror2Meeeee
             try
             {
                 _def = ScriptableObject.CreateInstance<ArtifactDef>();
-                _def.cachedName = Name;
+                _def.cachedName = ArtifactName;
                 _def.nameToken = Token + "_NAME";
                 _def.descriptionToken = Token + "_DESC";
                 _def.smallIconSelectedSprite = TitheArtifact.LoadIcon("vazio_selecionado.png", new Color32(170, 70, 200, 255));
@@ -61,7 +61,7 @@ namespace Ror2Meeeee
                 if (!_vanillaVoid || !_voidChestCard) log.LogWarning("VoidBounty: dtVoidChest/iscVoidChest indisponíveis; o artefato fica só com a vida extra.");
 
                 if (!ContentAddition.AddArtifactDef(_def)) { log.LogError("VoidBounty: ContentAddition recusou o artefato."); _def = null; }
-                else log.LogInfo($"VoidBounty: artefato '{Name}' registrado.");
+                else log.LogInfo($"VoidBounty: artefato '{ArtifactName}' registrado.");
             }
             catch (Exception e)
             {

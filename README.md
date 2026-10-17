@@ -37,7 +37,7 @@ Desligar a seção do item no config mantém o item no jogo, mas sem efeito.
 
 | Item | Raridade | Efeito | Nome interno |
 |---|---|---|---|
-| **Chamado da Horda** | Branco | +25% no orçamento de spawn de inimigos por cópia (teto em `Horde.MaxMultiplier`) | `Ror2MeeeeeHorde` |
+| **Chamado da Horda** | Branco | +50% no orçamento de spawn de inimigos por cópia (`Horde.QuantityPerStack`, teto em `Horde.MaxMultiplier`) | `Ror2MeeeeeHorde` |
 | **Capitalismo** | Branco | Taxa do Taxade −20% e +10% de todo ouro ganho. Máximo 1 por jogador | `Ror2MeeeeeTaxReliefWhite` |
 | **Pilha de Pregos Enferrujados** | Branco | 2% de chance por golpe (+0,1% por cópia) de disparar um prego de 10% do dano base (+0,1% por cópia) que aplica sangramento | `Ror2MeeeeeRustyNailStack` |
 | **Capitalismo** | Verde | Taxa −30% e +20% de ouro. Máximo 1 por jogador | `Ror2MeeeeeTaxReliefGreen` |

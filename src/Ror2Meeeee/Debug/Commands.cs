@@ -16,8 +16,6 @@ namespace Ror2Meeeee
             Debug.Log(BuildStatus(Plugin.Instance));
         }
 
-        // O jogo não recarrega o .cfg sozinho (sob Proton o watcher não dispara): este comando relê o arquivo
-        // e dispara SettingChanged só nas entradas que mudaram (Mode, Limit, Factor, bônus, Value...).
         // ExecuteOnServer: roda no host com o remetente certo, mesmo vindo de um cliente.
         [ConCommand(commandName = "ror2meeeee_drop", flags = ConVarFlags.ExecuteOnServer, helpText = "Solta itens do seu inventário no chão: ror2meeeee_drop [nome] [quantidade]. Sem argumentos, lista o que dá para soltar.")]
         private static void CcDrop(ConCommandArgs args)
@@ -62,6 +60,8 @@ namespace Ror2Meeeee
             Overlay.Unmark("demo-target");
         }
 
+        // O jogo não recarrega o .cfg sozinho (sob Proton o watcher não dispara): este comando relê o arquivo
+        // e dispara SettingChanged só nas entradas que mudaram (Mode, Limit, Factor, bônus, Value...).
         [ConCommand(commandName = "ror2meeeee_reload", flags = ConVarFlags.None, helpText = "Relê o .cfg do mod (Mode, Limit, Factor, bônus...). Enabled ainda exige reiniciar.")]
         private static void CcReload(ConCommandArgs args)
         {

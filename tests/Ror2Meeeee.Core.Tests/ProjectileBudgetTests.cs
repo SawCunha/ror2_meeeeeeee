@@ -30,5 +30,15 @@ namespace Ror2Meeeee.Core.Tests
             var w = new BudgetWindow();
             for (var i = 0; i < 1000; i++) Assert.True(ProjectileBudget.Decide(ref w, 0f, 0, 1f, out _));
         }
+
+        // Projétil fora da lista: sem teto por tipo, mas o dano cortado pelo teto global (guardado na janela) vai no próximo.
+        [Fact]
+        public void ZeroCap_ReleasesPendingDamage()
+        {
+            var w = new BudgetWindow { PendingDamage = 30f };
+            Assert.True(ProjectileBudget.Decide(ref w, 0f, 0, 10f, out var d));
+            Assert.Equal(40f, d);
+            Assert.Equal(0f, w.PendingDamage);
+        }
     }
 }

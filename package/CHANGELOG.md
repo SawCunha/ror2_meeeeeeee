@@ -25,6 +25,13 @@
 - **Artefato do Enxame** (`[GameFixes]`): as cópias do Enxame nasciam em cima do jogador ou não nasciam, porque o
   jogo deixava zeradas as distâncias de spawn delas nos spawns normais do diretor. Agora recebem as distâncias do
   spawn original (mesmo bug que o SwarmsFix corrige; não instale os dois).
+- **Tela de soltar itens** (F7): parou de criar estilos de texto novos a cada desenho (vários por frame, um por item)
+  e só procura ícones no HUD quando falta algum, em vez de a cada 0,5 s. Menos lixo de memória com a tela aberta.
+- **Chamado da Horda**: a descrição dizia +25% por cópia; o padrão é +50% (`Horde.QuantityPerStack = 0.5`).
+- **Progressão**: fechar o jogo logo depois do fim da run não perde mais o nível nem a linha do CSV (a gravação roda na
+  hora quando o jogo está fechando).
+- **Teto de projéteis** (`[ProjectileBudget]`): projéteis fora da lista `Prefabs` cortados pelo teto global perdiam o
+  dano; agora ele vai para o próximo disparo do mesmo tipo, como já acontecia com os da lista (dano total mantido).
 
 ## 0.9.6
 
