@@ -53,9 +53,15 @@ A lógica de gameplay roda só no host: as opções valem a partir do `.cfg` de 
 - **Soltar itens** (`[Drop]`, novo): `ror2meeeee_drop [nome] [quantidade]` ou o menu na tela (F7, configurável em `Drop.MenuKey`) solta
   itens do seu inventário no chão: clique no ícone do item, ajuste a quantidade e clique em SOLTAR (ou setas, +/- e Enter).
   `ror2meeeee_drop_menu [nome]` abre a tela com o item já escolhido; `ror2meeeee_drop` sem argumentos lista o que dá para soltar.
+- **Elites novos** (`[Elites]`, novo): Volátil, Frenético e Fortalecedor (T1), Arruinado e Eco (T2, a partir do loop).
+  Volátil: golpes explodem e mísseis a cada 1-5 s. Frenético: mais velocidade e teleporte até o alvo. Fortalecedor:
+  Warbanner de 25 m para os aliados. Arruinado: dois afixos T1 aleatórios. Eco: 2 ecos com 10% da vida. Uma chave por elite.
+- **Bazar Maior** (`[Bazaar]`, novo): o Bazar entre Tempos ganha até 6 baús com o item à mostra, comprados com o ouro que
+  sobrou do estágio (ou moedas lunares, `PayWithLunarCoins`), e um casulo que troca moeda lunar por ouro. Limite de trocas
+  por jogador (`MaxExchangesPerPlayer`) e peso/preço/estoque por tier. O item comprado cai no chão.
 - **Diagnóstico** (sempre ligado): `[Identidade]`/`[Config]`, `[Estágio]`, `[Vigia]` e erros novos do jogo no `LogOutput.log`;
   `ror2meeeee_status` resume tudo. O Probe (opcional) acrescenta alertas de degradação e monstros por fase.
-- **Partículas** (`[Particles]`): corta efeitos visuais por nome, só localmente.
+- **Partículas** (`[Particles]`): teto por segundo para todo tipo de efeito visual (padrão 10/s por tipo; explosões com teto próprio de 60/s, lista `Raised`; exceções na lista `Exempt`, por padrão golpes do Mercenary), no que é mostrado e no que é enviado aos outros jogadores.
 - **Gasto por jogador** (`[Spend]`) e **Probe** (`[General] ProbeEnabled`): medição; gravam CSV em `BepInEx/`.
 
 ## Configuração

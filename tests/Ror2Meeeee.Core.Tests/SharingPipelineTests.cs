@@ -55,6 +55,12 @@ namespace Ror2Meeeee.Core.Tests
             Assert.Equal(new[] { 5, 1 }, SharingPipeline.Resolve(Pickup(), Rules(5, cap: 5), true, false,
                 new[] { Live(0), Live(4) }));
 
+        // Destinatário já no teto não recebe nem a cópia original.
+        [Fact]
+        public void StackCap_RecipientAtCap_GetsNothing() =>
+            Assert.Equal(new[] { 0, 0 }, SharingPipeline.Resolve(Pickup(), Rules(5, cap: 5), true, false,
+                new[] { Live(5), Live(9) }));
+
         // Multiplicação enorme satura em int.MaxValue em vez de estourar.
         [Fact]
         public void Saturates_WithoutOverflow() =>

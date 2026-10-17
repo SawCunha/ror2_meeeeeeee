@@ -86,15 +86,6 @@ namespace Ror2Meeeee
             e.Hooked = want;
         }
 
-        // true se o item está sob cálculo limitado (Mode != Off); o teto de stacks da multiplicação não vale para ele.
-        public bool Covers(ItemDef item)
-        {
-            if (!Enabled || !item) return false;
-            foreach (var e in _entries)
-                if (e.Mode.Value != StackMode.Off && e.Item() == item) return true;
-            return false;
-        }
-
         public override void ResetRunState() { } // sem cache por run
 
         protected override void OnEnable()
@@ -151,8 +142,8 @@ namespace Ror2Meeeee
                         if (_fireworks.Mode.Value == StackMode.Aggregate)
                             self.damageCoefficient *= (float)before / cap;
                         self.remaining = cap;
-                        // Uma linha por interação (não por tick): só quando o teto foi aplicado.
-                        Log.LogInfo($"[LimitedCalc] BundleOfFireworks {_fireworks.Mode.Value}: mísseis {before} -> {cap}, dano por míssil x{self.damageCoefficient / coefBefore:F2}");
+                        // Uma linha por interação (não por tick), só com VerboseLogging: em run longa são centenas.
+                        if (Cfg.VerboseLogging) Log.LogDebug($"[LimitedCalc] BundleOfFireworks {_fireworks.Mode.Value}: mísseis {before} -> {cap}, dano por míssil x{self.damageCoefficient / coefBefore:F2}");
                     }
                 }
             }
@@ -218,7 +209,7 @@ namespace Ror2Meeeee
                     {
                         var before = money.baseGoldReward;
                         money.baseGoldReward = (int)Math.Round(before * _tomeFactor);
-                        Log.LogInfo($"[LimitedCalc] GhorsTome Aggregate: pacote {before} -> {money.baseGoldReward} (x{_tomeFactor:F2})");
+                        if (Cfg.VerboseLogging) Log.LogDebug($"[LimitedCalc] GhorsTome Aggregate: pacote {before} -> {money.baseGoldReward} (x{_tomeFactor:F2})");
                     }
                 }
             }

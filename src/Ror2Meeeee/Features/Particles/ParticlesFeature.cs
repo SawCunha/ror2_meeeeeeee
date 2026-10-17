@@ -3,45 +3,66 @@ using System.Text;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using RoR2;
+using Ror2Meeeee.Core.Limits;
+using UnityEngine;
 
 namespace Ror2Meeeee
 {
-    // Corta efeitos visuais por nome de prefab (lista na config), só localmente (por cliente).
-    // Ponto: EffectManager.SpawnEffect(EffectIndex, EffectData, transmit). Efeitos vindos da rede (e os do host,
-    // que também chegam pelo cliente local) entram com transmit=false; cortar aí não toca na rede nem no
-    // gameplay (SpawnEffect só instancia o visual e o som local). Chamadas com transmit=true NÃO são cortadas:
-    // pular orig impediria o envio aos outros jogadores. Limitação: efeitos que o próprio cliente origina.
-    // Só ação Disable; "Shorten" fica adiado até a medição (story 5.1) mostrar ganho.
+    // Teto por segundo, por tipo de efeito, para TODOS os efeitos visuais, menos as exceções (nomes de prefab na config).
+    // Efeitos da lista Raised usam um teto próprio, maior (ex.: explosões: com isenção total passavam de 190 mil por run).
+    // Ponto: EffectManager.SpawnEffect(EffectIndex, EffectData, transmit). Efeito é só visual/som: pular orig não
+    // toca no gameplay. transmit=true = a máquina que originou o efeito: acima do teto não mostra NEM envia, então
+    // quem tem o mod manda menos efeitos para os outros (host e clientes). transmit=false = efeito recebido pela rede
+    // (no host, os dele voltam por aqui via conexão local): teto próprio, para não contar o mesmo efeito duas vezes.
+    // O host só retransmite efeitos de clientes (HandleEffectServer -> TransmitEffect, sem passar aqui): esses já
+    // vêm limitados do cliente de origem, que também tem o mod.
     public sealed class ParticlesFeature : Feature
     {
         private readonly ConfigEntry<string> _list;
+        private readonly ConfigEntry<int> _max;
+        private readonly ConfigEntry<string> _raisedList;
+        private readonly ConfigEntry<int> _raisedMax;
         private readonly ConfigEntry<bool> _count;
 
-        private bool[] _blocked;   // por EffectIndex; null = lista vazia / não resolvida
+        private int[] _cap;        // por EffectIndex: teto por segundo; 0 = exceção (sem teto); null = não resolvido
+        private BudgetWindow[] _sentWin;  // por EffectIndex: efeitos originados aqui (transmit=true)
+        private BudgetWindow[] _shownWin; // por EffectIndex: efeitos recebidos pela rede (transmit=false)
+        private int _maxPerSecond;
+        private int _cut;          // cortados pelo teto desde o último relatório de fase
         private int[] _counts;     // por EffectIndex; só com CountSpawns
         private bool _resolved;
         private bool _countOn;
-        private bool _hasBlocked;
-        private bool _hooked; // SpawnEffect é muito chamado: sem lista nem contagem, não há hook
+        private bool _hooked; // SpawnEffect é muito chamado: sem teto nem contagem, não há hook
 
         public ParticlesFeature(Cfg cfg, ManualLogSource log) : base("Particles", cfg, log,
-            "Corte de partículas: esconde efeitos visuais escolhidos (lista em Disable) só na sua tela, para ganhar FPS. Não muda dano nem o que os outros jogadores veem.",
+            "Teto de partículas: limita quantas vezes por segundo cada tipo de efeito aparece (todos, menos os da lista Exempt). Vale para o que você mostra e para o que você envia aos outros (host e clientes com o mod). Não muda dano.",
             enabledByDefault: true)
         {
-            _list = cfg.Bind("Particles", "Disable", "",
-                "Nomes dos efeitos a esconder, separados por vírgula. Para descobrir os nomes, ligue CountSpawns e use o comando ror2meeeee_effects. Vazio = nada é escondido.");
+            _list = cfg.Bind("Particles", "Exempt", "BladeComboSwingEffect",
+                "Efeitos que NUNCA são limitados, separados por vírgula (padrão: golpes do Mercenary). Todos os outros seguem MaxPerSecond (ou RaisedMaxPerSecond, se estiverem em Raised). Para descobrir os nomes, ligue CountSpawns e use o comando ror2meeeee_effects.");
+            _max = cfg.Bind("Particles", "MaxPerSecond", 10,
+                "Máximo de vezes por segundo que cada tipo de efeito aparece/é enviado (cada tipo tem a sua conta); o excesso não é mostrado nem enviado. 0 = sem teto.");
+            _raisedList = cfg.Bind("Particles", "Raised", "OmniExplosionVFXQuick",
+                "Efeitos com teto próprio, maior (RaisedMaxPerSecond), separados por vírgula (padrão: explosões). Se o mesmo nome estiver em Exempt, vale Exempt.");
+            _raisedMax = cfg.Bind("Particles", "RaisedMaxPerSecond", 60,
+                "Máximo por segundo para cada efeito da lista Raised. 0 = sem teto para eles.");
             _count = cfg.Bind("Particles", "CountSpawns", false,
-                "Conta quantas vezes cada efeito aparece, para descobrir quais mais pesam (comando ror2meeeee_effects). Custo pequeno; desligue depois de escolher.");
+                "Conta quantas vezes cada efeito aparece, para descobrir quais mais pesam (comando ror2meeeee_effects; a lista também sai no console/log a cada fase nova). Custo pequeno; desligue depois de escolher.");
             _list.SettingChanged += (_, __) => { _resolved = false; SyncHook(); };
+            _raisedList.SettingChanged += (_, __) => _resolved = false;
+            _raisedMax.SettingChanged += (_, __) => _resolved = false;
             _count.SettingChanged += (_, __) => { _countOn = _count.Value; _counts = null; SyncHook(); };
+            _max.SettingChanged += (_, __) => { _maxPerSecond = _max.Value; _resolved = false; SyncHook(); };
             _countOn = _count.Value;
+            _maxPerSecond = _max.Value;
         }
 
-        public override void ResetRunState() { _counts = null; }
+        public override void ResetRunState() { _counts = null; _cut = 0; }
 
         protected override void OnEnable()
         {
             _resolved = false;
+            Track("Stage.onStageStartGlobal", () => Stage.onStageStartGlobal += OnStageStart);
             if (!HookNeeded()) return; // registrado depois, se a lista ou CountSpawns mudar
             Track("EffectManager.SpawnEffect", () => On.RoR2.EffectManager.SpawnEffect_EffectIndex_EffectData_bool += OnSpawnEffect);
             _hooked = true;
@@ -49,11 +70,12 @@ namespace Ror2Meeeee
 
         protected override void OnDisable()
         {
+            Stage.onStageStartGlobal -= OnStageStart;
             On.RoR2.EffectManager.SpawnEffect_EffectIndex_EffectData_bool -= OnSpawnEffect;
             _hooked = false;
         }
 
-        private bool HookNeeded() => _countOn || (_list.Value ?? "").Trim(' ', ',', '\t').Length > 0;
+        private bool HookNeeded() => _countOn || _maxPerSecond > 0;
 
         private void SyncHook()
         {
@@ -84,8 +106,13 @@ namespace Ror2Meeeee
                     if (_counts == null && EffectCatalog.availability.available) _counts = new int[EffectCatalog.effectCount];
                     if (_counts != null && (uint)i < (uint)_counts.Length) _counts[i]++;
                 }
-                if (_hasBlocked && !transmit && _blocked != null && (uint)i < (uint)_blocked.Length && _blocked[i])
-                    return; // visual local: sem rede, sem dano
+                // EffectIndex.Invalid (-1, som puro) fica fora pelo teste de faixa.
+                if (_maxPerSecond > 0 && _cap != null && (uint)i < (uint)_cap.Length && _cap[i] > 0
+                    && !ProjectileBudget.Decide(ref (transmit ? _sentWin : _shownWin)[i], Time.unscaledTime, _cap[i], 0f, out _))
+                {
+                    _cut++;
+                    return; // só visual/som: sem dano; com transmit=true também não vai para os outros
+                }
             }
             catch (Exception e)
             {
@@ -100,18 +127,48 @@ namespace Ror2Meeeee
             if (!EffectCatalog.availability.available) return;
             _resolved = true;
             var n = EffectCatalog.effectCount;
-            _blocked = new bool[n];
-            _hasBlocked = false;
-            foreach (var raw in (_list.Value ?? "").Split(','))
+            var cap = new int[n];
+            for (var i = 0; i < n; i++) cap[i] = _maxPerSecond;
+            // Raised antes de Exempt: um nome nas duas listas fica sem teto.
+            var raised = Apply(cap, _raisedList.Value, Math.Max(0, _raisedMax.Value));
+            var exempt = Apply(cap, _list.Value, 0);
+            // Janelas só no primeiro Resolve: re-resolver (config mudou) não zera as contagens em andamento.
+            if (_sentWin == null || _sentWin.Length != n) { _sentWin = new BudgetWindow[n]; _shownWin = new BudgetWindow[n]; }
+            _cap = cap;
+            Log.LogInfo($"[Particles] teto de {_maxPerSecond}/s por tipo de efeito; {raised} com teto de {_raisedMax.Value}/s; {exempt} exceção(ões).");
+        }
+
+        // Aplica `value` aos efeitos da lista (nomes de prefab separados por vírgula); devolve quantos achou.
+        private int Apply(int[] cap, string list, int value)
+        {
+            var found = 0;
+            foreach (var raw in (list ?? "").Split(','))
             {
                 var name = raw.Trim();
                 if (name.Length == 0) continue;
                 var idx = EffectCatalog.FindEffectIndex(name);
                 if (idx == EffectIndex.Invalid) { Log.LogWarning($"[Particles] efeito '{name}' não encontrado; ignorado."); continue; }
-                _blocked[(int)idx] = true;
-                _hasBlocked = true;
+                cap[(int)idx] = value;
+                found++;
             }
-            Log.LogInfo($"[Particles] lista resolvida: {(_hasBlocked ? "cortando efeitos configurados" : "vazia (jogo base)")}");
+            return found;
+        }
+
+        // A cada fase nova, a mesma saída do ror2meeeee_effects (acumulado da run), só com CountSpawns e dados.
+        private void OnStageStart(Stage stage)
+        {
+            try
+            {
+                var stages = Run.instance ? Run.instance.stageClearCount : 0;
+                if (_cut > 0) Log.LogInfo($"[Particles] teto de {_maxPerSecond}/s: {_cut} efeito(s) não mostrados/enviados na fase anterior.");
+                _cut = 0;
+                if (!_countOn || _counts == null) return;
+                Debug.Log($"[Particles] efeitos mais frequentes após {stages} fase(s):\n{DumpCounts(20)}");
+            }
+            catch (Exception e)
+            {
+                Fail(e);
+            }
         }
 
         // Para ror2meeeee_effects: os mais frequentes desde o início da run (com CountSpawns).

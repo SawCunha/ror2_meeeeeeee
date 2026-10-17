@@ -45,7 +45,7 @@ namespace Ror2Meeeee
         private bool _iconLogged;
         private CursorLockMode _lockBefore;
         private bool _visibleBefore;
-        private GUIStyle _label, _big, _small, _button, _field;
+        private GUIStyle _label, _big, _small, _count, _name, _button, _field;
 
         // Cria o componente (desligado) no objeto do plugin e passa a escutar a tecla de abrir.
         public static void Install(GameObject host, ConfigEntry<string> key)
@@ -233,7 +233,6 @@ namespace Ror2Meeeee
             Dictionary<ItemIndex, Texture> hud = null;
             foreach (var idx in inv.itemAcquisitionOrder)
             {
-                if (hud == null) hud = HudIcons();
                 var def = ItemCatalog.GetItemDef(idx);
                 var count = inv.GetItemCountPermanent(idx);
                 if (!DropFeature.Droppable(def) || count <= 0) continue;
@@ -241,7 +240,7 @@ namespace Ror2Meeeee
                 var tier = ItemTierCatalog.GetItemTierDef(def.tier);
                 if (tier) color = ColorCatalog.GetColor(tier.colorIndex);
                 ResolveIcon(def, idx, out var tex, out var uv);
-                if (!tex && hud != null) hud.TryGetValue(idx, out tex); // o HUD já desenhou este ícone
+                if (!tex) (hud ??= HudIcons()).TryGetValue(idx, out tex); // o HUD já desenhou este ícone (busca só se faltar)
                 _rows.Add(new Row { Name = Language.GetString(def.nameToken), Internal = def.name, Count = count, Color = color, Tex = tex, Uv = uv });
             }
 
@@ -296,6 +295,8 @@ namespace Ror2Meeeee
             _label = new GUIStyle(GUI.skin.label) { fontSize = 22, wordWrap = true };
             _big = new GUIStyle(GUI.skin.label) { fontSize = 32, fontStyle = FontStyle.Bold, wordWrap = true };
             _small = new GUIStyle(GUI.skin.label) { fontSize = 18, wordWrap = true };
+            _count = new GUIStyle(_small) { alignment = TextAnchor.LowerRight, fontStyle = FontStyle.Bold };
+            _name = new GUIStyle(_big) { fontSize = 28 };
             _button = new GUIStyle(GUI.skin.button) { fontSize = 30, fontStyle = FontStyle.Bold };
             _field = new GUIStyle(GUI.skin.textField) { fontSize = 40, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter };
         }
@@ -446,7 +447,7 @@ namespace Ror2Meeeee
                 DrawIcon(new Rect(r.x + 6, r.y + 6, Cell - 12, Cell - 12), _rows[i].Tex, _rows[i].Uv, _rows[i].Color);
                 if (!_rows[i].Tex) GUI.Label(new Rect(r.x + 4, r.y + 4, Cell - 8, Cell - 34), _rows[i].Name, _small);
                 Border(r, i == sel ? new Color(1f, 0.9f, 0.3f) : _rows[i].Color * 0.7f, i == sel ? 5f : 2f);
-                GUI.Label(new Rect(r.x, r.yMax - 30, r.width - 6, 28), "x" + _rows[i].Count, new GUIStyle(_small) { alignment = TextAnchor.LowerRight, fontStyle = FontStyle.Bold });
+                GUI.Label(new Rect(r.x, r.yMax - 30, r.width - 6, 28), "x" + _rows[i].Count, _count);
                 if (GUI.Button(r, GUIContent.none, GUIStyle.none)) Select(i);
             }
             GUI.EndScrollView();
@@ -458,9 +459,8 @@ namespace Ror2Meeeee
             {
                 var row = _rows[sel];
                 DrawIcon(new Rect(dx, panel.y + 74, 150, 150), row.Tex, row.Uv, row.Color);
-                var nameStyle = new GUIStyle(_big) { fontSize = 28 };
-                nameStyle.normal.textColor = row.Color;
-                GUI.Label(new Rect(dx + 164, panel.y + 74, dw - 164, 100), row.Name, nameStyle);
+                _name.normal.textColor = row.Color;
+                GUI.Label(new Rect(dx + 164, panel.y + 74, dw - 164, 100), row.Name, _name);
                 GUI.Label(new Rect(dx + 164, panel.y + 170, dw - 164, 50), $"Você tem {row.Count}", _label);
 
                 var max = MaxQty(row);

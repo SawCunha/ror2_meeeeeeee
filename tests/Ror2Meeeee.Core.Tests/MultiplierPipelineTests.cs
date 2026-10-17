@@ -91,5 +91,13 @@ namespace Ror2Meeeee.Core.Tests
         [Fact]
         public void StackCap_NearIntMax_DoesNotOverflow() =>
             Assert.Equal(0, MultiplierPipeline.Resolve(Pickup(stack: int.MaxValue - 1), Rules(100, cap: int.MaxValue)));
+    
+        [Theory]
+        [InlineData(149, 150, false)]
+        [InlineData(150, 150, true)]
+        [InlineData(400, 150, true)]
+        [InlineData(400, 0, false)] // 0 = sem teto
+        public void AtHardCap_OnlyFromCapUp(int stack, int cap, bool expected) =>
+            Assert.Equal(expected, MultiplierPipeline.AtHardCap(stack, Rules(10, cap: cap)));
     }
 }

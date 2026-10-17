@@ -64,7 +64,7 @@ namespace Ror2Meeeee
                 chance + $"um prego que causa <style=cIsDamage>{P(RustyNailRules.NailBase)} de dano base</style> <style=cStack>(+{P(RustyNailRules.NailPerStack)} por acúmulo)</style> e aplica " +
                 "<style=cIsDamage>sangramento</style>.",
                 "Ninguém sabe de onde vieram. Ninguém quer saber onde eles estiveram.",
-                log, "RoR2/Base/Items/BleedOnHit/PickupTriTip.prefab");
+                log, "RoR2/Base/BleedOnHit/PickupTriTip.prefab");
             _voidDef = ModItem.Register(VoidName, VoidToken, ItemTier.VoidTier1, new[] { ItemTag.Damage, ItemTag.AIBlacklist },
                 "prego_void.png", new Color32(150, 60, 200, 255),
                 "Pilha de Espinhos do Vazio",
@@ -76,7 +76,7 @@ namespace Ror2Meeeee
                 $"<style=cStack>(+{P(RustyNailRules.BurstPerStack)} por acúmulo)</style> e marcando os atingidos. " +
                 "<style=cIsVoid>Corrompe todas as Pilhas de Pregos Enferrujados.</style>",
                 "Os pregos não enferrujaram. Algo os comeu por dentro e deixou só a forma, faminta.",
-                log, "RoR2/DLC1/Items/BleedOnHitVoid/PickupTriTipVoid.prefab");
+                log, "RoR2/DLC1/BleedOnHitVoid/PickupTriTipVoid.prefab");
             ModItem.Corrupt(_def, _voidDef, log);
 #pragma warning disable CS0618 // pickupModelPrefab: campo "left for modders' use" no 1.5.0
             // Modelo próprio; se não gerar, fica a Tri-Tip carregada acima.
@@ -91,16 +91,16 @@ namespace Ror2Meeeee
                 buff.isDebuff = true;
                 buff.canStack = false;
                 buff.buffColor = new Color32(180, 90, 255, 255);
-                var fracture = Addressables.LoadAssetAsync<BuffDef>("RoR2/DLC1/Items/BleedOnHitVoid/bdFracture.asset").WaitForCompletion();
+                var fracture = Addressables.LoadAssetAsync<BuffDef>("RoR2/DLC1/BleedOnHitVoid/bdFracture.asset").WaitForCompletion();
                 if (fracture) buff.iconSprite = fracture.iconSprite;
                 if (ContentAddition.AddBuffDef(buff)) _shard = buff;
                 else log.LogWarning("RustyNail: ContentAddition recusou o buff; a marca fica invisível.");
             }
             catch (Exception e) { log.LogWarning($"RustyNail: buff do Estilhaço indisponível ({e.GetType().Name}); a marca fica invisível."); }
 
-            _nailTracer = Load("RoR2/Base/Characters/Toolbot/Skills/TracerToolbotNails.prefab", log);
-            _voidTracer = Load("RoR2/DLC1/Characters/VoidSurvivor/Skills/Primary/Base/VoidSurvivorBeamTracer.prefab", log);
-            _detonateFx = Load("RoR2/DLC1/Items/BleedOnHitVoid/FractureImpactEffect.prefab", log);
+            _nailTracer = Load("RoR2/Base/Toolbot/TracerToolbotNails.prefab", log);
+            _voidTracer = Load("RoR2/DLC1/VoidSurvivor/VoidSurvivorBeamTracer.prefab", log);
+            _detonateFx = Load("RoR2/DLC1/BleedOnHitVoid/FractureImpactEffect.prefab", log);
             _burstFx = Load("RoR2/DLC1/ExplodeOnDeathVoid/ExplodeOnDeathVoidExplosionEffect.prefab", log);
         }
 

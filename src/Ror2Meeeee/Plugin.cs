@@ -14,6 +14,7 @@ namespace Ror2Meeeee
     [BepInDependency(R2API.ItemAPI.PluginGUID)]
     [BepInDependency(R2API.LanguageAPI.PluginGUID)]
     [BepInDependency("com.bepis.r2api.content_management")]
+    [BepInDependency(R2API.EliteAPI.PluginGUID)] // elites: os tiers do diretor já precisam estar copiados no Awake
     [BepInDependency("com.bepis.r2api.networking")] // totais da tela de status (F8) do host para os clientes
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.EveryoneNeedSameModVersion)]
     public class Plugin : BaseUnityPlugin
@@ -29,6 +30,7 @@ namespace Ror2Meeeee
 
         private void Awake()
         {
+            var sw = System.Diagnostics.Stopwatch.StartNew(); // tempo de carga do mod (linha [Carga] no fim)
             Instance = this;
 
             var build = GetBuildString();
@@ -48,6 +50,7 @@ namespace Ror2Meeeee
             TitheArtifact.Register(Logger);
             TaxArtifact.Register(Logger);
             SharingFeature.Register(Logger);
+            var tRegister = sw.ElapsedMilliseconds;
             HordeItem.Register(Logger); // antes do ItemCatalog; falha não derruba o plugin
             CervoItem.Register(Logger);
             CanoItem.Register(Logger);
@@ -62,13 +65,14 @@ namespace Ror2Meeeee
             PortalBatteryFeature.Register(Logger);
             BastionFeature.Register(Logger);
             RustyNailFeature.Register(Logger);
+            ElitesFeature.Register(Logger);
+            tRegister = sw.ElapsedMilliseconds - tRegister;
             _cfg = new Cfg(Config, Logger);
             Probe = new Probe(_cfg, Logger);
             _features.Add(Probe);
-            var limited = new LimitedCalcFeature(_cfg, Logger);
-            _features.Add(limited);
-            _features.Add(new MultiplierFeature(_cfg, Logger, limited));
-            _features.Add(new SharingFeature(_cfg, Logger, limited));
+            _features.Add(new LimitedCalcFeature(_cfg, Logger));
+            _features.Add(new MultiplierFeature(_cfg, Logger));
+            _features.Add(new SharingFeature(_cfg, Logger));
             _features.Add(new DifficultyFeature(_cfg, Logger));
             _features.Add(new GoldFeature(_cfg, Logger));
             _features.Add(new TaxFeature(_cfg, Logger));
@@ -91,6 +95,9 @@ namespace Ror2Meeeee
             _features.Add(new BastionFeature(_cfg, Logger));
             _features.Add(new RustyNailFeature(_cfg, Logger));
             _features.Add(new ProjectileBudgetFeature(_cfg, Logger));
+            _features.Add(new GameFixesFeature(_cfg, Logger));
+            _features.Add(new BazaarFeature(_cfg, Logger));
+            _features.Add(new ElitesFeature(_cfg, Logger));
 
             LogIdentity();
 
@@ -114,6 +121,8 @@ namespace Ror2Meeeee
             // Único ponto de reset por run: início e fim.
             Run.onRunStartGlobal += OnRunBoundary;
             Run.onRunDestroyGlobal += OnRunBoundary;
+
+            Logger.LogInfo($"[Carga] Awake em {sw.ElapsedMilliseconds} ms (registro de itens/artefatos {tRegister} ms; features e hooks {sw.ElapsedMilliseconds - tRegister} ms)");
         }
 
         // Uma linha dizendo QUAL DLL rodou e com quais configs; sem isso só se deduz a versão pela ausência de linhas.

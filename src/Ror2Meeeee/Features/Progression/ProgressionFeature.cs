@@ -196,7 +196,7 @@ namespace Ror2Meeeee
                 var pars = new ScorePars(_parCharge.Value, _parDeaths.Value, _parDamage.Value, _parKills.Value);
                 var rules = Rules();
                 var chat = _showInChat.Value;
-                ThreadPool.QueueUserWorkItem(_ => Finish(stats, pars, rules, chat));
+                Plugin.RunInBackground(() => Finish(stats, pars, rules, chat)); // fechando o jogo: grava na hora
             }
             catch (Exception e)
             {
@@ -265,7 +265,7 @@ namespace Ror2Meeeee
         // Comando de console; grava fora da principal.
         public void Reset()
         {
-            ThreadPool.QueueUserWorkItem(_ =>
+            Plugin.RunInBackground(() =>
             {
                 try
                 {
