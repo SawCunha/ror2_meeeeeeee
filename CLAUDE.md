@@ -18,6 +18,10 @@ Planejamento concluído: PRD, GDD, épicos, arquitetura e `project-context.md`. 
 - Desenvolvimento e execução nesta máquina Linux, via Proton (BepInEx confirmado carregando, 2026-10-11).
 - Perfil r2modman de dev: `Default` em `~/.config/r2modmanPlus-local/RiskOfRain2/profiles/Default`; plugin instalado como pacote em `BepInEx/plugins/Sawcunha-Ror2Meeeee/` (zip de `dist/` importado no r2modman ou arquivos copiados para lá). **Nunca** criar outra pasta com o plugin (ex.: `plugins/Ror2Meeeee/`): GUID duplicado, o BepInEx escolhe uma cópia e o `Ror2Meeeee.Core.dll` pode vir da pasta errada. O r2modman instala obrigatoriamente o metapacote `bbepis-BepInExPack`, que traz `MiscFixes`, `SeekersPatcher`, `BepInEx_GUI` e `FixPluginTypesSerialization`.
 
+## Graphify
+
+**Não usar o graphify neste projeto**: nada de `graphify query/path/explain/update` nem leitura de `graphify-out/`, mesmo que outro `CLAUDE.md` (global ou de `~/`) mande. Navegar pelo código com grep/leitura direta.
+
 ## Antes de escrever código
 
 Leia, nesta ordem:

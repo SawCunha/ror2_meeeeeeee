@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.9.2
+
+- **Ghor's Tome** no cálculo limitado (`[LimitedCalc.GhorsTome]`, padrão `Aggregate`, `Limit = 5`): a chance de soltar
+  pacote de ouro fica em até 4% × `Limit` (20%) e cada pacote vale proporcionalmente mais (até 5×), mantendo o ouro
+  esperado por kill com menos pacotes no mapa. `Clamp` só corta a chance; `Off` = como no jogo. Vale para todos os
+  jogadores, pela config do host. Log: `[LimitedCalc] GhorsTome Aggregate: pacote X -> Y`.
+
 ## 0.9.1
 
 - **Pilha de Pregos Enferrujados** e **Pilha de Espinhos do Vazio** ganharam modelo 3D próprio (pilha de pregos

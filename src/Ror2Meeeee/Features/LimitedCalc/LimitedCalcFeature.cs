@@ -1,9 +1,12 @@
 using System;
 using BepInEx.Configuration;
 using BepInEx.Logging;
+using Mono.Cecil.Cil;
+using MonoMod.Cil;
 using RoR2;
 using RoR2.Items;
 using Ror2Meeeee.Core.Limits;
+using UnityEngine;
 using UnityEngine.Networking;
 
 namespace Ror2Meeeee
@@ -27,10 +30,12 @@ namespace Ror2Meeeee
 
         private readonly Entry _fungus;
         private readonly Entry _fireworks;
+        private readonly Entry _tome;
+        private float _tomeFactor = 1f; // fator da última rolagem do Tome; lido no spawn do pacote da mesma morte
         private readonly Entry[] _entries;
 
         public LimitedCalcFeature(Cfg cfg, ManualLogSource log) : base("LimitedCalc", cfg, log,
-            "Cálculo limitado: reduz o peso no FPS de itens com muitas cópias (Bustling Fungus e Bundle of Fireworks) sem tirar o efeito. Escolha o modo de cada item nas seções LimitedCalc.*.",
+            "Cálculo limitado: reduz o peso no FPS de itens com muitas cópias (Bustling Fungus, Bundle of Fireworks e Ghor's Tome) sem tirar o efeito. Escolha o modo de cada item nas seções LimitedCalc.*.",
             enabledByDefault: true)
         {
             _fungus = NewEntry("BustlingFungus", StackMode.Off, 10, () => RoR2Content.Items.Mushroom,
@@ -39,7 +44,10 @@ namespace Ror2Meeeee
             _fireworks = NewEntry("BundleOfFireworks", StackMode.Aggregate, 20, () => RoR2Content.Items.Firework,
                 () => On.RoR2.FireworkLauncher.FixedUpdate += OnFireworkFixedUpdate,
                 () => On.RoR2.FireworkLauncher.FixedUpdate -= OnFireworkFixedUpdate);
-            _entries = new[] { _fungus, _fireworks };
+            _tome = NewEntry("GhorsTome", StackMode.Aggregate, 5, () => RoR2Content.Items.BonusGoldPackOnKill,
+                () => IL.RoR2.GlobalEventManager.OnCharacterDeath += ILTomeOnCharacterDeath,
+                () => IL.RoR2.GlobalEventManager.OnCharacterDeath -= ILTomeOnCharacterDeath);
+            _entries = new[] { _fungus, _fireworks, _tome };
         }
 
         private Entry NewEntry(string name, StackMode defaultMode, int defaultLimit, Func<ItemDef> item, Action register, Action unregister)
@@ -51,7 +59,7 @@ namespace Ror2Meeeee
                 Item = item,
                 Register = register,
                 Unregister = unregister,
-                Mode = Cfg.Bind(section, "Mode", defaultMode, "Off = como no jogo. Clamp = o item funciona como se tivesse no máximo Limit cópias. Aggregate (só Fireworks) = menos mísseis, cada um mais forte, mesmo dano total; no Fungus é igual a Clamp."),
+                Mode = Cfg.Bind(section, "Mode", defaultMode, "Off = como no jogo. Clamp = o item funciona como se tivesse no máximo Limit cópias. Aggregate = Fireworks: menos mísseis, cada um mais forte, mesmo dano total; Ghor's Tome: menos pacotes de ouro, cada um vale mais, mesmo ouro esperado; no Fungus é igual a Clamp."),
                 Limit = Cfg.Bind(section, "Limit", defaultLimit, "Máximo de cópias consideradas nos modos Clamp e Aggregate (mínimo 1)."),
             };
             e.Mode.SettingChanged += (_, __) => Refresh(e);
@@ -153,6 +161,73 @@ namespace Ror2Meeeee
                 Fail(ex);
             }
             orig(self);
+        }
+
+        // Ghor's Tome: no OnCharacterDeath o jogo rola 4% * stack e solta 1 BonusMoneyPack por morte.
+        // IL: limita o stack lido para a rolagem e, no Aggregate, multiplica o ouro do pacote criado
+        // pela razão chance real / chance limitada (mesmo ouro esperado, menos objetos no chão).
+        // Corpo mudou (patch do jogo/outro mod) = loga e não altera nada; o resto da feature segue.
+        private void ILTomeOnCharacterDeath(ILContext il)
+        {
+            var c = new ILCursor(il);
+            if (!c.TryGotoNext(MoveType.After,
+                    x => x.MatchLdsfld(typeof(RoR2Content.Items), nameof(RoR2Content.Items.BonusGoldPackOnKill)),
+                    x => x.MatchCallOrCallvirt<Inventory>(nameof(Inventory.GetItemCountEffective)))
+                || !c.Clone().TryGotoNext(x => x.MatchLdstr("Prefabs/NetworkedObjects/BonusMoneyPack")))
+            {
+                Log.LogError("[LimitedCalc] GhorsTome: trecho do OnCharacterDeath não encontrado; IL hook não aplicado.");
+                return;
+            }
+            c.EmitDelegate<Func<int, int>>(CapTomeStack);
+            c.GotoNext(x => x.MatchLdstr("Prefabs/NetworkedObjects/BonusMoneyPack"));
+            if (!c.TryGotoNext(MoveType.After, x => x.MatchCall(out var m) && m.Name == "Instantiate"))
+            {
+                Log.LogError("[LimitedCalc] GhorsTome: Instantiate do pacote não encontrado; só a chance foi limitada.");
+                return;
+            }
+            c.EmitDelegate<Func<GameObject, GameObject>>(ScaleTomePack);
+        }
+
+        private int CapTomeStack(int stack)
+        {
+            _tomeFactor = 1f;
+            try
+            {
+                if (!NetworkServer.active || stack <= 0) return stack;
+                var capped = _tome.Policy.Apply(stack);
+                if (_tome.Mode.Value == StackMode.Aggregate)
+                    _tomeFactor = ChanceAggregate.Factor(stack, capped, 4f);
+                return capped;
+            }
+            catch (Exception ex)
+            {
+                Fail(ex);
+                return stack;
+            }
+        }
+
+        // Roda antes do Start do MoneyPickup, que calcula o ouro a partir de baseGoldReward.
+        private GameObject ScaleTomePack(GameObject pack)
+        {
+            try
+            {
+                if (_tomeFactor > 1f && pack)
+                {
+                    var money = pack.GetComponentInChildren<MoneyPickup>();
+                    if (money)
+                    {
+                        var before = money.baseGoldReward;
+                        money.baseGoldReward = (int)Math.Round(before * _tomeFactor);
+                        Log.LogInfo($"[LimitedCalc] GhorsTome Aggregate: pacote {before} -> {money.baseGoldReward} (x{_tomeFactor:F2})");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Fail(ex);
+            }
+            _tomeFactor = 1f;
+            return pack;
         }
     }
 }

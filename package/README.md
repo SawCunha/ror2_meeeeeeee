@@ -8,7 +8,7 @@ A lógica de gameplay roda só no host: as opções valem a partir do `.cfg` de 
 - **Multiplicador de pickup** (`[Multiplier]`): cada item elegível coletado rende N cópias.
 - **Artefato do Comunismo** (sem opção de config, só o artefato): com ele ativo no lobby, todo item pego também vai para os outros jogadores vivos.
   Todos os tipos, de todas as expansões (inclusive sucata, temporários e alugados); equipamentos e itens únicos do mod, não.
-- **Cálculo limitado** (`[LimitedCalc]`): limita Bustling Fungus e Bundle of Fireworks (`Mode = Clamp` ou `Aggregate`).
+- **Cálculo limitado** (`[LimitedCalc]`): limita Bustling Fungus, Bundle of Fireworks e Ghor's Tome (`Mode = Clamp` ou `Aggregate`).
 - **Dificuldade** (`[Difficulty]`): fator único, bônus fixo de vida e dano dos inimigos, mais inimigos e escalada mais rápida.
 - **Progressão entre runs** (`[Progression]`, novo): no fim de cada run o mod dá uma nota ao grupo (velocidade, mortes,
   dano sofrido, abates), mostra o resumo no chat e ajusta o orçamento de spawn do diretor para a próxima run.
