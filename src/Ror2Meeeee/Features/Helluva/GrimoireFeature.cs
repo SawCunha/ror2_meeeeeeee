@@ -21,6 +21,7 @@ namespace Ror2Meeeee
         public const string Token = "ROR2MEEEEE_EQUIP_GRIMOIRE";
 
         private static EquipmentDef _def;
+        private static GameObject _boom; // cada LegacyResourcesAPI.Load abre um handle novo do Addressables
 
         private readonly ConfigEntry<float> _waveCredit;
         private float _waveCreditValue;
@@ -153,7 +154,8 @@ namespace Ror2Meeeee
             // Nome do jogador, sem títulos de elite ("SawCunha", não "SawCunha Flamejante de Ouro").
             var where = ally ? (ally.master ? Util.GetBestMasterName(ally.master) : Util.GetBestBodyName(ally.gameObject)) : "o teleportador";
 
-            EffectManager.SpawnEffect(LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/TeleportOutBoom"),
+            if (!_boom) _boom = LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/TeleportOutBoom");
+            if (_boom) EffectManager.SpawnEffect(_boom,
                 new EffectData { origin = body.corePosition, rotation = Quaternion.identity }, transmit: true);
             TeleportHelper.TeleportBody(body, dest);
 

@@ -28,11 +28,23 @@ namespace Ror2Meeeee
     //    de ouro a cada golpe, sem o cooldown de 0,5 s nem a chance que o jogador tem, e a partida travava. IL: esse caso
     //    passa pelo mesmo trecho do jogador (cooldown + chance, 1 pepita). IA roubando ouro de jogador não muda.
     //    Mesmo bug corrigido pelo GildedChunkSpamFix (LordVGames); não instale os dois.
+    //  - Craca do Vazio (VoidBarnacle), NoCastSpawn: o efeito de spawn (EntityStateGameObject do 1.5.0) vem sem endereço
+    //    nem referência; o teste `!= null` olha o invólucro e o jogo chama SpawnEffect com prefab nulo, logando erro com
+    //    pilha a cada craca. Sem efeito de verdade, o campo é zerado antes de orig (uma vez por spawn; sem carga de asset).
+    //  - Defective Unit, DeathState.AttemptDeathBehavior: lê cachedModelTransform.transform sem checar; morrer já sem
+    //    modelo estoura. Sem modelo, o método só faria o efeito (sem posição) e DestroyModel (que não faz nada): pulado.
+    //  - Dunestrider (ClayBoss), DeathState.AttemptDeathBehavior: centerTransform nulo (modelo sem "Center") estoura no
+    //    efeito ANTES de destruir modelo e corpo, e o método só roda uma vez: o corpo morto ficava no servidor para
+    //    sempre. Sem centro, ele passa a ser o transform do próprio corpo e o método do jogo segue inteiro.
+    //  - Baú Mímico, Chest.BreakOpen/Burrow.OnEnter: lê a posição do "Muzzle" antes do `if (transform)` que o protege; sem
+    //    o ponto, estoura. No BreakOpen isso pula o fakeActorCounter++ do fim, mas o OnExit subtrai: o contador fica em -1
+    //    e a camada de colisão do mímico (ator falso) fica errada. Só sem Muzzle: a exceção esperada é tratada e o
+    //    incremento pulado é feito (no Burrow, depois do efeito, não falta nada).
     // Exceção à regra de sempre chamar orig: Update do Transmitter, OnTriggerEnter e TeleportAwayFrom só pulam orig
     // quando ele lançaria a exceção com certeza (mesmo padrão do GhostBladeFeature).
     public sealed class GameFixesFeature : Feature
     {
-        private long _meteors, _transmitterUpdates, _orbContacts, _warps, _warBonds, _equipment, _swarms;
+        private long _meteors, _transmitterUpdates, _orbContacts, _warps, _warBonds, _equipment, _swarms, _barnacles, _defective, _clayBoss, _mimic;
 
         public GameFixesFeature(Cfg cfg, ManualLogSource log) : base("GameFixes", cfg, log,
             "Corrige erros do jogo que se repetiam centenas de vezes por partida e custavam FPS: Runic Lens, Unstable Transmitter, War Bonds e equipamento de corpos sem inventário. Também conserta o artefato do Enxame (cópias nasciam em cima do jogador ou não nasciam) e drones/monstros Dourados que travavam a partida de tanta pepita de ouro. Não muda o jogo além disso.",
@@ -42,11 +54,12 @@ namespace Ror2Meeeee
 
         public override void ResetRunState()
         {
-            var total = _meteors + _transmitterUpdates + _orbContacts + _warps + _warBonds + _equipment + _swarms;
+            var total = _meteors + _transmitterUpdates + _orbContacts + _warps + _warBonds + _equipment + _swarms + _barnacles + _defective + _clayBoss + _mimic;
             if (total > 0)
                 Log.LogInfo($"[GameFixes] run: Runic Lens {_meteors}, Transmitter Update {_transmitterUpdates}, orbe sem dono {_orbContacts}, "
-                    + $"teleporte sem modelo {_warps}, War Bonds {_warBonds}, equipamento {_equipment} erro(s) evitados; Enxame: {_swarms} spawn(s) corrigidos.");
-            _meteors = _transmitterUpdates = _orbContacts = _warps = _warBonds = _equipment = _swarms = 0;
+                    + $"teleporte sem modelo {_warps}, War Bonds {_warBonds}, equipamento {_equipment}, craca do Vazio {_barnacles}, Defective Unit {_defective}, Dunestrider {_clayBoss}, Baú Mímico {_mimic} erro(s) evitados; "
+                    + $"Enxame: {_swarms} spawn(s) corrigidos.");
+            _meteors = _transmitterUpdates = _orbContacts = _warps = _warBonds = _equipment = _swarms = _barnacles = _defective = _clayBoss = _mimic = 0;
         }
 
         protected override void OnEnable()
@@ -59,6 +72,18 @@ namespace Ror2Meeeee
             Track("EquipmentSlot.FixedUpdate", () => On.RoR2.EquipmentSlot.FixedUpdate += OnEquipmentFixedUpdate);
             Track("CombatDirector.Spawn(SpawnArgs)", () => On.RoR2.CombatDirector.Spawn_SpawnArgs += OnDirectorSpawn);
             Track("AffixAurelioniteBehavior.OnServerDamageDealt (IL)", () => IL.RoR2.AffixAurelioniteBehavior.OnServerDamageDealt += ILGildedNuggetCooldown);
+            Track("VoidBarnacle.NoCastSpawn.OnEnter", () => On.EntityStates.VoidBarnacle.NoCastSpawn.OnEnter += OnBarnacleSpawn);
+            if (_cachedModel == null) _cachedModel = MakeCachedModelGetter();
+            if (_cachedModel != null)
+                Track("DefectiveUnit.DeathState.AttemptDeathBehavior", () => On.EntityStates.DefectiveUnit.DeathState.AttemptDeathBehavior += OnDefectiveDeath);
+            else
+                Log.LogWarning("[GameFixes] Defective Unit: cachedModelTransform não encontrado; correção não aplicada.");
+            if (ClayBossCenter == null)
+                Log.LogWarning("[GameFixes] Dunestrider: centerTransform não encontrado; correção não aplicada.");
+            else
+                Track("ClayBoss.DeathState.AttemptDeathBehavior", () => On.EntityStates.ClayBoss.DeathState.AttemptDeathBehavior += OnClayBossDeath);
+            Track("Mimic.Chest.BreakOpen.OnEnter", () => On.EntityStates.Mimic.Chest.BreakOpen.OnEnter += OnMimicBreakOpen);
+            Track("Mimic.Chest.Burrow.OnEnter", () => On.EntityStates.Mimic.Chest.Burrow.OnEnter += OnMimicBurrow);
         }
 
         protected override void OnDisable()
@@ -71,6 +96,122 @@ namespace Ror2Meeeee
             On.RoR2.EquipmentSlot.FixedUpdate -= OnEquipmentFixedUpdate;
             On.RoR2.CombatDirector.Spawn_SpawnArgs -= OnDirectorSpawn;
             IL.RoR2.AffixAurelioniteBehavior.OnServerDamageDealt -= ILGildedNuggetCooldown;
+            On.EntityStates.VoidBarnacle.NoCastSpawn.OnEnter -= OnBarnacleSpawn;
+            On.EntityStates.DefectiveUnit.DeathState.AttemptDeathBehavior -= OnDefectiveDeath;
+            On.EntityStates.ClayBoss.DeathState.AttemptDeathBehavior -= OnClayBossDeath;
+            On.EntityStates.Mimic.Chest.BreakOpen.OnEnter -= OnMimicBreakOpen;
+            On.EntityStates.Mimic.Chest.Burrow.OnEnter -= OnMimicBurrow;
+        }
+
+        // Mesmo caminho do GetModelChildLocator (protegido) do jogo.
+        private static bool MissingMuzzle(EntityStates.EntityState self)
+        {
+            var locator = self.outer ? self.outer.GetComponent<ModelLocator>() : null;
+            var model = locator ? locator.modelTransform : null;
+            var children = model ? model.GetComponent<ChildLocator>() : null;
+            return !children || !children.FindChild("Muzzle");
+        }
+
+        // Uma vez por mudança de forma do mímico. Com Muzzle, orig roda sem nada em volta de diferente.
+        private void OnMimicBreakOpen(On.EntityStates.Mimic.Chest.BreakOpen.orig_OnEnter orig, EntityStates.Mimic.Chest.BreakOpen self)
+        {
+            var missing = MissingMuzzle(self);
+            try
+            {
+                orig(self);
+            }
+            catch (NullReferenceException) when (missing)
+            {
+                var body = self.outer ? self.outer.GetComponent<CharacterBody>() : null; // characterBody do estado é protegido
+                if (body) body.fakeActorCounter++; // a linha que o estouro pulou
+                _mimic++;
+            }
+        }
+
+        private void OnMimicBurrow(On.EntityStates.Mimic.Chest.Burrow.orig_OnEnter orig, EntityStates.Mimic.Chest.Burrow self)
+        {
+            var missing = MissingMuzzle(self);
+            try
+            {
+                orig(self);
+            }
+            catch (NullReferenceException) when (missing)
+            {
+                _mimic++; // o estouro é no efeito, o último passo: a lógica do servidor já rodou
+            }
+        }
+
+        // Campo privado; null se o jogo mudar (a correção fica de fora, sem derrubar a feature).
+        private static readonly System.Reflection.FieldInfo ClayBossCenter = typeof(EntityStates.ClayBoss.DeathState)
+            .GetField("centerTransform", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+
+        // Uma vez por morte de Dunestrider; orig sempre roda (é ele que destrói o corpo).
+        private void OnClayBossDeath(On.EntityStates.ClayBoss.DeathState.orig_AttemptDeathBehavior orig, EntityStates.ClayBoss.DeathState self)
+        {
+            try
+            {
+                if (self.outer && !(Transform)ClayBossCenter.GetValue(self))
+                {
+                    ClayBossCenter.SetValue(self, self.outer.transform);
+                    _clayBoss++;
+                }
+            }
+            catch (Exception e)
+            {
+                Fail(e);
+            }
+            orig(self);
+        }
+
+        // cachedModelTransform é protegido; delegate do getter criado uma vez (a leitura pública via modelLocator não
+        // serve: o OnEnter da base pode zerar o cache no mesmo frame em que o Destroy do modelo ainda não aconteceu).
+        // Criado no OnEnable: se o jogo mudar a propriedade, só esta correção fica de fora (sem derrubar a feature).
+        private static Func<EntityStates.GenericCharacterDeath, Transform> _cachedModel;
+
+        private static Func<EntityStates.GenericCharacterDeath, Transform> MakeCachedModelGetter()
+        {
+            var getter = typeof(EntityStates.GenericCharacterDeath).GetProperty("cachedModelTransform",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)?.GetGetMethod(true);
+            return getter == null ? null : (Func<EntityStates.GenericCharacterDeath, Transform>)Delegate.CreateDelegate(
+                typeof(Func<EntityStates.GenericCharacterDeath, Transform>), getter);
+        }
+
+        // Uma vez por morte. Só pula orig quando ele lançaria com certeza (sem modelo); o resto segue o jogo.
+        private void OnDefectiveDeath(On.EntityStates.DefectiveUnit.DeathState.orig_AttemptDeathBehavior orig, EntityStates.DefectiveUnit.DeathState self)
+        {
+            try
+            {
+                if (!_cachedModel(self))
+                {
+                    _defective++;
+                    return;
+                }
+            }
+            catch (Exception e)
+            {
+                Fail(e);
+            }
+            orig(self);
+        }
+
+        // Roda em toda máquina (o efeito é local, transmit: false). Lê só os campos do invólucro: a conversão implícita
+        // para GameObject dispararia uma carga do Addressables.
+        private void OnBarnacleSpawn(On.EntityStates.VoidBarnacle.NoCastSpawn.orig_OnEnter orig, EntityStates.VoidBarnacle.NoCastSpawn self)
+        {
+            try
+            {
+                var fx = self.spawnFXPrefab;
+                if (fx != null && !fx.directReference && (fx.addressableReference == null || !fx.addressableReference.RuntimeKeyIsValid()))
+                {
+                    self.spawnFXPrefab = null;
+                    _barnacles++;
+                }
+            }
+            catch (Exception e)
+            {
+                Fail(e);
+            }
+            orig(self);
         }
 
         // `else if (isPlayer) { cooldown + chance; 1 pepita }` vira `else if (true)`: o primeiro `if` (IA roubando de

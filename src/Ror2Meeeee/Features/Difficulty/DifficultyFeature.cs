@@ -200,6 +200,10 @@ namespace Ror2Meeeee
                 var team = master.teamIndex;
                 if (team != TeamIndex.Monster && team != TeamIndex.Lunar && team != TeamIndex.Void) return;
                 if (master.playerCharacterMasterController) return;
+                // Almas do Artefato da Alma (uma por monstro morto): morrem num golpe, e o Boost só custava
+                // GiveItem + RecalculateStats a cada uma (chegaram a milhares por run).
+                var soul = GlobalEventManager.CommonAssets.wispSoulMasterPrefabMasterComponent;
+                if (soul && master.masterIndex == soul.masterIndex) return;
                 var inv = master.inventory;
                 if (!inv) return; // onStartGlobal vem de Start: uma vez por master, sem precisar de guarda
 

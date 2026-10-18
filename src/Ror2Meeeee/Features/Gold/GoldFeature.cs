@@ -76,7 +76,8 @@ namespace Ror2Meeeee
                 if (credit <= 0f) return;
 
                 Diag.GoldEvents++;
-                _flood.Hit($"+{amount} de {self.name}");
+                // Ouro de abate chega uma vez por jogador: o limite é por jogador.
+                if (_flood.Hit(PlayerCharacterMasterController.instances.Count)) _flood.Report($"+{amount} de {self.name}");
                 if (_maxMonstersValue > 0 && TeamComponent.GetTeamMembers(TeamIndex.Monster).Count >= _maxMonstersValue)
                 {
                     Diag.CreditDropped++;

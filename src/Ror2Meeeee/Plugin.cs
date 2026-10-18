@@ -31,6 +31,14 @@ namespace Ror2Meeeee
         private void Awake()
         {
             var sw = System.Diagnostics.Stopwatch.StartNew(); // tempo de carga do mod (linha [Carga] no fim)
+            var slow = new List<string>(); // etapas >= 5 ms, para saber onde vai o tempo de carga
+            void Timed(string name, Action step)
+            {
+                var t0 = sw.ElapsedMilliseconds;
+                step();
+                var dt = sw.ElapsedMilliseconds - t0;
+                if (dt >= 5) slow.Add($"{name} {dt}");
+            }
             Instance = this;
 
             var build = GetBuildString();
@@ -43,30 +51,34 @@ namespace Ror2Meeeee
             else if (gameVersion != ModInfo.ExpectedGameVersion)
                 Logger.LogWarning($"Versão do jogo divergente: esperada {ModInfo.ExpectedGameVersion}, atual {gameVersion}. O plugin segue carregado.");
 
-            Overlay.Install(gameObject);
-            DropMenu.Install(gameObject, Config.Bind("Drop", "MenuKey", "F7", "Tecla (UnityEngine.KeyCode, ex.: F7, G, Insert) que abre o menu na tela para soltar itens."));
-            StatsPanel.Install(gameObject, Config.Bind("Stats", "MenuKey", "F8", "Tecla (UnityEngine.KeyCode) que abre/fecha a tela de status: atributos atuais e totais da run (dano, cura, dano recebido)."));
+            Timed("UI", () =>
+            {
+                Overlay.Install(gameObject);
+                DropMenu.Install(gameObject, Config.Bind("Drop", "MenuKey", "F7", "Tecla (UnityEngine.KeyCode, ex.: F7, G, Insert) que abre o menu na tela para soltar itens."));
+                StatsPanel.Install(gameObject, Config.Bind("Stats", "MenuKey", "F8", "Tecla (UnityEngine.KeyCode) que abre/fecha a tela de status: atributos atuais e totais da run (dano, cura, dano recebido)."));
+            });
             Diag.Install(Logger);
-            TitheArtifact.Register(Logger);
-            TaxArtifact.Register(Logger);
-            SharingFeature.Register(Logger);
+            Timed("TitheArtifact", () => TitheArtifact.Register(Logger));
+            Timed("TaxArtifact", () => TaxArtifact.Register(Logger));
+            Timed("SharingFeature", () => SharingFeature.Register(Logger));
             var tRegister = sw.ElapsedMilliseconds;
-            HordeItem.Register(Logger); // antes do ItemCatalog; falha não derruba o plugin
-            CervoItem.Register(Logger);
-            CanoItem.Register(Logger);
-            GrimoireFeature.Register(Logger);
-            ContractFeature.Register(Logger);
-            ReviveFeature.Register(Logger);
-            TaxReliefItems.Register(Logger);
-            SelfHealFeature.Register(Logger);
-            AegisFeature.Register(Logger);
-            HeavyHeartFeature.Register(Logger);
-            VoidBountyFeature.Register(Logger);
-            PortalBatteryFeature.Register(Logger);
-            BastionFeature.Register(Logger);
-            RustyNailFeature.Register(Logger);
-            ElitesFeature.Register(Logger);
+            Timed("HordeItem", () => HordeItem.Register(Logger)); // antes do ItemCatalog; falha não derruba o plugin
+            Timed("CervoItem", () => CervoItem.Register(Logger));
+            Timed("CanoItem", () => CanoItem.Register(Logger));
+            Timed("GrimoireFeature", () => GrimoireFeature.Register(Logger));
+            Timed("ContractFeature", () => ContractFeature.Register(Logger));
+            Timed("ReviveFeature", () => ReviveFeature.Register(Logger));
+            Timed("TaxReliefItems", () => TaxReliefItems.Register(Logger));
+            Timed("SelfHealFeature", () => SelfHealFeature.Register(Logger));
+            Timed("AegisFeature", () => AegisFeature.Register(Logger));
+            Timed("HeavyHeartFeature", () => HeavyHeartFeature.Register(Logger));
+            Timed("VoidBountyFeature", () => VoidBountyFeature.Register(Logger));
+            Timed("PortalBatteryFeature", () => PortalBatteryFeature.Register(Logger));
+            Timed("BastionFeature", () => BastionFeature.Register(Logger));
+            Timed("RustyNailFeature", () => RustyNailFeature.Register(Logger));
+            Timed("ElitesFeature", () => ElitesFeature.Register(Logger));
             tRegister = sw.ElapsedMilliseconds - tRegister;
+            var tCtor = sw.ElapsedMilliseconds;
             _cfg = new Cfg(Config, Logger);
             Probe = new Probe(_cfg, Logger);
             _features.Add(Probe);
@@ -99,11 +111,14 @@ namespace Ror2Meeeee
             _features.Add(new BazaarFeature(_cfg, Logger));
             _features.Add(new ElitesFeature(_cfg, Logger));
 
-            LogIdentity();
+            tCtor = sw.ElapsedMilliseconds - tCtor;
+            if (tCtor >= 5) slow.Add($"config e construtores {tCtor}");
+
+            Timed("LogIdentity", LogIdentity);
 
             foreach (var feature in _features)
             {
-                if (feature.ConfigEnabled) feature.Enable();
+                if (feature.ConfigEnabled) Timed(feature.Name, feature.Enable);
                 else Logger.LogInfo($"{feature.Name}: desligada por config");
 
                 // Liga/desliga em jogo (tela de mods): só registra/remove os hooks, entre partidas.
@@ -116,13 +131,13 @@ namespace Ror2Meeeee
             }
 
             if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.rune580.riskofoptions"))
-                ModOptions.Register(_cfg, Logger);
+                Timed("ModOptions", () => ModOptions.Register(_cfg, Logger));
 
             // Único ponto de reset por run: início e fim.
             Run.onRunStartGlobal += OnRunBoundary;
             Run.onRunDestroyGlobal += OnRunBoundary;
 
-            Logger.LogInfo($"[Carga] Awake em {sw.ElapsedMilliseconds} ms (registro de itens/artefatos {tRegister} ms; features e hooks {sw.ElapsedMilliseconds - tRegister} ms)");
+            Logger.LogInfo($"[Carga] Awake em {sw.ElapsedMilliseconds} ms (registro de itens/artefatos {tRegister} ms; features e hooks {sw.ElapsedMilliseconds - tRegister} ms); etapas >= 5 ms: {(slow.Count > 0 ? string.Join(", ", slow) : "nenhuma")}");
         }
 
         // Uma linha dizendo QUAL DLL rodou e com quais configs; sem isso só se deduz a versão pela ausência de linhas.
@@ -162,6 +177,7 @@ namespace Ror2Meeeee
         {
             Quitting = true;
             if (Run.instance) OnRunBoundary(Run.instance);
+            Diag.MarkCleanExit();
         }
 
         private void OnDestroy()

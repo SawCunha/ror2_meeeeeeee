@@ -335,7 +335,7 @@ namespace Ror2Meeeee
 
         private void OnDamageDealt(DamageReport report)
         {
-            _damageFlood.Hit();
+            if (_damageFlood.Hit()) _damageFlood.Report();
             if (_phase == null) return;
             _damageEvents++;
             _damageTotal += report.damageDealt; // todos os times: dano causado por qualquer fonte

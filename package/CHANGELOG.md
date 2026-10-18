@@ -1,5 +1,97 @@
 # Changelog
 
+## 0.10.4
+
+- Desempenho: **mísseis** (`MissileProjectile`: ATG, Disposable Missile Launcher, aspecto Volátil...) entram na lista
+  padrão do `[ProjectileBudget]` (15 por segundo, dano dos que não saem somado ao próximo). Numa run de 4 jogadores, o
+  Bazar, sem nenhum inimigo, tinha 675 mísseis a cada 30 s. Em uma config existente, acrescente `MissileProjectile` a
+  `Prefabs` à mão.
+- Desempenho: teto global de projéteis de jogadores (`[ProjectileBudget] GlobalMaxPerSecond`) de 80 para **40** por
+  segundo. Na mesma run, mesmo com os tetos por tipo, a soma passava de 50/s com 1 a 3 monstros vivos e o frame médio
+  chegava a 34 ms (p95 54 ms). O dano dos projéteis que não saem é somado aos seguintes do mesmo tipo. Em uma config
+  existente, mude `GlobalMaxPerSecond` à mão.
+- Diagnóstico: o `NullReferenceException` do `InventorySafekeepController` ao fim da run (o jogo tenta devolver os
+  inventários guardados de cada jogador depois que a run já foi desmontada; não há perda de itens numa run em
+  andamento) passa a ser contado como ruído conhecido, assim como o do `SetStateOnHurt.GetModifiedDuration` (inimigo
+  atingido no mesmo frame em que nasce, antes de o jogo preencher os controladores de atordoamento; corrigir exigiria
+  um hook em todo golpe, caro demais para um caso raro) e o do `ParticleSystemColorFromEffectData` (efeito do jogo criado
+  sem passar pelo `EffectManager`; a partícula só não recebe a cor) e o `Unable to SpawnEffect from prefab named
+  'GenericHugeFootstepDust'` (efeito de pisada do jogo que não está no catálogo de efeitos; só esse nome) e o
+  `BaseAchievement: localUser is null!` (conquista verificada sem usuário local num desbloqueio em multiplayer) e o do
+  `MasterSuicideOnTimer.OnDestroy` (ajudante temporário destruído antes de o jogo terminar de montá-lo) e o do
+  `BrotherUltUtils.EvaluatePattern` (fase 2 do Mithrix: o ataque mira quem matou o inimigo, e uma torreta ou drone sem
+  direção estoura o cálculo; o ataque só não sai) e o da conquista do Captain na zona de choque
+  (`CaptainSupplyDropFinaleAchievement`), que também aparece como `Failed at InvokeHandler, probably malformed packet!`.
+- README: seção de créditos com quem desenvolve e testa o mod (SawCunha, Sleeping_tv_, Póker.the.wolf e
+  Artie_saito) e link do projeto no GitHub (topo da página e créditos).
+
+## 0.10.3
+
+- Desempenho: **Fireworks** (`FireworkProjectile`) entra na lista padrão do `[ProjectileBudget]`: no máximo 15 por
+  segundo, somando todos os jogadores, com o dano dos que não saem somado ao próximo (mesmo dano total). Numa run de 4
+  jogadores chegaram a 902 mísseis a cada 30 s antes de o jogo travar; o `[LimitedCalc]` limita cada lançador, mas com o
+  Multiplicador são muitos lançadores. Em uma config existente, acrescente `FireworkProjectile` a `Prefabs` à mão.
+- Diagnóstico: o aviso de enxurrada de ouro (`[Diag] enxurrada de eventos de ouro`) passa a usar 40 eventos por
+  segundo **por jogador**; com 3 jogadores, cada abate gera 3 eventos e um pico normal de abates já disparava o aviso.
+- Correções do jogo (`[GameFixes]`): o **Dunestrider** que morria sem o ponto "Center" no modelo estourava
+  `NullReferenceException` no efeito de morte **antes** de destruir o modelo e o corpo, e o jogo não tentava de novo: o
+  corpo morto ficava no servidor até o fim do estágio. Agora o efeito usa a posição do corpo e a limpeza do jogo roda
+  inteira (uma checagem por morte de Dunestrider).
+  O **Baú Mímico** sem o ponto "Muzzle" no modelo estourava ao abrir e ao se enterrar; ao abrir, o estouro pulava a
+  linha que marca o mímico como "ator falso", mas a saída do estado desmarcava mesmo assim: o contador ficava negativo e
+  a camada de colisão do mímico, errada. Agora o mod trata só esse estouro esperado e completa a linha pulada.
+- Diagnóstico: passam a ser contados como ruído conhecido do jogo o `CombatSquad has no living members. Triggering
+  defeat...` (registrado como erro quando um grupo de chefe/evento é derrotado) e o `Unable to set gate state for ...`
+  (mapa que referencia uma passagem ausente do grafo de navegação, ao carregar o estágio) e o `PickupDisplay bounds are
+  zero!` (modelo de pickup do jogo com tamanho zero, como o do HelpWake), além dos erros de rede e da prévia de
+  personagem quando alguém sai do lobby (`host id {0} invoked wrong io operation`, `host id {0} out of bound...`,
+  `SurvivorMannequinSlotController.ApplyLoadoutToMannequinInstance`) e o `NullReferenceException` do Extractor Unit sem
+  animator (`ExtractLunge.OnEnter`; sem animator ele não ativa a hitbox e não rouba itens, então não há o que corrigir) e o
+  do Solus Amalgamator (`DetatchState.OnEnter`: o jogo dispara as separações no corpo já morto, sem modelo).
+
+## 0.10.2
+
+- **Diagnóstico de travamento**: a vigia grava a cada 5 s um "último sinal de vida" em
+  `BepInEx/ror2meeeee-heartbeat.txt` (estágio, frame, monstros, abates, ouro, lâminas cortadas, exceções, RAM). Fechar o
+  jogo normalmente apaga o arquivo; se ele existir na abertura seguinte, o log ganha `[Vigia] a sessão anterior não
+  fechou normalmente...` com o estado da partida no fim. Motivo: numa run de 3 jogadores o processo inteiro congelou
+  (log, Unity e a própria vigia pararam no mesmo segundo) e não sobrou nada para saber o que acontecia.
+- Dificuldade: as almas do **Artefato da Alma** (uma por monstro morto, milhares por run) não recebem mais os itens de
+  Boost de vida e dano; morrem num golpe e o Boost só custava um recálculo de atributos a cada uma.
+- Lâminas Fantasmas (`[GhostBlades]`): teto padrão de 15 para **10** por segundo (a run que travou ficou no teto,
+  ~400 lâminas a cada 30 s). Vale para configs novas; em uma existente, mude `MaxPerSecond` à mão.
+- **README reescrito para o Thunderstore**: cada artefato, item, equipamento, elite e sistema em uma seção própria, com
+  o que faz, como usar e um exemplo; tabela de resumo, comandos e perguntas frequentes. Descrição e site do pacote
+  atualizados.
+- Elite Eco: se o projétil dos ecos vier sem ghost (endereço e referência vazios), o mod usa o `EchoHunterGhost` do
+  jogo para os tiros não ficarem invisíveis.
+- **Bazar Maior**: o item que flutua sobre o baú podia ser pego (o `Start()` do jogo zerava a marca `consumed` que o
+  mod colocava logo depois de criá-lo). Agora a vitrine usa um tempo de espera infinito, que o jogo não reinicia, e
+  nunca é concedida. Com o **Artefato do Comando**, o baú volta a soltar o cubo de escolha do mesmo tier em vez do item
+  direto; só a vitrine ignora o artefato.
+- Correções do jogo (`[GameFixes]`): a Craca do Vazio chamava um efeito de spawn vazio a cada vez que nascia (o 1.5.0
+  deixou o endereço do efeito em branco), gerando um erro com pilha no log por craca. O mod descarta o efeito vazio
+  antes; sem custo por tick, uma checagem por spawn.
+  A Defective Unit estourava `NullReferenceException` ao morrer já sem modelo (o jogo lia o modelo sem checar); nesse
+  caso o mod pula só o trecho do efeito de morte, que não teria onde aparecer.
+- `ror2meeeee_reload`: o texto de ajuda dizia que `Enabled` exigia reiniciar; ele já vale na hora, entre partidas.
+- Desempenho: o crédito do Dízimo (`[Gold]`) não monta mais uma string de diagnóstico a cada ouro ganho (só quando a
+  enxurrada é detectada, uma vez por estágio); o Grimório guarda o efeito de teleporte em vez de recarregá-lo a cada uso.
+- Métrica de carga: a linha `[Carga]` agora lista as etapas do Awake que levaram 5 ms ou mais (registro de cada
+  item/artefato/elite, interface, config, `Enable` de cada feature e tela de mods), para achar o que pesa na abertura.
+- Diagnóstico: passam a ser contados como ruído conhecido do jogo (não do mod) o `IndexOutOfRangeException` do
+  Facepunch na lista do lobby quando alguém entra, o `AddPlayer` duplicado ao um jogador entrar (`already a player at
+  that playerControllerId` / `connection has already been set as ready`), o `NullReferenceException` do
+  `SteamworksLobbyDataGenerator` no lobby, o do `ViewableTag.OnDisable` ao fechar o jogo e o `GenericPool: ReleasePools
+  called on non-empty pool` da troca de cena e o `AssignClientAuthority` de ajudantes do jogo. O aviso de "erro novo"
+  mostra a primeira linha da pilha e ignora números (IDs de conexão) ao decidir se o erro já foi visto.
+
+## 0.10.1
+
+- **Elite Eco volta a funcionar no jogo 1.5.0**: o patch moveu os assets do Eco de `RoR2/InDev/` para `RoR2/Junk/`
+  (`edEcho.asset` e `EchoHunterProjectile.prefab`); na 0.10.0 o elite não era registrado e o log mostrava
+  `InvalidKeyException ... Key=RoR2/InDev/edEcho.asset`.
+
 ## 0.10.0
 
 - **Bazar Maior** (`[Bazaar]`, novo, ligado; reescrita do BiggerBazaar 1.14.5): o Bazar entre Tempos ganha até 6 baús

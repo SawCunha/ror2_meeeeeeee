@@ -4,8 +4,9 @@ Mod para **Risk of Rain 2** (1.5.0#1224, build Steam 25921972) feito com BepInEx
 multiplica os itens coletados, deixa os inimigos mais fortes e numerosos, adiciona itens, um equipamento e artefatos
 novos, e inclui ferramentas para manter o FPS de pé quando o inventário explode.
 
-- **Versão atual:** 0.10.0 (`src/Ror2Meeeee.Core/ModInfo.cs`; histórico em [`package/CHANGELOG.md`](package/CHANGELOG.md))
+- **Versão atual:** 0.10.4 (`src/Ror2Meeeee.Core/ModInfo.cs`; histórico em [`package/CHANGELOG.md`](package/CHANGELOG.md))
 - **GUID:** `com.sawcunha.ror2meeeee` · **Pacote:** `Sawcunha-Ror2Meeeee`
+- **GitHub:** [https://github.com/SawCunha/ror2_meeeeeeee](https://github.com/SawCunha/ror2_meeeeeeee) · **Thunderstore:** [thunderstore.io/c/riskofrain2/p/SawCunhaOS/Ror2Meeeee](https://thunderstore.io/c/riskofrain2/p/SawCunhaOS/Ror2Meeeee/)
 - **Multiplayer:** todos os jogadores precisam do mesmo mod na mesma versão. A lógica de gameplay roda **só no host**,
   então valem as opções do `.cfg` de quem hospeda.
 
@@ -13,7 +14,13 @@ novos, e inclui ferramentas para manter o FPS de pé quando o inventário explod
 
 ## Instalação
 
-### Pelo r2modman (jogadores)
+### Pelo Thunderstore (jogadores)
+
+O mod está publicado em [thunderstore.io/c/riskofrain2/p/SawCunhaOS/Ror2Meeeee](https://thunderstore.io/c/riskofrain2/p/SawCunhaOS/Ror2Meeeee/):
+use *Install with Mod Manager* (r2modman ou Thunderstore Mod Manager). O guia de cada item, artefato e sistema, com
+exemplos, está no [`package/README.md`](package/README.md), que é a página do mod no site.
+
+### Pelo zip local (r2modman)
 
 1. Gere ou baixe `Sawcunha-Ror2Meeeee-<versão>.zip` (veja [Build](#build-e-desenvolvimento)).
 2. No r2modman: **Settings → Import local mod** e escolha o zip.
@@ -128,7 +135,8 @@ O Bazar entre Tempos vira loja. Reescrita do BiggerBazaar 1.14.5 (MagnusMagnuson
 - `TemporaryChance` (10%): o baú vende `TemporaryAmount` (5) cópias temporárias por compra.
 - Casulo ao lado do Newt: 1 moeda lunar = `LunarCoinGold` (50, escala com a dificuldade), até `MaxExchangesPerPlayer`
   (3) vezes.
-- O item comprado cai no chão e passa pelo Multiplicador e pelo Comunismo como qualquer pickup. Itens únicos do mod
+- O item comprado cai no chão e passa pelo Multiplicador e pelo Comunismo como qualquer pickup; com o Artefato do
+  Comando, cai o cubo de escolha do mesmo tier. O item à mostra é só vitrine (não pode ser pego). Itens únicos do mod
   não aparecem na loja; o hack do Captain não abre os baús.
 
 ### Elites novos (`[Elites]`)
@@ -173,8 +181,8 @@ Com o multiplicador em 10×, o inventário cresce muito rápido. Estes sistemas 
 | `[LimitedCalc.BustlingFungus]` | Trata o Bustling Fungus como se tivesse no máximo `Limit` cópias (`Mode = Clamp`) | `Off`, limite 10 |
 | `[LimitedCalc.BundleOfFireworks]` | `Aggregate`: menos mísseis, cada um mais forte, mesmo dano total | `Aggregate`, limite 20 |
 | `[LimitedCalc.GhorsTome]` | `Aggregate`: menos pacotes de ouro no chão, cada um vale mais, mesmo ouro esperado | `Aggregate`, limite 5 |
-| `[ProjectileBudget]` | Teto de projéteis dos jogadores e ajudantes (Sticky Bomb, Molten Perforator, estacas...): menos projéteis, cada um mais forte, mesmo dano total. Projéteis de monstros não mudam | 15/s por tipo, 80/s no total |
-| `[GhostBlades]` | Limita quantas Lâminas Fantasmas (item Curse do DLC4) o jogo gera ou renova por segundo | 15/s |
+| `[ProjectileBudget]` | Teto de projéteis dos jogadores e ajudantes (Sticky Bomb, Molten Perforator, estacas, Fireworks, mísseis...): menos projéteis, cada um mais forte, mesmo dano total. Projéteis de monstros não mudam | 15/s por tipo, 40/s no total |
+| `[GhostBlades]` | Limita quantas Lâminas Fantasmas (item Curse do DLC4) o jogo gera ou renova por segundo | 10/s |
 | `[Cleanup]` | Cadáveres somem rápido, mesmo à vista, e corrige um erro do jogo no Totem dos Lynx que gerava centenas de exceções | 10 corpos, 2 s |
 | `[GameFixes]` | Corrige erros do jogo que se repetiam centenas de vezes por partida e custavam FPS: Runic Lens, Unstable Transmitter, War Bonds e equipamento de corpos sem inventário; também conserta o artefato do Enxame e os drones/monstros Dourados que travavam a partida soltando pepitas de ouro (mesma correção do GildedChunkSpamFix) | ligado |
 | `[Particles]` | Teto por segundo (`MaxPerSecond`) para **todo** tipo de efeito, menos os da lista `Exempt`; os da lista `Raised` têm teto próprio maior (`RaisedMaxPerSecond`). Vale para o que você mostra **e para o que você envia** aos outros (host e clientes com o mod). Não muda dano | 10/s por tipo; explosões 60/s; exceção: golpes do Mercenary |
@@ -228,6 +236,17 @@ Abra o console com **Ctrl+Alt+`** (ou F2, conforme o teclado).
 - **Probe** (`[General] ProbeEnabled`): mede FPS, monstros, eventos de cura, ajudantes e itens por janela de 30 s,
   com alertas de degradação. Grava CSV em `BepInEx/`; `tools/probe-report.py` resume o arquivo.
 - Linhas úteis no log: `[Multiplier]`, `[Difficulty]`, `[Progression]`, `[Tax]`, `[Probe]`, `[ProjectileBudget]`, `[LimitedCalc]`.
+
+---
+
+## Créditos
+
+Desenvolvido e testado por:
+
+- **SawCunha**
+- **Sleeping_tv_**
+- **Póker.the.wolf**
+- **Artie_saito**
 
 ---
 

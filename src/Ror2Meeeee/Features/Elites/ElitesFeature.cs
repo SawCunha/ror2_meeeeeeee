@@ -134,7 +134,7 @@ namespace Ror2Meeeee
         {
             try
             {
-                var echo = Load<EliteDef>("RoR2/InDev/edEcho.asset");
+                var echo = Load<EliteDef>("RoR2/Junk/edEcho.asset");
                 if (!echo) { log.LogWarning("Elites: edEcho indisponível; sem Eco."); return; }
                 echo.healthBoostCoefficient = t2.healthBoostCoefficient;
                 echo.damageBoostCoefficient = t2.damageBoostCoefficient;
@@ -144,8 +144,18 @@ namespace Ror2Meeeee
                 if (ramp) EliteRamp.AddRamp(echo, ramp);
                 if (echo.eliteEquipmentDef) Describe(echo.eliteEquipmentDef, "Echo", null, null, "Aspecto Eco", "Invoque ecos de si mesmo.",
                     "Invoca <style=cIsUtility>2 ecos</style> com <style=cIsHealth>10%</style> da vida, que atiram projéteis caçadores e somem quando você morre.");
-                // O projétil dos ecos fica no grupo InDev, fora do catálogo do jogo: sem isto não chega aos clientes.
-                var projectile = Load<GameObject>("RoR2/InDev/EchoHunterProjectile.prefab");
+                // O projétil dos ecos fica no grupo Junk, fora do catálogo do jogo: sem isto não chega aos clientes.
+                var projectile = Load<GameObject>("RoR2/Junk/EchoHunterProjectile.prefab");
+                // Sem ghost (endereço nem referência direta) o projétil fica invisível. O R2API só olha o campo antigo
+                // ghostPrefab e avisa mesmo quando o endereço do 1.5.0 está preenchido: aqui só se nenhum dos dois vale.
+                var pc = projectile ? projectile.GetComponent<RoR2.Projectile.ProjectileController>() : null;
+#pragma warning disable CS0618 // ghostPrefab: campo antigo, ainda lido pelo jogo quando o endereço está vazio
+                if (pc && !pc.ghostPrefab && (pc.ghostPrefabAddress == null || !pc.ghostPrefabAddress.RuntimeKeyIsValid()))
+                {
+                    pc.ghostPrefab = Load<GameObject>("RoR2/Junk/EchoHunterGhost.prefab");
+                    log.LogInfo($"Elites: projétil do Eco sem ghost; usando EchoHunterGhost ({(pc.ghostPrefab ? "ok" : "falhou")}).");
+                }
+#pragma warning restore CS0618
                 if (projectile && !ContentAddition.AddProjectile(projectile)) log.LogWarning("Elites: ContentAddition recusou o projétil do Eco.");
                 Place("Echo", echo, EliteAPI.GetEliteTierEnumerable(VanillaEliteTier.Tier2));
             }

@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using RoR2;
@@ -17,16 +16,17 @@ namespace Ror2Meeeee
     //  - Ouro: ao entrar no portal do bazar (SceneExitController.onBeginExit, antes da conversão em XP), o ouro de cada
     //    jogador é guardado e zerado; volta ao chegar no bazar. O que sobrar vira XP ao sair, como no jogo.
     //  - Baús: SpawnCard direto nas posições fixas do mapa, com onPurchase vazio (não abrem nem ficam indisponíveis);
-    //    a entrega é no PurchaseHub (passo 0). O item à mostra é um GenericPickup marcado consumed (o servidor nunca o
-    //    concede) e recycled (o Reciclador não o troca); sem hook em AttemptGrant.
+    //    a entrega é no PurchaseHub (passo 0). O item à mostra é um GenericPickup com waitDuration infinito (o trigger e
+    //    a interação do servidor só concedem depois dele; `consumed` não serve, o Start() do jogo o zera) e recycled (o
+    //    Reciclador não o troca); sem hook em AttemptGrant.
     //  - Limite de trocas no casulo por jogador: hook em PurchaseInteraction.GetInteractability (chama orig; o servidor
     //    confere antes de comprar). Compras nos baús só têm o estoque de cada baú.
     //  - Captain: o hack do sinalizador não abre os baús do bazar (compra grátis furaria o estoque).
     //  - Os dois hooks só existem no host durante a visita ao bazar (SetHooks): fora dele, custo zero por frame.
     // Diferenças do original: sorteio próprio (Xoroshiro, não consome RNG da run), preço = baú pequeno do estágio
     // anterior x multiplicador (o original escalava duas vezes), sem Sale Star consumida à toa, sem fogos no casulo,
-    // itens únicos do mod fora da loja, item comprado ignora troca por artefato (Comando). Sem ShareSuite: o item cai
-    // no chão e passa pelo Multiplicador/Comunismo como qualquer pickup.
+    // itens únicos do mod fora da loja. Com o Comando, o item comprado vira o cubo de escolha do mesmo tier (só a vitrine
+    // ignora o artefato). Sem ShareSuite: o item cai no chão e passa pelo Multiplicador/Comunismo como qualquer pickup.
     public sealed class BazaarFeature : Feature
     {
         private const string Section = "Bazaar";
@@ -47,9 +47,6 @@ namespace Ror2Meeeee
         private static readonly float[] DefaultCost = { 1f, 2f, 16f, 24f, 16f, 8f, 16f };
         private static readonly int[] DefaultLunarCost = { 1, 2, 3, 5, 3, 3, 3 };
         private static readonly int[] DefaultStock = { 10, 10, 10, 10, 10, 10, 10 };
-
-        private static readonly FieldInfo ConsumedField =
-            typeof(GenericPickupController).GetField("consumed", BindingFlags.Instance | BindingFlags.NonPublic);
 
         private sealed class Offer
         {
@@ -111,7 +108,6 @@ namespace Ror2Meeeee
 
         protected override void OnEnable()
         {
-            if (ConsumedField == null) throw new MissingFieldException(nameof(GenericPickupController), "consumed");
             Track("SceneExitController.onBeginExit", () => SceneExitController.onBeginExit += OnBeginExit);
             Track("SceneDirector.onPostPopulateSceneServer", () => SceneDirector.onPostPopulateSceneServer += OnPostPopulate);
             Track("PurchaseInteraction.onPurchaseGlobalServer", () => PurchaseHub.SetBazaar(OnPurchase)); // passo 0
@@ -311,21 +307,21 @@ namespace Ror2Meeeee
             var def = PickupCatalog.GetPickupDef(index);
             var equipment = def != null && def.equipmentIndex != EquipmentIndex.None;
             var temporary = !equipment && _rng.nextNormalizedFloat * 100f < _tempChance.Value;
-            var pickup = new UniquePickup(index)
-            {
-                decayValue = temporary ? 1f : 0f, // 1 = valor dos baús temporários do jogo
-                ignoreArtifactBasedPickupReplacements = true, // Comando etc. não trocam o que foi comprado
-            };
+            // O comprado segue os artefatos: com o Comando, cai o cubo de escolha do mesmo tier, como num baú do jogo.
+            var pickup = new UniquePickup(index) { decayValue = temporary ? 1f : 0f }; // 1 = valor dos baús temporários
 
+            var shown = pickup;
+            shown.ignoreArtifactBasedPickupReplacements = true; // a vitrine mostra o item, não um cubo do Comando
             var info = new GenericPickupController.CreatePickupInfo
             {
                 position = ChestPositions[slot] + DisplayOffset,
                 rotation = Quaternion.identity,
-                pickup = pickup,
+                pickup = shown,
                 recycled = true, // o Reciclador ignora
             };
             var display = GenericPickupController.CreatePickup(in info);
-            if (display) ConsumedField.SetValue(display, true); // servidor nunca concede (cliente vê, mas não pega)
+            // Servidor nunca concede: trigger e interação esperam waitDuration, que o Start() não reinicia.
+            if (display) display.waitDuration = float.PositiveInfinity;
 
             _offers[chest] = new Offer
             {

@@ -37,6 +37,27 @@ namespace Ror2Meeeee
         {
             "PushPickupNotification", "FrolicAway", "DroneCopycat", "has no NetworkIdentity",
             "Non-convex MeshCollider", "InvalidKeyException", "Could not find target object with netId",
+            "Lobby.GetMemberIDs", // Facepunch: IndexOutOfRange na lista do lobby quando alguém entra (só na pilha)
+            "already a player at that playerControllerId", "A connection has already been set as ready", // AddPlayer duplicado do jogo ao entrar
+            "ViewableTag.OnDisable", // NRE da UI do jogo ao fechar (Instantiate de prefab já destruído; só na pilha)
+            "SteamworksLobbyDataGenerator.RebuildLobbyData", // NRE do lobby da Steam do jogo
+            "ReleasePools called on non-empty pool", // jogo libera pools (efeitos, ícones de buff) com itens em uso na troca de cena
+            "AssignClientAuthority can only be used", // spawn de ajudante do jogo (ex.: fantasma da Happiest Mask)
+            "CombatSquad has no living members", // o jogo loga como erro quando um grupo (chefe/evento) é derrotado
+            "Unable to set gate state for", // mapa do jogo referencia passagem que não está no grafo de navegação
+            "PickupDisplay bounds are zero", // modelo de pickup do jogo com tamanho zero (ex.: HelpWake)
+            "invoked wrong io operation", "out of bound or host has been already removed", // transporte de rede ao fechar conexões
+            "SurvivorMannequinSlotController.ApplyLoadoutToMannequinInstance", // prévia do personagem de quem saiu do lobby
+            "ExtractorUnit.ExtractLunge.OnEnter", // Extractor sem animator: o jogo estoura no OnEnter; sem hitbox ativa, não rouba
+            "SolusAmalgamator.DetatchState.OnEnter", // DetachManager dispara separações no corpo já morto (sem modelo)
+            "InventorySafekeepController.OnCharacterMasterLost", // devolve inventário guardado com a run já desmontada
+            "SetStateOnHurt.GetModifiedDuration", // dano no frame do spawn, antes do Start() preencher os controladores
+            "ParticleSystemColorFromEffectData.ResetParticleSystems", // efeito do jogo criado sem EffectManager (sem EffectData)
+            "from prefab named 'GenericHugeFootstepDust'", // poeira de pisada do jogo fora do EffectCatalog (só este nome)
+            "BaseAchievement: localUser is null", // conquista checada sem usuário local (desbloqueio em multiplayer)
+            "MasterSuicideOnTimer.OnDestroy", // ajudante temporário destruído antes do Start() do jogo
+            "BrotherUltUtils.EvaluatePattern", // Mithrix fase 2: ataque mira quem matou; ajudante sem CharacterDirection estoura
+            "CaptainSupplyDropFinaleAchievement", // conquista do Captain na zona de choque (também vem como "malformed packet")
         };
         private static readonly int[] KnownCounts = new int[KnownNoise.Length];
         private static readonly HashSet<string> SeenUnknown = new HashSet<string>();
@@ -49,6 +70,13 @@ namespace Ror2Meeeee
         private static long _beat; // Stopwatch.GetTimestamp() do último frame
         private static volatile bool _watch;
         private static float _sampleAcc;
+        private static volatile float _lastFrameMs;
+
+        // Último sinal de vida: a vigia regrava a cada HeartbeatSeconds; saída normal apaga. Se existir ao abrir o jogo,
+        // a sessão anterior travou/fechou à força e o arquivo diz como estava a partida no fim (o log para junto).
+        private const int HeartbeatSeconds = 5;
+        private static readonly object HeartbeatLock = new object();
+        private static string HeartbeatPath => System.IO.Path.Combine(BepInEx.Paths.BepInExRootPath, "ror2meeeee-heartbeat.txt");
 
         // Estágio atual
         private static bool _stageActive;
@@ -76,7 +104,45 @@ namespace Ror2Meeeee
             GlobalEventManager.onCharacterDeathServer += OnDeath;
             RoR2Application.onUpdate += OnUpdate;
             Application.logMessageReceivedThreaded += OnUnityLog;
+            ReportPreviousSession();
             new Thread(WatchLoop) { IsBackground = true, Name = "Ror2Meeeee.Watchdog" }.Start();
+        }
+
+        private static void ReportPreviousSession()
+        {
+            try
+            {
+                var path = HeartbeatPath;
+                if (!System.IO.File.Exists(path)) return;
+                _log.LogWarning("[Vigia] a sessão anterior não fechou normalmente (travou ou foi encerrada à força). Último sinal: "
+                    + System.IO.File.ReadAllText(path).Trim());
+                System.IO.File.Delete(path);
+            }
+            catch (Exception e) { _log.LogWarning($"[Vigia] falha ao ler o último sinal: {e.Message}"); }
+        }
+
+        // Chamar ao fechar o jogo (depois de Plugin.Quitting): sem arquivo, a próxima abertura sabe que foi normal.
+        public static void MarkCleanExit()
+        {
+            lock (HeartbeatLock)
+            {
+                try { System.IO.File.Delete(HeartbeatPath); }
+                catch (Exception) { /* nada a fazer ao fechar */ }
+            }
+        }
+
+        // Só campos simples (thread de fundo); o arquivo é pequeno e sobrescrito.
+        private static void WriteHeartbeat(double gap)
+        {
+            lock (HeartbeatLock)
+            {
+                if (Plugin.Quitting) return;
+                var text = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} | estágio {(_stageActive ? _stageName : "fora de estágio")} | "
+                    + $"último frame há {gap:F1} s ({_lastFrameMs:F0} ms) | monstros {Monsters} | abates no estágio {_stageKills} | "
+                    + $"eventos de ouro {GoldEvents} | lâminas puladas {GhostBladesSkipped} | exceções do mod {Exceptions} | "
+                    + $"RAM gerenciada {GC.GetTotalMemory(false) / (1024 * 1024)} MB";
+                System.IO.File.WriteAllText(HeartbeatPath, text);
+            }
         }
 
         // ---- estágio -------------------------------------------------------------------------------------------
@@ -143,6 +209,7 @@ namespace Ror2Meeeee
             Interlocked.Exchange(ref _beat, Stopwatch.GetTimestamp());
             var dt = Time.unscaledDeltaTime;
             var ms = dt * 1000f;
+            _lastFrameMs = ms;
             if (ms > _stageWorstMs) _stageWorstMs = ms;
             _sampleAcc += dt;
             if (_sampleAcc < 0.5f) return;
@@ -184,13 +251,15 @@ namespace Ror2Meeeee
         {
             var nextReport = StallSeconds;
             var stalled = false;
+            var tick = 0;
             while (!Plugin.Quitting)
             {
                 Thread.Sleep(1000);
                 try
                 {
-                    if (!_watch) { stalled = false; nextReport = StallSeconds; continue; }
                     var gap = (Stopwatch.GetTimestamp() - Interlocked.Read(ref _beat)) / (double)Stopwatch.Frequency;
+                    if (++tick % HeartbeatSeconds == 0) WriteHeartbeat(gap);
+                    if (!_watch) { stalled = false; nextReport = StallSeconds; continue; }
                     if (gap >= nextReport)
                     {
                         stalled = true;
@@ -217,14 +286,20 @@ namespace Ror2Meeeee
             lock (UnityLogLock)
             {
                 for (var i = 0; i < KnownNoise.Length; i++)
-                    if (condition.Contains(KnownNoise[i])) { KnownCounts[i]++; return; }
+                    if (condition.Contains(KnownNoise[i]) || (stackTrace != null && stackTrace.Contains(KnownNoise[i])))
+                    { KnownCounts[i]++; return; }
 
                 _unknownCount++;
                 var nl = condition.IndexOf('\n');
                 var key = (nl > 0 ? condition.Substring(0, nl) : condition);
                 if (key.Length > 140) key = key.Substring(0, 140);
-                if (SeenUnknown.Count < 60 && SeenUnknown.Add(key))
-                    _log?.LogWarning($"[Diag] erro novo do jogo/outro mod (1ª vez): {key}");
+                // Dígitos viram '#' só na chave de "já visto": IDs de conexão/objeto não geram um "erro novo" por instância.
+                var dedupe = new System.Text.StringBuilder(key.Length);
+                foreach (var c in key) dedupe.Append(char.IsDigit(c) ? '#' : c);
+                // Primeira linha da pilha: diz de onde veio (a mensagem sozinha, ex. IndexOutOfRange, não diz).
+                var frame = string.IsNullOrEmpty(stackTrace) ? "" : stackTrace.Split('\n')[0].Trim();
+                if (SeenUnknown.Count < 60 && SeenUnknown.Add(dedupe + frame))
+                    _log?.LogWarning($"[Diag] erro novo do jogo/outro mod (1ª vez): {key}{(frame.Length > 0 ? " @ " + frame : "")}");
             }
         }
 
@@ -267,12 +342,19 @@ namespace Ror2Meeeee
 
             public void ResetStage() => _logged = false;
 
-            public void Hit(string detail = null)
+            // true só no evento que cruza o limite: o chamador monta o detalhe (string) apenas aí, não a cada evento.
+            // scale multiplica o limite (ex.: jogadores, quando cada ocorrência gera um evento por jogador).
+            public bool Hit(int scale = 1)
             {
                 var now = Time.time;
                 if (now - _start >= 1f) { _start = now; _n = 0; }
-                if (++_n != _threshold || _logged) return;
+                if (++_n < _threshold * Math.Max(1, scale) || _logged) return false;
                 _logged = true;
+                return true;
+            }
+
+            public void Report(string detail = null)
+            {
                 _log?.LogWarning($"[Diag] enxurrada de {_name}: {_n} em <1 s{(detail != null ? " (" + detail + ")" : "")}; monstros ~{Monsters}. Origem:\n{new StackTrace(1, false)}");
             }
         }

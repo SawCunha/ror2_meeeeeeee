@@ -62,7 +62,7 @@ namespace Ror2Meeeee
 
         // O jogo não recarrega o .cfg sozinho (sob Proton o watcher não dispara): este comando relê o arquivo
         // e dispara SettingChanged só nas entradas que mudaram (Mode, Limit, Factor, bônus, Value...).
-        [ConCommand(commandName = "ror2meeeee_reload", flags = ConVarFlags.None, helpText = "Relê o .cfg do mod (Mode, Limit, Factor, bônus...). Enabled ainda exige reiniciar.")]
+        [ConCommand(commandName = "ror2meeeee_reload", flags = ConVarFlags.None, helpText = "Relê o .cfg do mod (Mode, Limit, Factor, bônus...). Enabled já vale na hora, entre partidas.")]
         private static void CcReload(ConCommandArgs args)
         {
             Plugin.Instance.Config.Reload();

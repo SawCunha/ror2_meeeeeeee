@@ -49,6 +49,10 @@
       <HintPath>$(GameDir)/Risk of Rain 2_Data/Managed/LegacyResourcesAPI.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="AsyncManagement">
+      <HintPath>$(GameDir)/Risk of Rain 2_Data/Managed/AsyncManagement.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="HGCSharpUtils">
       <HintPath>$(GameDir)/Risk of Rain 2_Data/Managed/HGCSharpUtils.dll</HintPath>
       <Private>false</Private>

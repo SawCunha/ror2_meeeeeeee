@@ -1,8 +1,8 @@
 {
   "name": "Ror2Meeeee",
-  "version_number": "0.10.0",
-  "website_url": "",
-  "description": "Multiplicador de pickup, dificuldade com progressao entre runs, artefatos (Dizimo, Taxade, Ressurreicao) e itens proprios, incluindo tema Helluva Boss. Todos precisam do mod.",
+  "version_number": "0.10.4",
+  "website_url": "https://github.com/SawCunha/ror2_meeeeeeee",
+  "description": "Itens x10, inimigos mais fortes, 5 artefatos, 16 itens, 1 equipamento e 5 elites novos, Bazar Maior e otimizações de FPS. Todos os jogadores precisam do mod.",
   "dependencies": [
     "bbepis-BepInExPack-5.4.2122",
     "RiskofThunder-HookGenPatcher-1.2.9",

@@ -20,7 +20,7 @@ namespace Ror2Meeeee
             "Limita quantas Lâminas Fantasmas (item Curse do DLC4) o jogo gera/renova por segundo, para não encher o jogo de projéteis. Só no host.",
             enabledByDefault: true)
         {
-            _max = cfg.Bind("GhostBlades", "MaxPerSecond", 15,
+            _max = cfg.Bind("GhostBlades", "MaxPerSecond", 10,
                 "Máximo de gerações/renovações de lâminas por segundo (somadas, todos os jogadores). O jogo chegava a ~700/s; com 100 ficava sempre no teto (2,8 mil projéteis por 30 s). 0 = sem teto.");
             _maxValue = _max.Value;
             _max.SettingChanged += (_, __) => _maxValue = _max.Value;
