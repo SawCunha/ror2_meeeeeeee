@@ -15,7 +15,7 @@ namespace Ror2Meeeee
     [BepInDependency(R2API.LanguageAPI.PluginGUID)]
     [BepInDependency("com.bepis.r2api.content_management")]
     [BepInDependency(R2API.EliteAPI.PluginGUID)] // elites: os tiers do diretor já precisam estar copiados no Awake
-    [BepInDependency("com.bepis.r2api.networking")] // totais da tela de status (F8) do host para os clientes
+    [BepInDependency(R2API.DifficultyAPI.PluginGUID)] // dificuldade Tormenta
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.EveryoneNeedSameModVersion)]
     public class Plugin : BaseUnityPlugin
     {
@@ -55,7 +55,7 @@ namespace Ror2Meeeee
             {
                 Overlay.Install(gameObject);
                 DropMenu.Install(gameObject, Config.Bind("Drop", "MenuKey", "F7", "Key (UnityEngine.KeyCode, e.g. F7, G, Insert) that opens the on-screen menu to drop items."));
-                StatsPanel.Install(gameObject, Config.Bind("Stats", "MenuKey", "F8", "Key (UnityEngine.KeyCode) that opens/closes the status screen: current stats and run totals (damage, healing, damage taken)."));
+                StatsPanel.Install(gameObject, Config.Bind("Stats", "MenuKey", "F8", "Key (UnityEngine.KeyCode) for the status screen: 1st press shows your stats above the skills, 2nd shows every player, 3rd closes."));
             });
             Diag.Install(Logger);
             Timed("TitheArtifact", () => TitheArtifact.Register(Logger));
@@ -65,6 +65,7 @@ namespace Ror2Meeeee
             Timed("HordeItem", () => HordeItem.Register(Logger)); // antes do ItemCatalog; falha não derruba o plugin
             Timed("CervoItem", () => CervoItem.Register(Logger));
             Timed("CanoItem", () => CanoItem.Register(Logger));
+            Timed("TempestHealthItem", () => TempestHealthItem.Register(Logger));
             Timed("GrimoireFeature", () => GrimoireFeature.Register(Logger));
             Timed("ContractFeature", () => ContractFeature.Register(Logger));
             Timed("ReviveFeature", () => ReviveFeature.Register(Logger));
@@ -80,6 +81,7 @@ namespace Ror2Meeeee
             tRegister = sw.ElapsedMilliseconds - tRegister;
             var tCtor = sw.ElapsedMilliseconds;
             _cfg = new Cfg(Config, Logger);
+            TempestDifficulty.Register(Logger, _cfg); // precisa do Cfg (ScalingValue) e vem antes do DifficultyCatalog
             Probe = new Probe(_cfg, Logger);
             _features.Add(Probe);
             _features.Add(new LimitedCalcFeature(_cfg, Logger));
@@ -110,6 +112,7 @@ namespace Ror2Meeeee
             _features.Add(new GameFixesFeature(_cfg, Logger));
             _features.Add(new BazaarFeature(_cfg, Logger));
             _features.Add(new ElitesFeature(_cfg, Logger));
+            _features.Add(new TempestFeature(_cfg, Logger));
 
             tCtor = sw.ElapsedMilliseconds - tCtor;
             if (tCtor >= 5) slow.Add($"config e construtores {tCtor}");

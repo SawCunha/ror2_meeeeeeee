@@ -23,6 +23,10 @@ namespace Ror2Meeeee
         private bool _granting; // guarda de reentrância: a concessão extra nunca multiplica de novo
 
         private const string CapToken = "ROR2MEEEEE_MULTIPLIER_CAP_CHAT";
+        private static MultiplierFeature _instance;
+
+        // Valor em vigor para outras features (a Tormenta reforça a redução de dano com ele); 1 = desligado.
+        internal static int ActiveValue => _instance != null && _instance.Enabled ? _instance._rules.Multiplier : 1;
 
         public MultiplierFeature(Cfg cfg, ManualLogSource log) : base("Multiplier", cfg, log,
             "Item multiplier: each item a player picks up yields several copies (see Value). Starting items, items from monsters, scrap and temporary items don't multiply. Only the host needs to turn it on.", "Multiplicador de itens: cada item que um jogador pega rende várias cópias (veja Value). Itens iniciais, de monstros, scrap e temporários não multiplicam. Só o host precisa ligar.",
@@ -30,6 +34,7 @@ namespace Ror2Meeeee
         {
             Loc.Add(CapToken, "<color=#e5c07b>{0}</color>: {1} is already at the cap ({2}); the item disappeared.",
                 "<color=#e5c07b>{0}</color>: {1} já está no teto ({2}); o item sumiu.");
+            _instance = this;
             _value = cfg.Bind("Multiplier", "Value", MultiplierRules.DefaultMultiplier,
                 $"How many copies in total each collected item yields (1 = normal, 2 = double, 10 = ten copies). Less than 1 falls back to {MultiplierRules.DefaultMultiplier}.", $"Quantas cópias no total cada item coletado rende (1 = normal, 2 = dobra, 10 = dez cópias). Menor que 1 volta para {MultiplierRules.DefaultMultiplier}.");
             _includeLunar = cfg.Bind("Multiplier", "IncludeLunar", true, "Also multiplies lunar (blue) items. Off: lunar items come as 1 copy.", "Também multiplica itens lunares (azuis). Desligado: lunares vêm em 1 cópia.");

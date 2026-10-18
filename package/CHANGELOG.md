@@ -2,8 +2,71 @@
 
 **Language:** English · [Português (Brasil)](https://github.com/SawCunha/ror2_meeeeeeee/blob/main/package/CHANGELOG.pt-BR.md)
 
+## 0.11.3
+
+- **Tempest:** protection of new enemies (and on each revive) goes from 10 s to **5 s**. Configs with the old default (3
+  or 10) move to 5 on their own (`General.ConfigVersion = 3`); a hand-picked value stays.
+- **Tempest, performance:** a hit on a protected enemy is now marked as rejected. Before, the game dropped the damage but
+  the attacker still ran every on-hit item effect (missiles, lightning, bubbles...) on the immune enemy, and each effect
+  hit another immune enemy again. In a test with ~3,300 items there were 71 thousand hits on protected enemies in a
+  single stage and freezes from a few seconds to over 2 minutes.
+- **Tempest:** the Void Infestor (released by Void elites on death) no longer gets Dio's. It kills itself when it enters
+  its target and, with the extra life, revived and infested again.
+- Diagnostics: the NRE from `EnableCustomRenderTextureOnLight.OnDisable` (when quitting the game) is now known noise.
+
+## 0.11.2
+
+- **Tempest:** the Multiplier's boost to monster health and damage now applies only from stage 2 on, like the damage
+  reduction. In 0.11.1 it already applied at minute 0 (+220% health and damage with x10) and the team was wiped in under
+  a minute on stage 1.
+- **Enforcer parry** (`[GameFixes]`): the counterattack aims at whoever dealt the parried hit; when that attacker no
+  longer exists (it died or, with Tempest's Dio's, revived in another body), the game threw `NullReferenceException`
+  every tick of the parry window and the parry didn't fire. Now only the retaliation for that hit is skipped.
+- Diagnostics: the NRE from `HurtBox.SimpleColliderBlockFilter` (the Engineer turret's beam going through the blocking
+  bubble with the target already destroyed; only that shot is lost) is now counted as known noise.
+
+## 0.11.1
+
+- **Tougher Tempest:**
+  - New enemies' protection goes from 3 s to **10 s**, with the game's golden glow so you can see who is protected.
+    Existing configs with the old value (3) move to 10 on their own (`General.ConfigVersion = 2`).
+  - Each normal enemy gets 1 **Dio's Best Friend** and each elite gets 2 (`ExtraLivesNormal`, `ExtraLivesElite`).
+    Bosses, summons (mines, totems, urchins) and temporary minions get none. Each time it revives, the 10 s protection
+    applies again.
+  - With the **Multiplier** on (x M), the damage that gets through the reduction is divided by
+    `M^MultiplierReductionExponent` (new setting, default 0.5): with x10, stage 2 goes from 20% to 75% and stage 3 from
+    40% to 81% (cap 99%). The curves' health and damage are multiplied by the same factor (x3.16 with x10). The
+    Multiplier value is read at the start of each stage.
+- **Status screen (F8):** the backgrounds (panel, cards, portrait frame) disappeared after stage 1, because the scene
+  change unloaded the mod's images; the same happened to the F7 screen. Health no longer gets cut off: on the bar and on
+  the panel, the columns have different widths and the value shrinks if needed. In English, short numbers show as
+  `12.3K`/`4.5M` (before, always `12,3 mil`).
+- **Client-side game fixes** (`[GameFixes]`), seen in a client's log from the test run:
+  - Homing projectiles and mines (`ProjectileSteerTowardTarget`, `ProjectileSphereTargetFinder`): the game turns back on,
+    on the client, a component that only runs on the host (Huntress' Cyclone return, objects released by the Drifter),
+    and every tick threw `NullReferenceException`: about 10,700 errors in one run, costing FPS. The mod now turns it off
+    again, as the game itself would.
+  - Item-draining cauldron (`HallowedCauldron.DrainingItems`): on the client, without the player who activated it, the
+    state threw every tick while draining (251 errors). The client's tick is skipped; the host drives it.
+- Tempest diagnostics: the stage summary is now written on the scene change (before, the initial monsters went into a
+  fake "summary" and were missing from the right stage) and each phase switch is counted once (it was once per director).
+- Diagnostics: the NRE from `AcolyteBodySwapController` and the one from `PlaySoundOnEvent.OnDestroy` (both on the
+  scene change), the one from `SendP2PPacket` (when quitting, with Steam already closed), the
+  `ActivityManager::CurrentSurvivor` warning and the NRE from `BurnEffectController.Start` (a body catches fire with a part of its model already
+  destroyed; only the particles don't show) are now counted as known noise.
+
 ## 0.11.0
 
+- **Tempest difficulty** (`[Tempest]`, new R2API.Difficulty dependency): above Monsoon (`ScalingValue` 3.5).
+  Monster cap 60 (+10 per extra player), extra director credit with a gate before the cap and gradual resume, swarm
+  (cheap monsters, waves of 10) and heavy phases, 3 s of invulnerability for new enemies, damage reduction and the same
+  in max health per stage (20/40/55/70/90/99%), health, damage and elite curves, stay pressure, Primordial Teleporter
+  only on stage 10 (other endings can be blocked), extra credit cut on low FPS, F8 summary and `DebugLog` for in-game
+  validation. Lost Seer's Lenses remove 90% of the remaining health instead of killing. New command `ror2meeeee_portals`. Other difficulties are unchanged.
+- Config: `General.ConfigVersion = 1`.
+- **Status screen (F8)** redesigned, in a cycle: 1st press shows your stats in a bar above the skills (always up to
+  date), 2nd shows every player with portrait, name and stats (and the Tempest summary on the host), 3rd closes. The
+  run totals (damage dealt, healing, damage taken...) were removed, and with them the R2API Networking dependency.
 - **Languages**: the mod now has an English base with a Brazilian Portuguese translation. With the game set to
   Português (Brasil), everything shows in Portuguese; in any other language, in English. This covers names and
   descriptions of items, artifacts, equipment and elites, chat messages, the F7/F8 screens, on-screen notices and

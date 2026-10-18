@@ -12,15 +12,15 @@ namespace Ror2Meeeee
     internal static class ModOptions
     {
         // Lidas só na inicialização do Probe: a tela avisa que exigem reiniciar.
-        private static readonly string[] RestartKeys = { "ProbeEmptyHook", "ProbeAutoWindowSeconds" };
+        private static readonly string[] RestartKeys = { "ProbeEmptyHook", "ProbeAutoWindowSeconds", "ScalingValue", "ConfigVersion" };
 
         [MethodImpl(MethodImplOptions.NoInlining)]
         public static void Register(Cfg cfg, ManualLogSource log)
         {
             try
             {
-                Loc.Add(DescToken, "Item multiplier and sharing, adjustable difficulty with progression between runs, the Tithe and Taxade artifacts (with the Capitalism items), particle limiting and measurement tools. Each section has an Enabled that explains what it does. Only the host needs to configure; changes apply immediately or from the next stage.",
-                    "Multiplicador e compartilhamento de itens, dificuldade ajustável com progressão entre runs, artefatos do Dízimo e Taxade (com os itens Capitalismo), corte de partículas e ferramentas de medição. Cada seção tem um Enabled que explica o que ela faz. Só o host precisa configurar; alterações valem na hora ou a partir do próximo estágio.");
+                Loc.Add(DescToken, "Item multiplier and sharing, adjustable difficulty with progression between runs, the Tempest difficulty, the Tithe and Taxade artifacts (with the Capitalism items), particle limiting and measurement tools. Each section has an Enabled that explains what it does. Only the host needs to configure; changes apply immediately or from the next stage.",
+                    "Multiplicador e compartilhamento de itens, dificuldade ajustável com progressão entre runs, a dificuldade Tormenta, artefatos do Dízimo e Taxade (com os itens Capitalismo), corte de partículas e ferramentas de medição. Cada seção tem um Enabled que explica o que ela faz. Só o host precisa configurar; alterações valem na hora ou a partir do próximo estágio.");
                 ModSettingsManager.SetModDescriptionToken(DescToken, ModInfo.Guid, ModInfo.Name);
                 // Ícone do mod na tela de mods (PNG embutido); sem ele a tela usa o padrão.
                 var icon = TitheArtifact.LoadIcon("mod_icon.png", default(UnityEngine.Color32));

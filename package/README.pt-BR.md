@@ -44,6 +44,34 @@ Os nomes entre colchetes, como `[Multiplier]`, são as seções do arquivo de co
 
 ---
 
+## Dificuldade Tormenta (`[Tempest]`)
+
+Dificuldade nova no lobby, acima da Monção (`ScalingValue` 3,5). Tudo roda no host e só vale nas runs com ela.
+
+- **Hordas:** teto de monstros vivos sobe de 40 para 60 (+10 por jogador extra, contados no início da run). O diretor
+  recebe crédito extra que cresce com o tempo e os estágios, para 5 vagas antes do teto e volta aos poucos (sem rajada).
+- **Enxame e fase pesada:** cada estágio começa com 45 s de enxame (o diretor usa monstros baratos, ondas de 10) e
+  alterna com 75 s de fase pesada (monstros caros e elites, como no jogo).
+- **Proteção:** todo inimigo novo fica 5 s invulnerável (dano, empurrão, dano contínuo e efeitos ao acertar), com o
+  brilho dourado do jogo. Uma vez por inimigo, e de novo a cada vez que ele revive. Continua andando e atacando.
+- **Vidas extras:** cada inimigo normal ganha 1 Dio's Best Friend (`ExtraLivesNormal`) e cada elite ganha 2
+  (`ExtraLivesElite`). Chefes, invocações e temporários não ganham.
+- **Redução de dano e vida por estágio** (`DamageReductionSteps`): 20/40/55/70/90/99% a partir do estágio 2, e o mesmo
+  valor em vida máxima (item oculto, +1% por cópia). Soma com o bônus do `[Difficulty]`.
+- **Com o Multiplicador ligado** (x M): o dano que passa pela redução é dividido por `M^MultiplierReductionExponent`
+  (padrão 0,5; com x10, o estágio 2 vai de 20% para 75%, teto 99%), e a vida e o dano das curvas são multiplicados pelo
+  mesmo fator (x3,16 com x10), também a partir do estágio 2.
+- **Curvas:** vida, dano e frequência de elites crescem por minuto e por estágio (`<Eixo>PerMinute`, `PerStage`, `Max`).
+  Ficar muito tempo no estágio aumenta a pressão (congela durante a carga do teleportador).
+- **Final no estágio 10** (`FinalStage`): antes dele o Teleportador Primordial leva ao próximo loop. Os outros finais
+  podem ser bloqueados até lá (`Block*UntilFinalStage`, desligados por padrão).
+- **Lentes do Vidente Perdido:** na Tormenta não matam de uma vez; o acerto (mesma chance do jogo) tira 90% da vida
+  restante do inimigo. Chefes continuam imunes.
+- **Desempenho:** com o frame médio acima de 33 ms por 10 s o crédito extra para, e volta aos poucos.
+- **Validação:** `DebugLog` (liga/desliga na hora) registra stacks dados, vida antes/depois, dano antes/depois da redução,
+  golpes ignorados pela proteção e o estado do diretor a cada 10 s. A tela F8 mostra o resumo no host.
+- `ror2meeeee_portals` lista os portais do estágio.
+
 ## Artefatos
 
 Artefatos são ligados no **lobby**, na tela de seleção de artefatos, antes de começar a run. Desligados, não mudam nada.
@@ -397,12 +425,14 @@ Opções: `MenuKey` (tecla, padrão `F7`) e `MaxPerCommand` (máximo por vez, pa
 
 ### Status da run (F8, `[Stats]`)
 
-**O que faz:** mostra seus atributos atuais e, para todos os jogadores, o total da run de dano causado, cura e dano
-recebido.
+**O que faz:** mostra seus atributos (vida, velocidade, dano, regeneração, armadura, nível, velocidade de ataque) numa
+barra acima das habilidades e, no segundo toque, todos os jogadores com retrato e os mesmos atributos (e o resumo da
+Tormenta no host).
 
-**Como usar:** aperte **F8** para abrir e fechar. A tecla muda em `MenuKey`.
+**Como usar:** o **F8** alterna: sua barra → todos os jogadores → fechado. A tecla muda em `MenuKey`.
 
-**Exemplo:** no fim do estágio, abra o F8 para ver quem causou mais dano e quem tomou mais.
+**Exemplo:** deixe a barra aberta para acompanhar a velocidade de ataque enquanto junta Seringas; aperte de novo
+para comparar com os amigos.
 
 ---
 

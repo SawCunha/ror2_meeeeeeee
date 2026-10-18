@@ -9,6 +9,10 @@ namespace Ror2Meeeee
     public sealed class Cfg
     {
         public const int MinMaxFailures = 50;
+        // Versão do formato do .cfg. Migração só quando uma chave mudar de significado ou de padrão.
+        // 2 (0.11.1): Tempest.ProtectionSeconds 3 -> 10 (só se ainda estava no padrão antigo).
+        // 3 (0.11.3): Tempest.ProtectionSeconds 3 ou 10 -> 5.
+        public const int ConfigVersion = 3;
 
         private readonly ConfigFile _file;
         private readonly ManualLogSource _log;
@@ -27,6 +31,8 @@ namespace Ror2Meeeee
         public int ProbeAutoWindowSeconds { get; }
         public bool VerboseLogging { get; private set; }
         public int MaxFailures { get; private set; }
+        // Versão que o .cfg tinha ao abrir (igual a ConfigVersion em config nova): as features migram suas chaves com ela.
+        public int LoadedConfigVersion { get; }
 
         public Cfg(ConfigFile file, ManualLogSource log)
         {
@@ -51,6 +57,16 @@ namespace Ror2Meeeee
             ProbeAutoWindowSeconds = Math.Max(0, Bind("General", "ProbeAutoWindowSeconds", 30,
                 "Probe: measures on its own during the run in X-second windows (each window becomes a line in the CSV and the log). 0 = only with the ror2meeeee_probe_* commands. Requires restarting the game.",
                 "Probe: mede sozinho durante a run em janelas de X segundos (cada janela vira uma linha no CSV e no log). 0 = só com os comandos ror2meeeee_probe_*. Exige reiniciar o jogo.").Value);
+
+            var version = Bind("General", "ConfigVersion", ConfigVersion,
+                "Format version of this file, used to migrate keys between mod versions. Do not change.",
+                "Versão do formato deste arquivo, usada para migrar chaves entre versões do mod. Não altere.");
+            LoadedConfigVersion = version.Value;
+            if (version.Value != ConfigVersion)
+            {
+                _log.LogInfo($"General.ConfigVersion={version.Value} -> {ConfigVersion}: as features migram as chaves que mudaram.");
+                version.Value = ConfigVersion;
+            }
 
             _verboseLogging.SettingChanged += (_, __) => Refresh();
             _maxFailures.SettingChanged += (_, __) => Refresh();

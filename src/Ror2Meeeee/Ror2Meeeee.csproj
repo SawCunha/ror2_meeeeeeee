@@ -16,7 +16,9 @@
     <EmbeddedResource Include="Assets\cano_extra.png" LogicalName="cano_extra.png" />
     <EmbeddedResource Include="Assets\prego.png" LogicalName="prego.png" />
     <EmbeddedResource Include="Assets\prego_void.png" LogicalName="prego_void.png" />
+    <EmbeddedResource Include="Assets\tempestade.png" LogicalName="tempestade.png" />
     <EmbeddedResource Include="Assets\artifacts\*.png" LogicalName="%(Filename)%(Extension)" />
+    <EmbeddedResource Include="Assets\stats\*.png" LogicalName="%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>
@@ -27,6 +29,10 @@
     </Reference>
     <Reference Include="com.unity.multiplayer-hlapi.Runtime">
       <HintPath>$(GameDir)/Risk of Rain 2_Data/Managed/com.unity.multiplayer-hlapi.Runtime.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>$(GameDir)/Risk of Rain 2_Data/Managed/Unity.TextMeshPro.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.UI">
@@ -77,12 +83,12 @@
       <HintPath>$(R2modmanProfile)/BepInEx/plugins/Rune580-Risk_Of_Options/RiskOfOptions/RiskOfOptions.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <Reference Include="R2API.Networking">
-      <HintPath>$(R2modmanProfile)/BepInEx/plugins/RiskofThunder-R2API_Networking/R2API.Networking/R2API.Networking.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
     <Reference Include="R2API.Elites">
       <HintPath>$(R2modmanProfile)/BepInEx/plugins/RiskofThunder-R2API_Elites/R2API.Elites/R2API.Elites.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="R2API.Difficulty">
+      <HintPath>$(R2modmanProfile)/BepInEx/plugins/RiskofThunder-R2API_Difficulty/R2API.Difficulty/R2API.Difficulty.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="R2API.Core">

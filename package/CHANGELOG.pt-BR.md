@@ -2,8 +2,73 @@
 
 **Idioma:** [English](https://github.com/SawCunha/ror2_meeeeeeee/blob/main/package/CHANGELOG.md) · Português (Brasil)
 
+## 0.11.3
+
+- **Tormenta:** proteção dos inimigos novos (e a cada revive) de 10 s para **5 s**. Configs com o padrão antigo (3 ou 10)
+  passam a 5 sozinhas (`General.ConfigVersion = 3`); um valor escolhido à mão fica.
+- **Tormenta, desempenho:** golpe em inimigo protegido agora é marcado como rejeitado. Antes o jogo descartava o dano mas
+  o atacante rodava todos os efeitos ao acertar dos itens (mísseis, raios, bolhas...) no inimigo imune, e cada efeito
+  acertava de novo outro imune. Num teste com ~3.300 itens foram 71 mil golpes em inimigos protegidos num só estágio e
+  travadas de alguns segundos a mais de 2 minutos.
+- **Tormenta:** o Void Infestor (solto por elites do Vazio ao morrer) não ganha mais Dio's. Ele se mata ao entrar no alvo
+  e, com a vida extra, revivia e infestava de novo.
+- Diagnóstico: o NRE do `EnableCustomRenderTextureOnLight.OnDisable` (ao fechar o jogo) passa a ser ruído conhecido.
+
+## 0.11.2
+
+- **Tormenta:** o reforço de vida e dano dos monstros pelo Multiplicador passa a valer só a partir do estágio 2, como a
+  redução de dano. Na 0.11.1 ele já valia no minuto 0 (+220% de vida e dano com x10) e o time foi derrotado em menos de
+  1 minuto no estágio 1.
+- **Aparo do Enforcer** (`[GameFixes]`): o contra-ataque mira quem deu o golpe aparado; quando esse atacante já não
+  existe (morreu ou, com o Dio's da Tormenta, renasceu em outro corpo), o jogo estourava `NullReferenceException` a
+  cada tick da janela de aparo e o aparo não disparava. Agora só o revide desse golpe é pulado.
+- Diagnóstico: o NRE do `HurtBox.SimpleColliderBlockFilter` (raio da torreta do Engenheiro atravessando a bolha de
+  bloqueio com o alvo já destruído; só aquele tiro se perde) passa a ser ruído conhecido.
+
+## 0.11.1
+
+- **Tormenta mais dura:**
+  - Proteção dos inimigos novos de 3 s para **10 s**, com o brilho dourado do jogo para dar para ver quem está protegido.
+    Configs existentes com o valor antigo (3) passam a 10 sozinhas (`General.ConfigVersion = 2`).
+  - Cada inimigo normal ganha 1 **Dio's Best Friend** e cada elite ganha 2 (`ExtraLivesNormal`, `ExtraLivesElite`).
+    Chefes, invocações (minas, totens, ouriços) e temporários não ganham. A cada vez que revive, a proteção de 10 s vale de
+    novo.
+  - Com o **Multiplicador** ligado (x M), o dano que passa pela redução é dividido por `M^MultiplierReductionExponent`
+    (config nova, padrão 0,5): com x10, o estágio 2 vai de 20% para 75% e o 3, de 40% para 81% (teto 99%). A vida e o dano
+    das curvas são multiplicados pelo mesmo fator (x3,16 com x10). O valor do Multiplicador é lido no início de cada
+    estágio.
+- **Tela de status (F8):** os fundos (painel, cartões, moldura do retrato) sumiam depois do 1º estágio, porque a troca de
+  cena descarregava as imagens do mod; o mesmo valia para a tela F7. A vida não cabe mais cortada: na barra e no painel,
+  as colunas têm larguras diferentes e o valor encolhe se precisar. Em inglês, os números curtos saem como `12.3K`/`4.5M`
+  (antes, sempre `12,3 mil`).
+- **Correções do jogo no cliente** (`[GameFixes]`), vistas no log de um cliente da run de teste:
+  - Projéteis teleguiados e minas (`ProjectileSteerTowardTarget`, `ProjectileSphereTargetFinder`): o jogo religa no
+    cliente um componente que só roda no host (Retorno do Cyclone da Huntress, objetos soltos pelo Drifter), e cada tick
+    estourava `NullReferenceException`: cerca de 10.700 erros numa run, com custo de FPS. Agora o mod desliga de novo, como
+    o próprio jogo faria.
+  - Caldeirão que drena itens (`HallowedCauldron.DrainingItems`): no cliente, sem o jogador que ativou, o estado estourava
+    a cada tick enquanto drenava (251 erros). O tick do cliente é pulado; quem conduz é o host.
+- Diagnóstico da Tormenta: o resumo do estágio passa a sair na troca de cena (antes, os monstros iniciais caíam num
+  "resumo" falso e sumiam do estágio certo) e conta cada troca de fase uma vez só (contava uma por diretor).
+- Diagnóstico: passam a ser ruído conhecido o NRE do `AcolyteBodySwapController` e o do `PlaySoundOnEvent.OnDestroy` (os
+  dois na troca de cena), o do `SendP2PPacket` (ao sair, com a Steam já fechada), o aviso `ActivityManager::CurrentSurvivor`
+  e o NRE do `BurnEffectController.Start` (corpo pega fogo com uma parte do modelo já destruída; só as
+  partículas não saem).
+
 ## 0.11.0
 
+- **Dificuldade Tormenta** (`[Tempest]`, nova dependência R2API.Difficulty): acima da Monção (`ScalingValue` 3,5).
+  Teto de monstros 60 (+10 por jogador extra), crédito extra do diretor com portão antes do teto e retomada gradual,
+  fases de enxame (monstros baratos, ondas de 10) e pesada, 3 s de invulnerabilidade para inimigos novos, redução de
+  dano e o mesmo em vida máxima por estágio (20/40/55/70/90/99%), curvas de vida, dano e elites, pressão por
+  permanência, Teleportador Primordial só no estágio 10 (outros finais bloqueáveis), corte do crédito extra com FPS
+  baixo, resumo na F8 e `DebugLog` para validar em jogo. Lentes do Vidente Perdido tiram 90% da vida restante em vez
+  de matar. Comando novo `ror2meeeee_portals`. Nas outras dificuldades
+  nada muda.
+- Config: `General.ConfigVersion = 1`.
+- **Tela de status (F8)** com visual novo, em ciclo: 1º toque mostra seus atributos numa barra acima das habilidades
+  (sempre atualizada), 2º mostra todos os jogadores com retrato, nome e atributos (e o resumo da Tormenta no host), 3º
+  fecha. Os totais da run (dano causado, cura, dano recebido...) saíram, e com eles a dependência do R2API Networking.
 - **Idiomas**: o mod passa a ter base em inglês e tradução para português do Brasil. Com o jogo em Português (Brasil),
   tudo aparece em português; em qualquer outro idioma, em inglês. Vale para nomes e descrições de itens, artefatos,
   equipamento e elites, mensagens de chat, telas F7/F8, avisos e marcadores na tela, respostas dos comandos de console

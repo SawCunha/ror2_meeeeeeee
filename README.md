@@ -6,7 +6,7 @@ A **Risk of Rain 2** mod (1.5.0#1224, Steam build 25921972) made with BepInEx 5 
 chaotic: multiplies collected items, makes enemies stronger and more numerous, adds new items, an equipment and
 artifacts, and includes tools to keep FPS up when the inventory explodes.
 
-- **Current version:** 0.11.0 (`src/Ror2Meeeee.Core/ModInfo.cs`; history in [`package/CHANGELOG.md`](package/CHANGELOG.md))
+- **Current version:** 0.11.3 (`src/Ror2Meeeee.Core/ModInfo.cs`; history in [`package/CHANGELOG.md`](package/CHANGELOG.md))
 - **GUID:** `com.sawcunha.ror2meeeee` · **Package:** `Sawcunha-Ror2Meeeee`
 - **GitHub:** [https://github.com/SawCunha/ror2_meeeeeeee](https://github.com/SawCunha/ror2_meeeeeeee) · **Thunderstore:** [thunderstore.io/c/riskofrain2/p/SawCunhaOS/Ror2Meeeee](https://thunderstore.io/c/riskofrain2/p/SawCunhaOS/Ror2Meeeee/)
 - **Multiplayer:** every player needs the same mod on the same version. Gameplay logic runs **only on the host**, so
@@ -28,8 +28,8 @@ with examples, is in [`package/README.md`](package/README.md), which is the mod'
 1. Build or download `Sawcunha-Ror2Meeeee-<version>.zip` (see [Build](#build-and-development)).
 2. In r2modman: **Settings → Import local mod** and pick the zip.
 3. The dependencies (`package/manifest.json`) are installed along with it:
-   BepInExPack, HookGenPatcher, RoR2BepInExPack 1.45.0 and the R2API Core, ContentManagement, Elites, Items, Language
-   and Networking modules.
+   BepInExPack, HookGenPatcher, RoR2BepInExPack 1.45.0 and the R2API Core, ContentManagement, Difficulty, Elites, Items and Language
+   modules.
 
 Optional: **Risk of Options** shows every option on an in-game mod settings screen.
 
@@ -126,6 +126,34 @@ Makes enemies stronger and more numerous. Everything runs on the host.
   - `HealthGain` (1) and `DamageGain` (0.5): health and damage.
 - Also applies the effect of the **Call of the Horde** item.
 
+### Tempest difficulty (`[Tempest]`)
+
+New lobby difficulty, above Monsoon (`ScalingValue` 3.5). Everything runs on the host and only in runs with it.
+
+- **Hordes:** the cap of monsters alive goes from 40 to 60 (+10 per extra player, counted at the start of the run). The
+  director gets extra credit that grows with time and stages, stops 5 slots before the cap and comes back gradually (no burst).
+- **Swarm and heavy phases:** each stage starts with 45 s of swarm (the director uses cheap monsters, waves of 10) and
+  alternates with 75 s of heavy phase (expensive monsters and elites, as in the game).
+- **Protection:** every new enemy is invulnerable for 5 s (damage, knockback, damage over time and on-hit effects), with
+  the game's golden glow. Once per enemy, and again each time it revives. It still moves and attacks.
+- **Extra lives:** each normal enemy gets 1 Dio's Best Friend (`ExtraLivesNormal`) and each elite gets 2
+  (`ExtraLivesElite`). Bosses, summons and temporary minions get none.
+- **Damage reduction and health per stage** (`DamageReductionSteps`): 20/40/55/70/90/99% from stage 2 on, and the same
+  value in max health (hidden item, +1% per stack). Stacks with the `[Difficulty]` bonus.
+- **With the Multiplier on** (x M): the damage that gets through the reduction is divided by `M^MultiplierReductionExponent`
+  (default 0.5; with x10, stage 2 goes from 20% to 75%, cap 99%), and the curves' health and damage are multiplied by
+  the same factor (x3.16 with x10), also from stage 2 on.
+- **Curves:** health, damage and elite frequency grow per minute and per stage (`<Axis>PerMinute`, `PerStage`, `Max`).
+  Staying long in a stage raises the pressure (frozen while the teleporter charges).
+- **Ending on stage 10** (`FinalStage`): before it the Primordial Teleporter leads to the next loop. The other endings
+  can be blocked until then (`Block*UntilFinalStage`, off by default).
+- **Lost Seer's Lenses:** they don't kill instantly in Tempest; a proc (same chance as the game) removes 90% of the
+  enemy's remaining health instead. Bosses are still immune.
+- **Performance:** with the average frame above 33 ms for 10 s the extra credit stops, then comes back gradually.
+- **Validation:** `DebugLog` (toggles immediately) logs stacks given, health before/after, damage before/after the
+  reduction, hits ignored by the protection and the director state every 10 s. The F8 screen shows a summary on the host.
+- `ror2meeeee_portals` lists the stage's portals. Specification (Portuguese): [`docs/especificacao_mod_risk_of_rain_2.md`](docs/especificacao_mod_risk_of_rain_2.md).
+
 ### Progression between runs (`[Progression]`)
 
 At the end of each run, the group gets a score based on speed, deaths, damage taken and kills. The reference targets
@@ -182,8 +210,9 @@ Drops items from your inventory on the ground to give to an ally.
 
 ### Status screen (F8)
 
-Shows your current stats and, for every player, the run total of damage dealt, healing and damage taken. Key in
-`Stats.MenuKey`. Needs R2API Networking.
+Press once: your stats (health, speed, damage, regen, armor, level, attack speed) in a bar above the skills,
+always up to date. Press again: every player with portrait and the same stats (and the Tempest summary on the host).
+Third press closes. Key in `Stats.MenuKey`.
 
 ---
 
@@ -232,6 +261,7 @@ Open the console with **Ctrl+Alt+`** (or F2, depending on the keyboard).
 | Command | What it does |
 |---|---|
 | `ror2meeeee_status` | Lists the mod's features, failures and hooks |
+| `ror2meeeee_portals` | Lists the current stage's portal spawners (card, chance, conditions) |
 | `ror2meeeee_reload` | Reloads the `.cfg` (`Enabled` already applies immediately, between matches) |
 | `ror2meeeee_drop [name] [amount]` | Drops items from your inventory |
 | `ror2meeeee_drop_menu [name]` | Opens the drop items screen |

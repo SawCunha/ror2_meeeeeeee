@@ -131,6 +131,44 @@ namespace Ror2Meeeee
             Debug.Log(Plugin.Instance.Probe.End());
         }
 
+        // Levantamento dos portais do estágio (§8.7 da especificação): o card de cada PortalSpawner e as condições
+        // serializadas na cena, que não aparecem no código do jogo. Também lista o teleportador e o destino dele.
+        [ConCommand(commandName = "ror2meeeee_portals", flags = ConVarFlags.None, helpText = "Lists the portal spawners of the current stage (card, chance, conditions, will spawn).")]
+        private static void CcPortals(ConCommandArgs args)
+        {
+            var run = Run.instance;
+            var stage = Stage.instance;
+            if (!run || !stage) { Debug.Log(Loc.T("Ror2Meeeee: join a run first.", "Ror2Meeeee: entre em uma run primeiro.")); return; }
+            var sb = new StringBuilder();
+            sb.Append("[Portais] estágio ").Append(run.stageClearCount + 1).Append(" (").Append(stage.sceneDef ? stage.sceneDef.cachedName : "?")
+              .Append(", ordem ").Append(stage.sceneDef ? stage.sceneDef.stageOrder : -1).Append("), loop ").Append(run.loopClearCount).Append('\n');
+            var tp = TeleporterInteraction.instance;
+            if (tp)
+            {
+                var exit = tp.sceneExitController;
+                sb.Append("  teleportador ").Append(tp.name).Append(": MS ").Append(tp.shouldAttemptToSpawnMSPortal)
+                  .Append(", loja ").Append(tp.shouldAttemptToSpawnShopPortal).Append(", dourado ").Append(tp.shouldAttemptToSpawnGoldshoresPortal)
+                  .Append(", próximo estágio ").Append(exit ? exit.useRunNextStageScene.ToString() : "?")
+                  .Append(" -> ").Append(exit && exit.destinationScene ? exit.destinationScene.cachedName : run.nextStageScene ? run.nextStageScene.cachedName : "?").Append('\n');
+            }
+            const System.Reflection.BindingFlags Flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+            var t = typeof(PortalSpawner);
+            var fields = new[] { "spawnChance", "minStagesCleared", "requiredExpansion", "requiredEventFlag", "bannedEventFlag", "validStages", "invalidStages", "validStageTiers", "registerSelfToPortalRemotelyOnActivation" };
+            var spawners = Object.FindObjectsOfType<PortalSpawner>(); // sob demanda, nunca por tick
+            if (spawners.Length == 0) sb.Append("  nenhum PortalSpawner\n");
+            foreach (var p in spawners)
+            {
+                sb.Append("  ").Append(p.name).Append(": card ").Append(p.PortalSpawnCard ? p.PortalSpawnCard.name : "-").Append(", vai nascer ").Append(p.WillSpawn);
+                foreach (var name in fields)
+                {
+                    var v = t.GetField(name, Flags)?.GetValue(p);
+                    sb.Append(", ").Append(name).Append('=').Append(v is System.Array a ? "[" + string.Join(",", System.Linq.Enumerable.Cast<object>(a)) + "]" : v is Object o ? (o ? o.name : "-") : v ?? "-");
+                }
+                sb.Append('\n');
+            }
+            Debug.Log(sb.ToString().TrimEnd('\n'));
+        }
+
         internal static string BuildStatus(Plugin plugin)
         {
             var sb = new StringBuilder();

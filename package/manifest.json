@@ -1,6 +1,6 @@
 {
   "name": "Ror2Meeeee",
-  "version_number": "0.11.0",
+  "version_number": "0.11.3",
   "website_url": "https://github.com/SawCunha/ror2_meeeeeeee",
   "description": "Items x10, stronger enemies, 5 artifacts, 16 items, 1 equipment and 5 new elites, Greater Bazaar and FPS optimizations. English and Brazilian Portuguese. All players need the mod.",
   "dependencies": [
@@ -8,10 +8,10 @@
     "RiskofThunder-HookGenPatcher-1.2.9",
     "RiskofThunder-RoR2BepInExPack-1.45.0",
     "RiskofThunder-R2API_Core-5.3.0",
+    "RiskofThunder-R2API_Difficulty-1.1.2",
     "RiskofThunder-R2API_ContentManagement-1.0.11",
     "RiskofThunder-R2API_Elites-1.1.3",
     "RiskofThunder-R2API_Items-1.0.8",
-    "RiskofThunder-R2API_Language-1.1.0",
-    "RiskofThunder-R2API_Networking-1.0.4"
+    "RiskofThunder-R2API_Language-1.1.0"
   ]
 }

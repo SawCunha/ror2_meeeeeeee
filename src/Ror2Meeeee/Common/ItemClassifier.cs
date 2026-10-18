@@ -8,9 +8,10 @@ namespace Ror2Meeeee
     internal static class ItemClassifier
     {
         // Itens do mod que nunca multiplicam nem são compartilhados (1 cópia por pickup): Capitalismo, Cano Extra e
-        // Chamado da Horda (multiplicado e compartilhado entre 3-4 jogadores, chegava a x43 inimigos e travava o jogo).
+        // Chamado da Horda (multiplicado e compartilhado entre 3-4 jogadores, chegava a x43 inimigos e travava o jogo)
+        // e o item oculto de vida da Tormenta (sem tier: viraria Special, que o Comunismo compartilha).
         public static bool IsUnique(ItemIndex index) =>
-            index != ItemIndex.None && (TaxReliefItems.IsReliefItem(index) || index == CanoItem.Index || index == HordeItem.Index);
+            index != ItemIndex.None && (TaxReliefItems.IsReliefItem(index) || index == CanoItem.Index || index == HordeItem.Index || index == TempestHealthItem.Index);
 
         // Converte o ItemDef do jogo (tier, tag de sucata, tipo de pickup) no ItemKind usado pelas regras do Core.
         public static ItemKind Classify(ItemDef def, bool temporaryPickup)

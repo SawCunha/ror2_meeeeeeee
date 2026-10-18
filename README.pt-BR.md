@@ -6,7 +6,7 @@ Mod para **Risk of Rain 2** (1.5.0#1224, build Steam 25921972) feito com BepInEx
 multiplica os itens coletados, deixa os inimigos mais fortes e numerosos, adiciona itens, um equipamento e artefatos
 novos, e inclui ferramentas para manter o FPS de pé quando o inventário explode.
 
-- **Versão atual:** 0.11.0 (`src/Ror2Meeeee.Core/ModInfo.cs`; histórico em [`package/CHANGELOG.pt-BR.md`](package/CHANGELOG.pt-BR.md))
+- **Versão atual:** 0.11.3 (`src/Ror2Meeeee.Core/ModInfo.cs`; histórico em [`package/CHANGELOG.pt-BR.md`](package/CHANGELOG.pt-BR.md))
 - **GUID:** `com.sawcunha.ror2meeeee` · **Pacote:** `Sawcunha-Ror2Meeeee`
 - **GitHub:** [https://github.com/SawCunha/ror2_meeeeeeee](https://github.com/SawCunha/ror2_meeeeeeee) · **Thunderstore:** [thunderstore.io/c/riskofrain2/p/SawCunhaOS/Ror2Meeeee](https://thunderstore.io/c/riskofrain2/p/SawCunhaOS/Ror2Meeeee/)
 - **Multiplayer:** todos os jogadores precisam do mesmo mod na mesma versão. A lógica de gameplay roda **só no host**,
@@ -27,8 +27,8 @@ exemplos, está no [`package/README.pt-BR.md`](package/README.pt-BR.md) (em ingl
 1. Gere ou baixe `Sawcunha-Ror2Meeeee-<versão>.zip` (veja [Build](#build-e-desenvolvimento)).
 2. No r2modman: **Settings → Import local mod** e escolha o zip.
 3. As dependências (`package/manifest.json`) são instaladas junto:
-   BepInExPack, HookGenPatcher, RoR2BepInExPack 1.45.0 e os módulos R2API Core, ContentManagement, Elites, Items,
-   Language e Networking.
+   BepInExPack, HookGenPatcher, RoR2BepInExPack 1.45.0 e os módulos R2API Core, ContentManagement, Difficulty, Elites, Items e
+   Language.
 
 Opcional: **Risk of Options** mostra todas as opções numa tela de mods dentro do jogo.
 
@@ -123,6 +123,34 @@ Deixa os inimigos mais fortes e numerosos. Tudo roda no host.
   - `HealthGain` (1) e `DamageGain` (0,5): vida e dano.
 - Também aplica o efeito do item **Chamado da Horda**.
 
+### Dificuldade Tormenta (`[Tempest]`)
+
+Dificuldade nova no lobby, acima da Monção (`ScalingValue` 3,5). Tudo roda no host e só vale nas runs com ela.
+
+- **Hordas:** teto de monstros vivos sobe de 40 para 60 (+10 por jogador extra, contados no início da run). O diretor
+  recebe crédito extra que cresce com o tempo e os estágios, para 5 vagas antes do teto e volta aos poucos (sem rajada).
+- **Enxame e fase pesada:** cada estágio começa com 45 s de enxame (o diretor usa monstros baratos, ondas de 10) e
+  alterna com 75 s de fase pesada (monstros caros e elites, como no jogo).
+- **Proteção:** todo inimigo novo fica 5 s invulnerável (dano, empurrão, dano contínuo e efeitos ao acertar), com o
+  brilho dourado do jogo. Uma vez por inimigo, e de novo a cada vez que ele revive. Continua andando e atacando.
+- **Vidas extras:** cada inimigo normal ganha 1 Dio's Best Friend (`ExtraLivesNormal`) e cada elite ganha 2
+  (`ExtraLivesElite`). Chefes, invocações e temporários não ganham.
+- **Redução de dano e vida por estágio** (`DamageReductionSteps`): 20/40/55/70/90/99% a partir do estágio 2, e o mesmo
+  valor em vida máxima (item oculto, +1% por cópia). Soma com o bônus do `[Difficulty]`.
+- **Com o Multiplicador ligado** (x M): o dano que passa pela redução é dividido por `M^MultiplierReductionExponent`
+  (padrão 0,5; com x10, o estágio 2 vai de 20% para 75%, teto 99%), e a vida e o dano das curvas são multiplicados pelo
+  mesmo fator (x3,16 com x10), também a partir do estágio 2.
+- **Curvas:** vida, dano e frequência de elites crescem por minuto e por estágio (`<Eixo>PerMinute`, `PerStage`, `Max`).
+  Ficar muito tempo no estágio aumenta a pressão (congela durante a carga do teleportador).
+- **Final no estágio 10** (`FinalStage`): antes dele o Teleportador Primordial leva ao próximo loop. Os outros finais
+  podem ser bloqueados até lá (`Block*UntilFinalStage`, desligados por padrão).
+- **Lentes do Vidente Perdido:** na Tormenta não matam de uma vez; o acerto (mesma chance do jogo) tira 90% da vida
+  restante do inimigo. Chefes continuam imunes.
+- **Desempenho:** com o frame médio acima de 33 ms por 10 s o crédito extra para, e volta aos poucos.
+- **Validação:** `DebugLog` (liga/desliga na hora) registra stacks dados, vida antes/depois, dano antes/depois da redução,
+  golpes ignorados pela proteção e o estado do diretor a cada 10 s. A tela F8 mostra o resumo no host.
+- `ror2meeeee_portals` lista os portais do estágio. Especificação: [`docs/especificacao_mod_risk_of_rain_2.md`](docs/especificacao_mod_risk_of_rain_2.md).
+
 ### Progressão entre runs (`[Progression]`)
 
 No fim de cada run, o grupo recebe uma nota baseada em velocidade, mortes, dano sofrido e abates. As metas de
@@ -178,8 +206,9 @@ Solta itens do seu inventário no chão para dar a um aliado.
 
 ### Tela de status (F8)
 
-Mostra seus atributos atuais e, de todos os jogadores, o total da run de dano causado, cura e dano recebido. Tecla em
-`Stats.MenuKey`. Precisa do R2API Networking.
+Primeiro toque: seus atributos (vida, velocidade, dano, regeneração, armadura, nível, velocidade de ataque) numa barra
+acima das habilidades, sempre atualizada. Segundo: todos os jogadores com retrato e os mesmos atributos (e o resumo da
+Tormenta no host). Terceiro fecha. Tecla em `Stats.MenuKey`.
 
 ---
 
@@ -226,6 +255,7 @@ Abra o console com **Ctrl+Alt+`** (ou F2, conforme o teclado).
 | Comando | O que faz |
 |---|---|
 | `ror2meeeee_status` | Lista as features, falhas e hooks do mod |
+| `ror2meeeee_portals` | Lista os portais do estágio (card, chance, condições) |
 | `ror2meeeee_reload` | Relê o `.cfg` (`Enabled` já vale na hora, entre partidas) |
 | `ror2meeeee_drop [nome] [qtd]` | Solta itens do seu inventário |
 | `ror2meeeee_drop_menu [nome]` | Abre a tela de soltar itens |

@@ -11,7 +11,7 @@ Planejamento concluído: PRD, GDD, épicos, arquitetura e `project-context.md`. 
 ## Stack (decidida)
 
 - Jogo: Risk of Rain 2 1.5.0 (build interno #1224, Steam build 25921972; atualizado em 2026-10-17, antes #1210/25475991), Unity 2021.3.45f2 (Mono). Instalado em `~/.steam/debian-installation/steamapps/common/Risk of Rain 2`.
-- BepInEx 5 + RoR2BepInExPack 1.45.0 + HookGenPatcher/MMHOOK (obrigatório para hooks `On.*`). R2API em uso: Core, ContentManagement, Items, Language, Networking (tela de status) e Elites (elites novos).
+- BepInEx 5 + RoR2BepInExPack 1.45.0 + HookGenPatcher/MMHOOK (obrigatório para hooks `On.*`). R2API em uso: Core, ContentManagement, Items, Language, Elites (elites novos) e Difficulty (dificuldade Tormenta).
 - Pacotes: `UnityEngine.Modules` 2021.3.45 (não 2021.3.33) e feed extra `https://nuget.bepinex.dev/v3/index.json` para `BepInEx.Core`.
 - C# `netstandard2.1`; testes `net8.0` + xunit.v3. Namespace `Ror2Meeeee`, GUID `com.sawcunha.ror2meeeee`.
 - Referenciar as DLLs locais de `Risk of Rain 2_Data/Managed` (via `GameDir` em `Directory.Build.props`), **não** o NuGet `RiskOfRain2.GameLibs` (defasado).

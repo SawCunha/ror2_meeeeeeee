@@ -14,5 +14,13 @@ namespace Ror2Meeeee.Core.Tests
         [InlineData(3.4e12, "3,4 tri")]
         [InlineData(-2000, "-2 mil")]
         public void Formats(double value, string expected) => Assert.Equal(expected, ShortNumber.Format(value));
+
+        [Theory]
+        [InlineData(950, "950")]
+        [InlineData(12345, "12.3K")]
+        [InlineData(4_500_000, "4.5M")]
+        [InlineData(1_200_000_000, "1.2B")]
+        [InlineData(-2000, "-2K")]
+        public void FormatsEnglish(double value, string expected) => Assert.Equal(expected, ShortNumber.Format(value, english: true));
     }
 }

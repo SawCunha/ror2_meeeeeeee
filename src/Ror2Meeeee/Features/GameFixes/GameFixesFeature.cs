@@ -3,6 +3,7 @@ using BepInEx.Logging;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
+using RoR2.Projectile;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -44,7 +45,7 @@ namespace Ror2Meeeee
     // quando ele lançaria a exceção com certeza (mesmo padrão do GhostBladeFeature).
     public sealed class GameFixesFeature : Feature
     {
-        private long _meteors, _transmitterUpdates, _orbContacts, _warps, _warBonds, _equipment, _swarms, _barnacles, _defective, _clayBoss, _mimic;
+        private long _meteors, _transmitterUpdates, _orbContacts, _warps, _warBonds, _equipment, _swarms, _barnacles, _defective, _clayBoss, _mimic, _homing, _parry;
 
         public GameFixesFeature(Cfg cfg, ManualLogSource log) : base("GameFixes", cfg, log,
             "Fixes game errors that repeated hundreds of times per match and cost FPS: Runic Lens, Unstable Transmitter, War Bonds and equipment on bodies without an inventory. Also fixes the Swarms artifact (copies spawned on top of the player or didn't spawn) and Golden drones/monsters that froze the match with so many gold nuggets. Does not change the game otherwise.", "Corrige erros do jogo que se repetiam centenas de vezes por partida e custavam FPS: Runic Lens, Unstable Transmitter, War Bonds e equipamento de corpos sem inventário. Também conserta o artefato do Enxame (cópias nasciam em cima do jogador ou não nasciam) e drones/monstros Dourados que travavam a partida de tanta pepita de ouro. Não muda o jogo além disso.",
@@ -54,12 +55,12 @@ namespace Ror2Meeeee
 
         public override void ResetRunState()
         {
-            var total = _meteors + _transmitterUpdates + _orbContacts + _warps + _warBonds + _equipment + _swarms + _barnacles + _defective + _clayBoss + _mimic;
+            var total = _meteors + _transmitterUpdates + _orbContacts + _warps + _warBonds + _equipment + _swarms + _barnacles + _defective + _clayBoss + _mimic + _homing + _parry;
             if (total > 0)
                 Log.LogInfo($"[GameFixes] run: Runic Lens {_meteors}, Transmitter Update {_transmitterUpdates}, orbe sem dono {_orbContacts}, "
-                    + $"teleporte sem modelo {_warps}, War Bonds {_warBonds}, equipamento {_equipment}, craca do Vazio {_barnacles}, Defective Unit {_defective}, Dunestrider {_clayBoss}, Baú Mímico {_mimic} erro(s) evitados; "
+                    + $"teleporte sem modelo {_warps}, War Bonds {_warBonds}, equipamento {_equipment}, craca do Vazio {_barnacles}, Defective Unit {_defective}, Dunestrider {_clayBoss}, Baú Mímico {_mimic}, mira de projétil/caldeirão no cliente {_homing}, aparo do Enforcer {_parry} erro(s) evitados; "
                     + $"Enxame: {_swarms} spawn(s) corrigidos.");
-            _meteors = _transmitterUpdates = _orbContacts = _warps = _warBonds = _equipment = _swarms = _barnacles = _defective = _clayBoss = _mimic = 0;
+            _meteors = _transmitterUpdates = _orbContacts = _warps = _warBonds = _equipment = _swarms = _barnacles = _defective = _clayBoss = _mimic = _homing = _parry = 0;
         }
 
         protected override void OnEnable()
@@ -84,6 +85,10 @@ namespace Ror2Meeeee
                 Track("ClayBoss.DeathState.AttemptDeathBehavior", () => On.EntityStates.ClayBoss.DeathState.AttemptDeathBehavior += OnClayBossDeath);
             Track("Mimic.Chest.BreakOpen.OnEnter", () => On.EntityStates.Mimic.Chest.BreakOpen.OnEnter += OnMimicBreakOpen);
             Track("Mimic.Chest.Burrow.OnEnter", () => On.EntityStates.Mimic.Chest.Burrow.OnEnter += OnMimicBurrow);
+            Track("ProjectileSteerTowardTarget.FixedUpdate", () => On.RoR2.Projectile.ProjectileSteerTowardTarget.FixedUpdate += OnSteerFixedUpdate);
+            Track("ProjectileSphereTargetFinder.FixedUpdate", () => On.RoR2.Projectile.ProjectileSphereTargetFinder.FixedUpdate += OnSphereFinderFixedUpdate);
+            Track("HallowedCauldron.DrainingItems.FixedUpdate", () => On.EntityStates.HallowedCauldron.DrainingItems.FixedUpdate += OnCauldronDrainFixedUpdate);
+            Track("Enforcer.ProtectAndServeDeactivate.FireDamageOrbServer", () => On.EntityStates.Enforcer.ProtectAndServeDeactivate.FireDamageOrbServer += OnParryOrb);
         }
 
         protected override void OnDisable()
@@ -101,6 +106,10 @@ namespace Ror2Meeeee
             On.EntityStates.ClayBoss.DeathState.AttemptDeathBehavior -= OnClayBossDeath;
             On.EntityStates.Mimic.Chest.BreakOpen.OnEnter -= OnMimicBreakOpen;
             On.EntityStates.Mimic.Chest.Burrow.OnEnter -= OnMimicBurrow;
+            On.RoR2.Projectile.ProjectileSteerTowardTarget.FixedUpdate -= OnSteerFixedUpdate;
+            On.RoR2.Projectile.ProjectileSphereTargetFinder.FixedUpdate -= OnSphereFinderFixedUpdate;
+            On.EntityStates.HallowedCauldron.DrainingItems.FixedUpdate -= OnCauldronDrainFixedUpdate;
+            On.EntityStates.Enforcer.ProtectAndServeDeactivate.FireDamageOrbServer -= OnParryOrb;
         }
 
         // Mesmo caminho do GetModelChildLocator (protegido) do jogo.
@@ -255,6 +264,59 @@ namespace Ror2Meeeee
                 Fail(e);
             }
             orig(self);
+        }
+
+        // Mira de projétil (teleguiado/minas) no cliente: o Start desliga o componente fora do host (sem preencher os campos),
+        // mas o jogo o religa em alguns caminhos (Retorno do Cyclone da Huntress, objetos soltos do Drifter) e cada tick
+        // estoura NullReferenceException (log de um cliente: ~10.700 em uma run). Fora do host, desliga de novo, como o
+        // próprio Start faria. No host é só um bool estático por tick.
+        private void OnSteerFixedUpdate(On.RoR2.Projectile.ProjectileSteerTowardTarget.orig_FixedUpdate orig, ProjectileSteerTowardTarget self)
+        {
+            if (!NetworkServer.active && (!self.useAuthorityNotServer || !Util.HasEffectiveAuthority(self.gameObject)))
+            {
+                self.enabled = false;
+                _homing++;
+                return;
+            }
+            orig(self);
+        }
+
+        private void OnSphereFinderFixedUpdate(On.RoR2.Projectile.ProjectileSphereTargetFinder.orig_FixedUpdate orig, ProjectileSphereTargetFinder self)
+        {
+            if (!NetworkServer.active)
+            {
+                self.enabled = false;
+                _homing++;
+                return;
+            }
+            orig(self);
+        }
+
+        // Caldeirão/santuário que drena itens: no cliente o estado não tem o "activator" (só o host recebe) e o
+        // CheckIfDoneDraining chama IsAffordable com ele nulo a cada tick (NRE; log de um cliente: 251). Sem activator no
+        // cliente, o tick não faz nada útil (a barra vem do host e quem troca o estado é o host): pula.
+        private void OnCauldronDrainFixedUpdate(On.EntityStates.HallowedCauldron.DrainingItems.orig_FixedUpdate orig, EntityStates.HallowedCauldron.DrainingItems self)
+        {
+            if (!NetworkServer.active && !self.activator)
+            {
+                _homing++;
+                return;
+            }
+            orig(self);
+        }
+
+        // Aparo do Enforcer: o contra-ataque mira o atacante do golpe aparado, mas o golpe pode vir sem atacante ou de um
+        // corpo já destruído (morreu; com o Dio's da Tormenta, renasce em outro corpo). O jogo faz GetComponent no nulo e a
+        // exceção pula a linha que invalida o golpe: o mesmo erro repete a cada tick da janela e o aparo não dispara.
+        // Sem atacante vivo não há em quem revidar: pula só o revide (o resto do aparo segue).
+        private void OnParryOrb(On.EntityStates.Enforcer.ProtectAndServeDeactivate.orig_FireDamageOrbServer orig, EntityStates.Enforcer.ProtectAndServeDeactivate self, DamageInfo damageInfo)
+        {
+            if (damageInfo == null || !damageInfo.attacker)
+            {
+                _parry++;
+                return;
+            }
+            orig(self, damageInfo);
         }
 
         // Todo frame, por corpo com o item: só leituras de campo, sem GetComponent nem alocação.

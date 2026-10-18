@@ -28,6 +28,7 @@ namespace Ror2Meeeee
         public static double GrimoireTrimmed; // crédito que o teto/trava do Grimório deixou de dar
         public static int Tombstones;     // lápides existentes agora
         public static int Monsters;       // última amostra
+        public static float FrameMsAvg;   // média móvel exponencial do tempo de frame (governador da Tormenta)
         public static int WindowMaxMonsters; // zerado pelo Probe a cada janela
         public static double MonsterSum;
         public static long MonsterSamples;
@@ -58,6 +59,13 @@ namespace Ror2Meeeee
             "MasterSuicideOnTimer.OnDestroy", // ajudante temporário destruído antes do Start() do jogo
             "BrotherUltUtils.EvaluatePattern", // Mithrix fase 2: ataque mira quem matou; ajudante sem CharacterDirection estoura
             "CaptainSupplyDropFinaleAchievement", // conquista do Captain na zona de choque (também vem como "malformed packet")
+            "AcolyteBodySwapController+ProjectileSkillOverrideManager", // projétil do Acolyte destruído na troca de cena (só na pilha)
+            "BurnEffectController.Start", // corpo pega fogo com um renderer do modelo já destruído; só as partículas não saem
+            "PlaySoundOnEvent.OnDestroy", // som tocado no OnDestroy com o gerenciador de som já descarregado (troca de cena)
+            "ActivityManager::CurrentSurvivor property unable to determine survivor", // atividade da plataforma sem corpo local
+            "Facepunch.Steamworks.Networking.SendP2PPacket", // envio de rede com a Steam já fechada (ao sair do jogo/lobby)
+            "HurtBox.SimpleColliderBlockFilter", // tiro atravessa bolha de bloqueio (Enforcer) com o hurtbox atingido já destruído
+            "EnableCustomRenderTextureOnLight.OnDisable", // luz desligada ao fechar o jogo com a textura já descarregada
         };
         private static readonly int[] KnownCounts = new int[KnownNoise.Length];
         private static readonly HashSet<string> SeenUnknown = new HashSet<string>();
@@ -210,6 +218,7 @@ namespace Ror2Meeeee
             var dt = Time.unscaledDeltaTime;
             var ms = dt * 1000f;
             _lastFrameMs = ms;
+            FrameMsAvg += (ms - FrameMsAvg) * 0.05f;
             if (ms > _stageWorstMs) _stageWorstMs = ms;
             _sampleAcc += dt;
             if (_sampleAcc < 0.5f) return;

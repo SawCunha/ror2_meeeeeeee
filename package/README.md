@@ -45,6 +45,34 @@ Names in brackets, like `[Multiplier]`, are sections of the configuration file (
 
 ---
 
+## Tempest difficulty (`[Tempest]`)
+
+New lobby difficulty, above Monsoon (`ScalingValue` 3.5). Everything runs on the host and only in runs with it.
+
+- **Hordes:** the cap of monsters alive goes from 40 to 60 (+10 per extra player, counted at the start of the run). The
+  director gets extra credit that grows with time and stages, stops 5 slots before the cap and comes back gradually (no burst).
+- **Swarm and heavy phases:** each stage starts with 45 s of swarm (the director uses cheap monsters, waves of 10) and
+  alternates with 75 s of heavy phase (expensive monsters and elites, as in the game).
+- **Protection:** every new enemy is invulnerable for 5 s (damage, knockback, damage over time and on-hit effects), with
+  the game's golden glow. Once per enemy, and again each time it revives. It still moves and attacks.
+- **Extra lives:** each normal enemy gets 1 Dio's Best Friend (`ExtraLivesNormal`) and each elite gets 2
+  (`ExtraLivesElite`). Bosses, summons and temporary minions get none.
+- **Damage reduction and health per stage** (`DamageReductionSteps`): 20/40/55/70/90/99% from stage 2 on, and the same
+  value in max health (hidden item, +1% per stack). Stacks with the `[Difficulty]` bonus.
+- **With the Multiplier on** (x M): the damage that gets through the reduction is divided by `M^MultiplierReductionExponent`
+  (default 0.5; with x10, stage 2 goes from 20% to 75%, cap 99%), and the curves' health and damage are multiplied by
+  the same factor (x3.16 with x10), also from stage 2 on.
+- **Curves:** health, damage and elite frequency grow per minute and per stage (`<Axis>PerMinute`, `PerStage`, `Max`).
+  Staying long in a stage raises the pressure (frozen while the teleporter charges).
+- **Ending on stage 10** (`FinalStage`): before it the Primordial Teleporter leads to the next loop. The other endings
+  can be blocked until then (`Block*UntilFinalStage`, off by default).
+- **Lost Seer's Lenses:** they don't kill instantly in Tempest; a proc (same chance as the game) removes 90% of the
+  enemy's remaining health instead. Bosses are still immune.
+- **Performance:** with the average frame above 33 ms for 10 s the extra credit stops, then comes back gradually.
+- **Validation:** `DebugLog` (toggles immediately) logs stacks given, health before/after, damage before/after the
+  reduction, hits ignored by the protection and the director state every 10 s. The F8 screen shows a summary on the host.
+- `ror2meeeee_portals` lists the stage's portals.
+
 ## Artifacts
 
 Artifacts are turned on in the **lobby**, on the artifact selection screen, before the run starts. When off, they
@@ -401,12 +429,13 @@ them to pick up.
 
 ### Run status (F8, `[Stats]`)
 
-**What it does:** shows your current stats and, for every player, the run total of damage dealt, healing and damage
-taken.
+**What it does:** shows your stats (health, speed, damage, regen, armor, level, attack speed) in a bar above the
+skills and, on a second press, every player with portrait and the same stats (plus the Tempest summary on the host).
 
-**How to use:** press **F8** to open and close. The key is changed in `MenuKey`.
+**How to use:** **F8** cycles: your bar → every player → closed. The key is changed in `MenuKey`.
 
-**Example:** at the end of the stage, open F8 to see who dealt the most damage and who took the most.
+**Example:** leave the bar open to follow your attack speed while stacking Syringes; press again to compare with
+your friends.
 
 ---
 

@@ -71,7 +71,9 @@ namespace Ror2Meeeee
                             if (n <= 0) break;
                             read += n;
                         }
-                        var tex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+                        // Só o mod referencia a textura (às vezes só por um GUIStyle, que o coletor da Unity não segue):
+                        // sem a flag, a troca de cena a descarrega e as telas F7/F8 perdem o fundo.
+                        var tex = new Texture2D(2, 2, TextureFormat.RGBA32, false) { hideFlags = HideFlags.DontUnloadUnusedAsset };
                         if (tex.LoadImage(bytes, true))
                             return Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));
                     }
@@ -84,7 +86,7 @@ namespace Ror2Meeeee
         internal static Sprite MakeIcon(Color32 fill)
         {
             const int size = 128;
-            var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            var tex = new Texture2D(size, size, TextureFormat.RGBA32, false) { hideFlags = HideFlags.DontUnloadUnusedAsset };
             var edge = new Color32(40, 40, 40, 255);
             var px = new Color32[size * size];
             for (var y = 0; y < size; y++)

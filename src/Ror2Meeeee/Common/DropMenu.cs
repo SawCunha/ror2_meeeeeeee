@@ -45,7 +45,7 @@ namespace Ror2Meeeee
         private bool _iconLogged;
         private CursorLockMode _lockBefore;
         private bool _visibleBefore;
-        private GUIStyle _label, _big, _small, _count, _name, _button, _field;
+        private GUIStyle _label, _big, _small, _count, _name, _button, _field, _panel, _card, _slot, _slotMe;
 
         // Cria o componente (desligado) no objeto do plugin e passa a escutar a tecla de abrir.
         public static void Install(GameObject host, ConfigEntry<string> key)
@@ -288,17 +288,31 @@ namespace Ror2Meeeee
             _refreshAt = Time.unscaledTime + 1f; // dá tempo do servidor remover e do inventário sincronizar
         }
 
-        // Estilos do IMGUI (criados uma vez, dentro do OnGUI, onde GUI.skin existe).
+        // Estilos do IMGUI (criados uma vez, dentro do OnGUI, onde GUI.skin existe), com a identidade visual da tela de
+        // status (F8): molduras stat_*.png, título azul, texto claro e dica apagada.
         private void MakeStyles()
         {
             if (_label != null) return;
             _label = new GUIStyle(GUI.skin.label) { fontSize = 22, wordWrap = true };
+            _label.normal.textColor = StatsPanel.TextColor;
             _big = new GUIStyle(GUI.skin.label) { fontSize = 32, fontStyle = FontStyle.Bold, wordWrap = true };
+            _big.normal.textColor = StatsPanel.HeadColor;
             _small = new GUIStyle(GUI.skin.label) { fontSize = 18, wordWrap = true };
+            _small.normal.textColor = StatsPanel.HintColor;
             _count = new GUIStyle(_small) { alignment = TextAnchor.LowerRight, fontStyle = FontStyle.Bold };
+            _count.normal.textColor = Color.white;
             _name = new GUIStyle(_big) { fontSize = 28 };
-            _button = new GUIStyle(GUI.skin.button) { fontSize = 30, fontStyle = FontStyle.Bold };
-            _field = new GUIStyle(GUI.skin.textField) { fontSize = 40, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter };
+            _panel = StatsPanel.Frame("panel", 30);
+            _card = StatsPanel.Frame("card", 16);
+            _slot = StatsPanel.Frame("slot", 12);
+            _slotMe = StatsPanel.Frame("card_me", 16);
+            // Botões e campo nos quadros da tela de status: escuro parado, claro com o mouse por cima ou pressionado.
+            _button = new GUIStyle(_slot) { fontSize = 30, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter };
+            _button.normal.textColor = Color.white;
+            _button.hover = _button.active = new GUIStyleState { background = _slotMe.normal.background, textColor = StatsPanel.HeadColor };
+            _field = new GUIStyle(_button) { fontSize = 40 };
+            _field.focused = new GUIStyleState { background = _slotMe.normal.background, textColor = Color.white };
+            _field.border = _slotMe.border = _button.border = new RectOffset(16, 16, 16, 16);
         }
 
         // Desenha uma moldura de espessura t em volta do retângulo.
@@ -419,11 +433,7 @@ namespace Ror2Meeeee
             var pw = Mathf.Min(1180f, W - 60f);
             var ph = Mathf.Min(720f, H - 60f);
             var panel = new Rect((W - pw) / 2f, (H - ph) / 2f, pw, ph);
-            var bg = GUI.color;
-            GUI.color = new Color(0f, 0f, 0f, 0.92f);
-            GUI.DrawTexture(panel, Texture2D.whiteTexture);
-            GUI.color = bg;
-            Border(panel, new Color(0.9f, 0.8f, 0.4f), 3f);
+            GUI.Box(panel, GUIContent.none, _panel);
 
             GUI.Label(new Rect(panel.x + 24, panel.y + 12, pw - 48, 44), Loc.T("DROP ITEMS", "SOLTAR ITENS"), _big);
 
@@ -440,13 +450,10 @@ namespace Ror2Meeeee
             for (var i = 0; i < _rows.Count; i++)
             {
                 var r = new Rect((i % _cols) * (Cell + Gap), (i / _cols) * (Cell + Gap), Cell, Cell);
-                var c = GUI.color;
-                GUI.color = new Color(0.15f, 0.15f, 0.15f, 1f);
-                GUI.DrawTexture(r, Texture2D.whiteTexture);
-                GUI.color = c;
-                DrawIcon(new Rect(r.x + 6, r.y + 6, Cell - 12, Cell - 12), _rows[i].Tex, _rows[i].Uv, _rows[i].Color);
-                if (!_rows[i].Tex) GUI.Label(new Rect(r.x + 4, r.y + 4, Cell - 8, Cell - 34), _rows[i].Name, _small);
-                Border(r, i == sel ? new Color(1f, 0.9f, 0.3f) : _rows[i].Color * 0.7f, i == sel ? 5f : 2f);
+                GUI.Box(r, GUIContent.none, i == sel ? _slotMe : _slot); // quadro como o retrato do F8; o escolhido, claro
+                DrawIcon(new Rect(r.x + 8, r.y + 8, Cell - 16, Cell - 16), _rows[i].Tex, _rows[i].Uv, _rows[i].Color);
+                if (!_rows[i].Tex) GUI.Label(new Rect(r.x + 6, r.y + 6, Cell - 12, Cell - 36), _rows[i].Name, _small);
+                Border(new Rect(r.x + 3, r.y + 3, r.width - 6, r.height - 6), _rows[i].Color * (i == sel ? 1f : 0.75f), i == sel ? 4f : 2f); // raridade
                 GUI.Label(new Rect(r.x, r.yMax - 30, r.width - 6, 28), "x" + _rows[i].Count, _count);
                 if (GUI.Button(r, GUIContent.none, GUIStyle.none)) Select(i);
             }
@@ -455,10 +462,12 @@ namespace Ror2Meeeee
             // Painel do item escolhido
             var dx = panel.x + 24 + gridW + 24;
             var dw = panel.xMax - dx - 24;
+            GUI.Box(new Rect(dx - 12, panel.y + 62, dw + 24, ph - 140f), GUIContent.none, _card);
             if (sel >= 0)
             {
                 var row = _rows[sel];
-                DrawIcon(new Rect(dx, panel.y + 74, 150, 150), row.Tex, row.Uv, row.Color);
+                GUI.Box(new Rect(dx, panel.y + 74, 150, 150), GUIContent.none, _slot);
+                DrawIcon(new Rect(dx + 8, panel.y + 82, 134, 134), row.Tex, row.Uv, row.Color);
                 _name.normal.textColor = row.Color;
                 GUI.Label(new Rect(dx + 164, panel.y + 74, dw - 164, 100), row.Name, _name);
                 GUI.Label(new Rect(dx + 164, panel.y + 170, dw - 164, 50), Loc.T($"You have {row.Count}", $"Você tem {row.Count}"), _label);
