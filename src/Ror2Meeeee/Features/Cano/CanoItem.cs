@@ -28,12 +28,18 @@ namespace Ror2Meeeee
         {
             _def = ModItem.Register(Name, Token, ItemTier.Tier3, new[] { ItemTag.Damage, ItemTag.AIBlacklist, ItemTag.CannotCopy },
                 "cano_extra.png", new Color32(200, 50, 50, 255),
-                "Cano Extra",
-                "A cada stack adiciona 1 tiro múltiplo na arma principal.",
-                "Sua <style=cIsDamage>arma principal</style> dispara <style=cIsDamage>+1 tiro</style> em leque " +
-                "<style=cStack>(+1 por acúmulo, até um limite)</style>. Vale para balas, projéteis e flechas; " +
-                "ataques corpo a corpo não são afetados. Não é multiplicado.",
-                "Mais canos, mais problemas.",
+                ("Extra Barrel",
+                 "Each stack adds 1 extra shot to the primary weapon.",
+                 "Your <style=cIsDamage>primary weapon</style> fires <style=cIsDamage>+1 shot</style> in a spread " +
+                 "<style=cStack>(+1 per stack, up to a limit)</style>. Works for bullets, projectiles and arrows; " +
+                 "melee attacks are not affected. Not multiplied.",
+                 "More barrels, more problems."),
+                ("Cano Extra",
+                 "A cada stack adiciona 1 tiro múltiplo na arma principal.",
+                 "Sua <style=cIsDamage>arma principal</style> dispara <style=cIsDamage>+1 tiro</style> em leque " +
+                 "<style=cStack>(+1 por acúmulo, até um limite)</style>. Vale para balas, projéteis e flechas; " +
+                 "ataques corpo a corpo não são afetados. Não é multiplicado.",
+                 "Mais canos, mais problemas."),
                 log, "RoR2/Base/Behemoth/PickupBehemoth.prefab");
         }
     }

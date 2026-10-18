@@ -42,6 +42,7 @@ namespace Ror2Meeeee
         private static readonly Vector3 DisplayOffset = new Vector3(-2f, 4f, -3f);
 
         private static readonly string[] TierKeys = { "White", "Green", "Red", "Boss", "Lunar", "Equipment", "LunarEquipment" };
+        private static readonly string[] TierNamesEn = { "white", "green", "red", "boss (yellow)", "lunar", "equipment", "lunar equipment" };
         private static readonly string[] TierNames = { "brancos", "verdes", "vermelhos", "de chefe (amarelos)", "lunares", "equipamentos", "equipamentos lunares" };
         private static readonly float[] DefaultWeight = { 0.55f, 0.3f, 0.15f, 0f, 0f, 0f, 0f };
         private static readonly float[] DefaultCost = { 1f, 2f, 16f, 24f, 16f, 8f, 16f };
@@ -84,25 +85,27 @@ namespace Ror2Meeeee
         private Xoroshiro128Plus _rng;
 
         public BazaarFeature(Cfg cfg, ManualLogSource log) : base(Section, cfg, log,
-            "Bazar Maior: o Bazar entre Tempos ganha baús com itens à mostra, comprados com o ouro que sobrou do estágio (ou moedas lunares), e um casulo que troca moeda lunar por ouro.",
+            "Greater Bazaar: the Bazaar Between Time gets chests with items on display, bought with the gold left over from the stage (or lunar coins), and a pod that trades lunar coins for gold.", "Bazar Maior: o Bazar entre Tempos ganha baús com itens à mostra, comprados com o ouro que sobrou do estágio (ou moedas lunares), e um casulo que troca moeda lunar por ouro.",
             enabledByDefault: true)
         {
-            _lunarMode = cfg.Bind(Section, "PayWithLunarCoins", false, "Os baús do bazar custam moedas lunares (preços LunarCost de cada tier) em vez de ouro.");
-            _keepMoney = cfg.Bind(Section, "KeepMoney", true, "Ao entrar no portal do bazar, o ouro NÃO vira XP: fica para gastar no bazar. O que sobrar vira XP ao sair. Desligado: o ouro vira XP como no jogo.");
-            _chests = cfg.Bind(Section, "Chests", BazaarRules.MaxChests, $"Quantos baús aparecem (1 a {BazaarRules.MaxChests}).");
-            _coinWorth = cfg.Bind(Section, "LunarCoinGold", 50, "Ouro por moeda lunar no casulo ao lado do Newt (escala com a dificuldade como os baús; 25 = um baú pequeno, 50 = um médio).");
-            _maxExchanges = cfg.Bind(Section, "MaxExchangesPerPlayer", 3, "Quantas trocas de moeda lunar por ouro cada jogador pode fazer por visita. 0 = sem casulo; -1 = sem limite.");
-            _tempChance = cfg.Bind(Section, "TemporaryChance", 10, "Chance (%) de um baú vender itens temporários: entrega TemporaryAmount cópias que somem com o tempo. Equipamentos nunca.");
-            _tempAmount = cfg.Bind(Section, "TemporaryAmount", 5, "Cópias entregues por compra num baú de itens temporários.");
-            _announce = cfg.Bind(Section, "Announce", true, "Avisa no chat, ao chegar no bazar, quantos baús estão à venda e quanto ouro o casulo dá por moeda lunar.");
+            _lunarMode = cfg.Bind(Section, "PayWithLunarCoins", false, "Bazaar chests cost lunar coins (each tier's LunarCost prices) instead of gold.", "Os baús do bazar custam moedas lunares (preços LunarCost de cada tier) em vez de ouro.");
+            _keepMoney = cfg.Bind(Section, "KeepMoney", true, "When entering the bazaar portal, gold does NOT become XP: it stays to spend in the bazaar. Whatever is left becomes XP when leaving. Off: gold becomes XP as in the game.", "Ao entrar no portal do bazar, o ouro NÃO vira XP: fica para gastar no bazar. O que sobrar vira XP ao sair. Desligado: o ouro vira XP como no jogo.");
+            _chests = cfg.Bind(Section, "Chests", BazaarRules.MaxChests, $"How many chests appear (1 to {BazaarRules.MaxChests}).", $"Quantos baús aparecem (1 a {BazaarRules.MaxChests}).");
+            _coinWorth = cfg.Bind(Section, "LunarCoinGold", 50, "Gold per lunar coin at the pod next to Newt (scales with difficulty like the chests; 25 = a small chest, 50 = a medium one).", "Ouro por moeda lunar no casulo ao lado do Newt (escala com a dificuldade como os baús; 25 = um baú pequeno, 50 = um médio).");
+            _maxExchanges = cfg.Bind(Section, "MaxExchangesPerPlayer", 3, "How many lunar coin to gold trades each player can make per visit. 0 = no pod; -1 = no limit.", "Quantas trocas de moeda lunar por ouro cada jogador pode fazer por visita. 0 = sem casulo; -1 = sem limite.");
+            _tempChance = cfg.Bind(Section, "TemporaryChance", 10, "Chance (%) of a chest selling temporary items: delivers TemporaryAmount copies that fade over time. Never equipment.", "Chance (%) de um baú vender itens temporários: entrega TemporaryAmount cópias que somem com o tempo. Equipamentos nunca.");
+            _tempAmount = cfg.Bind(Section, "TemporaryAmount", 5, "Copies delivered per purchase from a temporary items chest.", "Cópias entregues por compra num baú de itens temporários.");
+            _announce = cfg.Bind(Section, "Announce", true, "Announces in chat, on arriving at the bazaar, how many chests are for sale and how much gold the pod gives per lunar coin.", "Avisa no chat, ao chegar no bazar, quantos baús estão à venda e quanto ouro o casulo dá por moeda lunar.");
+            RegisterTokens();
             for (var i = 0; i < BazaarRules.TierCount; i++)
             {
                 var k = TierKeys[i];
                 var n = TierNames[i];
-                _weight[i] = cfg.Bind(Section, k + "Weight", DefaultWeight[i], $"Peso relativo de um baú vender itens {n} (0 = nunca).");
-                _cost[i] = cfg.Bind(Section, k + "Cost", DefaultCost[i], $"Preço dos itens {n} em baús pequenos do estágio anterior (1 = um baú pequeno, 2 = um médio, 16 = um lendário).");
-                _lunarCost[i] = cfg.Bind(Section, k + "LunarCost", DefaultLunarCost[i], $"Preço dos itens {n} em moedas lunares (com PayWithLunarCoins).");
-                _stock[i] = cfg.Bind(Section, k + "Stock", DefaultStock[i], $"Quantas vezes um baú de itens {n} pode ser comprado. -1 = sem limite.");
+                var ne = TierNamesEn[i];
+                _weight[i] = cfg.Bind(Section, k + "Weight", DefaultWeight[i], $"Relative weight of a chest selling {ne} items (0 = never).", $"Peso relativo de um baú vender itens {n} (0 = nunca).");
+                _cost[i] = cfg.Bind(Section, k + "Cost", DefaultCost[i], $"Price of {ne} items in small chests of the previous stage (1 = a small chest, 2 = a medium one, 16 = a legendary one).", $"Preço dos itens {n} em baús pequenos do estágio anterior (1 = um baú pequeno, 2 = um médio, 16 = um lendário).");
+                _lunarCost[i] = cfg.Bind(Section, k + "LunarCost", DefaultLunarCost[i], $"Price of {ne} items in lunar coins (with PayWithLunarCoins).", $"Preço dos itens {n} em moedas lunares (com PayWithLunarCoins).");
+                _stock[i] = cfg.Bind(Section, k + "Stock", DefaultStock[i], $"How many times a chest of {ne} items can be bought. -1 = no limit.", $"Quantas vezes um baú de itens {n} pode ser comprado. -1 = sem limite.");
             }
         }
 
@@ -258,7 +261,11 @@ namespace Ror2Meeeee
             if (InVisit) SetHooks(true);
 
             Log.LogInfo($"[Bazaar] loja montada: {_offers.Count} baú(s), {(lunar ? "moedas lunares" : $"ouro (coef {_bazaarCoef:F2})")}, casulo {(_pod ? "sim" : "não")}.");
-            if (_announce.Value && Plugin.Instance) Plugin.Instance.StartCoroutine(Announce(BuildAnnouncement()));
+            if (_announce.Value && Plugin.Instance)
+            {
+                var args = BuildAnnouncement(out var token);
+                Plugin.Instance.StartCoroutine(Announce(token, args));
+            }
         }
 
         private static List<PickupIndex> Pool(Run run, BazaarTier tier)
@@ -363,23 +370,35 @@ namespace Ror2Meeeee
             return go;
         }
 
-        private string BuildAnnouncement()
+        private const string ChatToken = "ROR2MEEEEE_BAZAAR_CHAT", PodToken = ChatToken + "_POD", PodLimitToken = ChatToken + "_POD_LIMIT";
+
+        private static void RegisterTokens()
         {
-            var text = $"<color=#e5c962>Bazar Maior</color>: {_offers.Count} baú(s) à venda.";
-            if (_pod)
-            {
-                var gold = BazaarRules.ScaledCost(_coinWorth.Value, _bazaarCoef, 1f);
-                var ex = _maxExchanges.Value;
-                text += $" Casulo lunar: 1 moeda = ${gold}" + (ex < 0 ? "." : $" (até {ex}x).");
-            }
-            return text;
+            Loc.Add(ChatToken, "<color=#e5c962>Greater Bazaar</color>: {0} chest(s) for sale.",
+                "<color=#e5c962>Bazar Maior</color>: {0} baú(s) à venda.");
+            Loc.Add(PodToken, "<color=#e5c962>Greater Bazaar</color>: {0} chest(s) for sale. Lunar pod: 1 coin = ${1}.",
+                "<color=#e5c962>Bazar Maior</color>: {0} baú(s) à venda. Casulo lunar: 1 moeda = ${1}.");
+            Loc.Add(PodLimitToken, "<color=#e5c962>Greater Bazaar</color>: {0} chest(s) for sale. Lunar pod: 1 coin = ${1} (up to {2}x).",
+                "<color=#e5c962>Bazar Maior</color>: {0} baú(s) à venda. Casulo lunar: 1 moeda = ${1} (até {2}x).");
         }
 
-        private static IEnumerator Announce(string text)
+        // Token + parâmetros: cada cliente lê no próprio idioma.
+        private string[] BuildAnnouncement(out string token)
+        {
+            var count = _offers.Count.ToString();
+            if (!_pod) { token = ChatToken; return new[] { count }; }
+            var gold = BazaarRules.ScaledCost(_coinWorth.Value, _bazaarCoef, 1f).ToString();
+            var ex = _maxExchanges.Value;
+            if (ex < 0) { token = PodToken; return new[] { count, gold }; }
+            token = PodLimitToken;
+            return new[] { count, gold, ex.ToString() };
+        }
+
+        private static IEnumerator Announce(string token, string[] args)
         {
             yield return new WaitForSeconds(3f); // dá tempo de os clientes carregarem a cena
             if (IsBazaar(SceneCatalog.mostRecentSceneDef))
-                Chat.SendBroadcastChat(new Chat.SimpleChatMessage { baseToken = text });
+                Loc.Broadcast(token, args);
         }
 
         // ---- compra ----

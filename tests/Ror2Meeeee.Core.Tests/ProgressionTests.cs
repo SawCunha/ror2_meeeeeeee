@@ -125,5 +125,15 @@ namespace Ror2Meeeee.Core.Tests
             Assert.Contains("nível 1 -> 2", text);
             Assert.Contains("x1.50", text);
         }
+
+        [Fact]
+        public void Summary_English()
+        {
+            var s = Stats();
+            var text = ProgressionLadder.Summary(s, RunScore.Compute(s, Pars), 2, 1, 1.15f, english: true);
+            Assert.Contains("level 2 -> 1", text);
+            Assert.Contains("goes down", text);
+            Assert.DoesNotContain("nível", text);
+        }
     }
 }

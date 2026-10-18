@@ -31,15 +31,15 @@ namespace Ror2Meeeee
         private long _skipped;
 
         public ProjectileBudgetFeature(Cfg cfg, ManualLogSource log) : base("ProjectileBudget", cfg, log,
-            "Teto de projéteis dos jogadores para o FPS: itens que disparam em massa (Sticky Bomb, Molten Perforator, estacas, Fireworks, mísseis) soltam menos projéteis, cada um mais forte, com o mesmo dano total. Só no host; projéteis de monstros não mudam.",
+            "Player projectile cap for FPS: items that fire en masse (Sticky Bomb, Molten Perforator, stakes, Fireworks, missiles) release fewer projectiles, each one stronger, with the same total damage. Host only; monster projectiles are unchanged.", "Teto de projéteis dos jogadores para o FPS: itens que disparam em massa (Sticky Bomb, Molten Perforator, estacas, Fireworks, mísseis) soltam menos projéteis, cada um mais forte, com o mesmo dano total. Só no host; projéteis de monstros não mudam.",
             enabledByDefault: true)
         {
             _list = cfg.Bind("ProjectileBudget", "Prefabs", "StickyBomb,FireMeatBall,LightningStake,DaggerProjectile,EngiGrenadeProjectile,ShurikenProjectile,FireworkProjectile,MissileProjectile",
-                "Projéteis (nome do prefab, como no log do Probe) com teto por tipo. Separados por vírgula.");
+                "Projectiles (prefab name, as in the Probe log) with a per-type cap. Comma-separated.", "Projéteis (nome do prefab, como no log do Probe) com teto por tipo. Separados por vírgula.");
             _perType = cfg.Bind("ProjectileBudget", "PerTypeMaxPerSecond", 15,
-                "Máximo por segundo de cada projétil da lista (todos os jogadores somados). 0 = sem teto por tipo.");
+                "Maximum per second of each listed projectile (all players combined). 0 = no per-type cap.", "Máximo por segundo de cada projétil da lista (todos os jogadores somados). 0 = sem teto por tipo.");
             _global = cfg.Bind("ProjectileBudget", "GlobalMaxPerSecond", 40,
-                "Máximo por segundo de projéteis de jogadores e ajudantes, de qualquer tipo. 0 = sem teto global.");
+                "Maximum per second of projectiles from players and minions, of any type. 0 = no global cap.", "Máximo por segundo de projéteis de jogadores e ajudantes, de qualquer tipo. 0 = sem teto global.");
             ReadConfig();
             _list.SettingChanged += (_, __) => ReadConfig();
             _perType.SettingChanged += (_, __) => ReadConfig();

@@ -14,13 +14,16 @@ namespace Ror2Meeeee
     // normalmente). Sem hooks: só roda quando o comando é usado. Só no host (o comando executa no servidor).
     public sealed class DropFeature : Feature
     {
+        private const string ChatToken = "ROR2MEEEEE_DROP_CHAT";
         private readonly ConfigEntry<int> _max;
 
         public DropFeature(Cfg cfg, ManualLogSource log) : base("Drop", cfg, log,
+            "ror2meeeee_drop console command: drops items from your own inventory on the ground (to give to an ally). No hooks.",
             "Comando de console ror2meeeee_drop: solta itens do próprio inventário no chão (para dar a um aliado). Sem hooks.",
             enabledByDefault: true)
         {
-            _max = cfg.Bind("Drop", "MaxPerCommand", 10, "Máximo de unidades soltas por comando (evita inundar o chão e travar o jogo).");
+            Loc.Add(ChatToken, "<color=#98c379>Drop:</color> {0} dropped {1}x {2} on the ground.", "<color=#98c379>Drop:</color> {0} largou {1}x {2} no chão.");
+            _max = cfg.Bind("Drop", "MaxPerCommand", 10, "Maximum units dropped per command (avoids flooding the ground and freezing the game).", "Máximo de unidades soltas por comando (evita inundar o chão e travar o jogo).");
         }
 
         // Teto de unidades por comando (a tela F7 usa o mesmo valor para não prometer mais do que o servidor solta).
@@ -41,11 +44,11 @@ namespace Ror2Meeeee
         {
             try
             {
-                if (!NetworkServer.active) return "Só funciona no host.";
+                if (!NetworkServer.active) return Loc.T("Only works on the host.", "Só funciona no host.");
                 var body = master ? master.GetBody() : null;
-                if (!body || !body.healthComponent || !body.healthComponent.alive) return "Você precisa estar vivo.";
+                if (!body || !body.healthComponent || !body.healthComponent.alive) return Loc.T("You need to be alive.", "Você precisa estar vivo.");
                 var inv = master.inventory;
-                if (!inv) return "Sem inventário.";
+                if (!inv) return Loc.T("No inventory.", "Sem inventário.");
 
                 var owned = new List<ItemDef>();
                 foreach (var idx in inv.itemAcquisitionOrder)
@@ -53,18 +56,19 @@ namespace Ror2Meeeee
                     var d = ItemCatalog.GetItemDef(idx);
                     if (Droppable(d) && inv.GetItemCountPermanent(idx) > 0) owned.Add(d);
                 }
-                if (owned.Count == 0) return "Você não tem itens que possam ser soltos.";
+                if (owned.Count == 0) return Loc.T("You have no items that can be dropped.", "Você não tem itens que possam ser soltos.");
 
-                if (string.IsNullOrWhiteSpace(query)) return "Itens que você pode soltar:\n" + Describe(owned, inv) + "\nUso: ror2meeeee_drop <nome> [quantidade]";
+                if (string.IsNullOrWhiteSpace(query)) return Loc.T("Items you can drop:\n", "Itens que você pode soltar:\n") + Describe(owned, inv)
+                    + Loc.T("\nUsage: ror2meeeee_drop <name> [amount]", "\nUso: ror2meeeee_drop <nome> [quantidade]");
 
                 var matches = Match(owned, query.Trim());
-                if (matches.Count == 0) return $"Nenhum item seu combina com '{query}'.\n" + Describe(owned, inv);
-                if (matches.Count > 1) return $"'{query}' é ambíguo; seja mais específico:\n" + Describe(matches, inv);
+                if (matches.Count == 0) return Loc.T($"None of your items match '{query}'.\n", $"Nenhum item seu combina com '{query}'.\n") + Describe(owned, inv);
+                if (matches.Count > 1) return Loc.T($"'{query}' is ambiguous; be more specific:\n", $"'{query}' é ambíguo; seja mais específico:\n") + Describe(matches, inv);
 
                 var def = matches[0];
                 var have = inv.GetItemCountPermanent(def.itemIndex);
                 var count = DropRules.ClampCount(requested, have, _max.Value);
-                if (count <= 0) return "Nada para soltar (Drop.MaxPerCommand = 0?).";
+                if (count <= 0) return Loc.T("Nothing to drop (Drop.MaxPerCommand = 0?).", "Nada para soltar (Drop.MaxPerCommand = 0?).");
 
                 inv.RemoveItemPermanent(def.itemIndex, count);
                 DroppedGrants.Note(def.itemIndex, count); // pegar de volta não multiplica nem compartilha
@@ -78,17 +82,14 @@ namespace Ror2Meeeee
                 }
 
                 var who = Util.GetBestMasterName(master);
-                Chat.SendBroadcastChat(new Chat.SimpleChatMessage
-                {
-                    baseToken = $"<color=#98c379>Drop:</color> {who} largou {count}x {DisplayName(def)} no chão."
-                });
+                Loc.Broadcast(ChatToken, who, count.ToString(), DisplayName(def));
                 Log.LogInfo($"[Drop] {who} soltou {count}x {def.name} (tinha {have})");
-                return $"Solto: {count}x {DisplayName(def)}.";
+                return Loc.T($"Dropped: {count}x {DisplayName(def)}.", $"Solto: {count}x {DisplayName(def)}.");
             }
             catch (Exception e)
             {
                 Fail(e);
-                return "Falha ao soltar o item (veja o log).";
+                return Loc.T("Failed to drop the item (see the log).", "Falha ao soltar o item (veja o log).");
             }
         }
 

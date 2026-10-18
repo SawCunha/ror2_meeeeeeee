@@ -29,8 +29,8 @@ namespace Ror2Meeeee
                 _def.smallIconSelectedSprite = LoadIcon("dizimo_selecionado.png", new Color32(230, 180, 30, 255));
                 _def.smallIconDeselectedSprite = LoadIcon("dizimo_desmarcado.png", new Color32(90, 90, 90, 255));
 
-                LanguageAPI.Add(Token + "_NAME", "Artefato do Dízimo");
-                LanguageAPI.Add(Token + "_DESC", "Todo ouro ganho pelos jogadores também é adicionado ao crédito de spawn do Diretor (10%).");
+                Loc.Add(Token + "_NAME", "Artifact of Tithe", "Artefato do Dízimo");
+                Loc.Add(Token + "_DESC", "All gold earned by the players is also added to the Director's spawn credit (10%).", "Todo ouro ganho pelos jogadores também é adicionado ao crédito de spawn do Diretor (10%).");
 
                 if (!ContentAddition.AddArtifactDef(_def))
                 {

@@ -1,6 +1,5 @@
 using System;
 using System.Globalization;
-using System.Text;
 
 namespace Ror2Meeeee.Core.Progression
 {
@@ -70,23 +69,37 @@ namespace Ror2Meeeee.Core.Progression
         }
 
         // Resumo curto para o chat (poucas linhas; o detalhe vai para o CSV).
-        public static string Summary(RunStats s, RunScoreResult score, int oldLevel, int newLevel, float newMultiplier)
+        // Resumo do fim da run: modelo por idioma + os mesmos argumentos (SummaryArgs); as palavras que mudam com o
+        // resultado vão nos dois idiomas ({0}/{1} resultado, {11}/{12} direção) para o cliente montar a frase no seu.
+        public const string SummaryPt =
+            "<color=#e5c07b>Ror2Meeeee</color> {0} em {2} min | nota {3}/100\n" +
+            "velocidade {4} · sobrevivência {5} · dano sofrido {6} · abates {7}\n" +
+            "{8} abates, {9} mortes, {10} vidas de dano sofrido\n" +
+            "Diretor {11}: nível {13} -> {14} (orçamento de spawn x{15} na próxima run)";
+
+        public const string SummaryEn =
+            "<color=#e5c07b>Ror2Meeeee</color> {1} in {2} min | score {3}/100\n" +
+            "speed {4} · survival {5} · damage taken {6} · kills {7}\n" +
+            "{8} kills, {9} deaths, {10} health bars of damage taken\n" +
+            "Director {12}: level {13} -> {14} (spawn budget x{15} next run)";
+
+        public static string[] SummaryArgs(RunStats s, RunScoreResult score, int oldLevel, int newLevel, float newMultiplier)
         {
             var inv = CultureInfo.InvariantCulture;
-            var minutes = s.Seconds / 60.0;
-            var sb = new StringBuilder();
-            sb.Append("<color=#e5c07b>Ror2Meeeee</color> ").Append(s.Won ? "vitória" : "derrota")
-              .Append(" em ").Append(minutes.ToString("F1", inv)).Append(" min | nota ")
-              .Append((score.Total * 100f).ToString("F0", inv)).Append("/100\n");
-            sb.Append("velocidade ").Append(Pct(score.Speed)).Append(" · sobrevivência ").Append(Pct(score.Survival))
-              .Append(" · dano sofrido ").Append(Pct(score.Damage)).Append(" · abates ").Append(Pct(score.Kills)).Append('\n');
-            sb.Append(s.Kills).Append(" abates, ").Append(s.Deaths).Append(" mortes, ")
-              .Append(s.HealthBarsLost.ToString("F1", inv)).Append(" vidas de dano sofrido\n");
-            var arrow = newLevel > oldLevel ? "sobe" : newLevel < oldLevel ? "desce" : "mantém";
-            sb.Append("Diretor ").Append(arrow).Append(": nível ").Append(oldLevel).Append(" -> ").Append(newLevel)
-              .Append(" (orçamento de spawn x").Append(newMultiplier.ToString("F2", inv)).Append(" na próxima run)");
-            return sb.ToString();
+            return new[]
+            {
+                s.Won ? "vitória" : "derrota", s.Won ? "victory" : "defeat",
+                (s.Seconds / 60.0).ToString("F1", inv), (score.Total * 100f).ToString("F0", inv),
+                Pct(score.Speed), Pct(score.Survival), Pct(score.Damage), Pct(score.Kills),
+                s.Kills.ToString(inv), s.Deaths.ToString(inv), s.HealthBarsLost.ToString("F1", inv),
+                newLevel > oldLevel ? "sobe" : newLevel < oldLevel ? "desce" : "mantém",
+                newLevel > oldLevel ? "goes up" : newLevel < oldLevel ? "goes down" : "holds",
+                oldLevel.ToString(inv), newLevel.ToString(inv), newMultiplier.ToString("F2", inv),
+            };
         }
+
+        public static string Summary(RunStats s, RunScoreResult score, int oldLevel, int newLevel, float newMultiplier, bool english = false) =>
+            string.Format(CultureInfo.InvariantCulture, english ? SummaryEn : SummaryPt, SummaryArgs(s, score, oldLevel, newLevel, newMultiplier));
 
         private static string Pct(float v) => (v * 100f).ToString("F0", CultureInfo.InvariantCulture);
     }

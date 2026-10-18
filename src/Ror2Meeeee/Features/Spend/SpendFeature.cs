@@ -21,10 +21,10 @@ namespace Ror2Meeeee
         private bool _logEachValue;
 
         public SpendFeature(Cfg cfg, ManualLogSource log) : base("Spend", cfg, log,
-            "Gasto por jogador: conta compras e ouro gasto de cada jogador na run (comando ror2meeeee_spend) e grava BepInEx/ror2meeeee-spend.csv no fim. Não muda o jogo.",
+            "Spending per player: counts purchases and gold spent by each player in the run (ror2meeeee_spend command) and writes BepInEx/ror2meeeee-spend.csv at the end. Does not change the game.", "Gasto por jogador: conta compras e ouro gasto de cada jogador na run (comando ror2meeeee_spend) e grava BepInEx/ror2meeeee-spend.csv no fim. Não muda o jogo.",
             enabledByDefault: true)
         {
-            _logEach = cfg.Bind("Spend", "LogEachPurchase", false, "Escreve no log uma linha por compra (jogador, objeto, custo). Gera muito texto; deixe desligado.");
+            _logEach = cfg.Bind("Spend", "LogEachPurchase", false, "Writes one log line per purchase (player, object, cost). Produces a lot of text; keep it off.", "Escreve no log uma linha por compra (jogador, objeto, custo). Gera muito texto; deixe desligado.");
             _logEach.SettingChanged += (_, __) => _logEachValue = _logEach.Value;
             _logEachValue = _logEach.Value;
         }

@@ -50,12 +50,13 @@ namespace Ror2Meeeee
                 _def.pickupIconSprite = TitheArtifact.LoadIcon("chamado_da_horda.png", new Color32(120, 30, 160, 255));
                 _def.pickupModelPrefab = ModItem.Model("RoR2/Base/EnergizedOnEquipmentUse/PickupWarHorn.prefab", "Horde", log);
 
-                LanguageAPI.Add(Token + "_NAME", "Chamado da Horda");
-                LanguageAPI.Add(Token + "_PICKUP", "Mais inimigos aparecem. Eles ficam mais difíceis de ignorar.");
-                LanguageAPI.Add(Token + "_DESC",
+                Loc.Add(Token + "_NAME", "Call of the Horde", "Chamado da Horda");
+                Loc.Add(Token + "_PICKUP", "More enemies appear. They become harder to ignore.", "Mais inimigos aparecem. Eles ficam mais difíceis de ignorar.");
+                Loc.Add(Token + "_DESC",
+                    "Increases the enemy spawn budget by <style=cIsDamage>50%</style> <style=cStack>(+50% per stack, up to a limit)</style>.",
                     "Aumenta o orçamento de spawn de inimigos em <style=cIsDamage>50%</style> " +
                     "<style=cStack>(+50% por acúmulo, até um limite)</style>.");
-                LanguageAPI.Add(Token + "_LORE", "Um chamado que ninguém pediu.");
+                Loc.Add(Token + "_LORE", "A call nobody asked for.", "Um chamado que ninguém pediu.");
 
                 if (!ItemAPI.Add(new CustomItem(_def, Array.Empty<ItemDisplayRule>())))
                     log.LogError("Horde: ItemAPI.Add recusou o item.");

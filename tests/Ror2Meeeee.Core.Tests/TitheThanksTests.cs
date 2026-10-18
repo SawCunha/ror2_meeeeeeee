@@ -20,6 +20,17 @@ namespace Ror2Meeeee.Core.Tests
             Assert.StartsWith("<color=#c792ea>Diretor:</color> ", text);
         }
 
+        [Fact]
+        public void Format_English_UsesEnglishThousands()
+        {
+            var text = TitheThanks.Format(0, 1234.9, 12345, english: true);
+            Assert.Contains("1,234", text);
+            Assert.Contains("$12,345", text);
+            Assert.StartsWith(TitheThanks.PrefixEn, text);
+        }
+
+        [Fact] public void Lines_SameCountInBothLanguages() => Assert.Equal(TitheThanks.LinesPt.Length, TitheThanks.LinesEn.Length);
+
         [Fact] public void Format_RotatesLines() => Assert.NotEqual(TitheThanks.Format(0, 10, 100), TitheThanks.Format(1, 10, 100));
         [Fact] public void Format_IndexWraps() => Assert.Equal(TitheThanks.Format(0, 10, 100), TitheThanks.Format(4, 10, 100));
         [Fact] public void Format_NegativeIndex_DoesNotThrow() => Assert.NotNull(TitheThanks.Format(-1, 10, 100));

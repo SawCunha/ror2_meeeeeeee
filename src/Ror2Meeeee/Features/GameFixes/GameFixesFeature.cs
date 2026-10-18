@@ -47,7 +47,7 @@ namespace Ror2Meeeee
         private long _meteors, _transmitterUpdates, _orbContacts, _warps, _warBonds, _equipment, _swarms, _barnacles, _defective, _clayBoss, _mimic;
 
         public GameFixesFeature(Cfg cfg, ManualLogSource log) : base("GameFixes", cfg, log,
-            "Corrige erros do jogo que se repetiam centenas de vezes por partida e custavam FPS: Runic Lens, Unstable Transmitter, War Bonds e equipamento de corpos sem inventário. Também conserta o artefato do Enxame (cópias nasciam em cima do jogador ou não nasciam) e drones/monstros Dourados que travavam a partida de tanta pepita de ouro. Não muda o jogo além disso.",
+            "Fixes game errors that repeated hundreds of times per match and cost FPS: Runic Lens, Unstable Transmitter, War Bonds and equipment on bodies without an inventory. Also fixes the Swarms artifact (copies spawned on top of the player or didn't spawn) and Golden drones/monsters that froze the match with so many gold nuggets. Does not change the game otherwise.", "Corrige erros do jogo que se repetiam centenas de vezes por partida e custavam FPS: Runic Lens, Unstable Transmitter, War Bonds e equipamento de corpos sem inventário. Também conserta o artefato do Enxame (cópias nasciam em cima do jogador ou não nasciam) e drones/monstros Dourados que travavam a partida de tanta pepita de ouro. Não muda o jogo além disso.",
             enabledByDefault: true)
         {
         }

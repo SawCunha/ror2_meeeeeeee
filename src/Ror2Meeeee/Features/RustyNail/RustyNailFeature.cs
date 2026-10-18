@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Collections.Generic;
 using BepInEx.Configuration;
 using BepInEx.Logging;
@@ -51,31 +52,47 @@ namespace Ror2Meeeee
 
         public static void Register(ManualLogSource log)
         {
-            var pt = System.Globalization.CultureInfo.GetCultureInfo("pt-BR");
-            string P(float f) => (f * 100f).ToString("0.##", pt) + "%";
-            string Chance(float perStack) => $"Seus ataques têm <style=cIsDamage>{RustyNailRules.ChanceBase.ToString("0.#", pt)}% de chance</style> " +
-                         $"<style=cStack>(+{perStack.ToString("0.#", pt)}% por acúmulo)</style> de disparar ";
-            var chance = Chance(RustyNailRules.ChancePerStack);
+            CultureInfo en = Loc.EnCulture, pt = Loc.PtCulture;
+            string P(float f, CultureInfo c) => (f * 100f).ToString("0.##", c) + "%";
+            string N(float f, CultureInfo c) => f.ToString("0.#", c);
+            string ChanceEn(float perStack) => $"Your attacks have a <style=cIsDamage>{N(RustyNailRules.ChanceBase, en)}% chance</style> " +
+                         $"<style=cStack>(+{N(perStack, en)}% per stack)</style> to fire ";
+            string ChancePt(float perStack) => $"Seus ataques têm <style=cIsDamage>{N(RustyNailRules.ChanceBase, pt)}% de chance</style> " +
+                         $"<style=cStack>(+{N(perStack, pt)}% por acúmulo)</style> de disparar ";
 
             _def = ModItem.Register(ItemName, Token, ItemTier.Tier1, new[] { ItemTag.Damage },
                 "prego.png", new Color32(150, 80, 40, 255),
-                "Pilha de Pregos Enferrujados",
-                "Chance de disparar um prego que causa sangramento.",
-                chance + $"um prego que causa <style=cIsDamage>{P(RustyNailRules.NailBase)} de dano base</style> <style=cStack>(+{P(RustyNailRules.NailPerStack)} por acúmulo)</style> e aplica " +
-                "<style=cIsDamage>sangramento</style>.",
-                "Ninguém sabe de onde vieram. Ninguém quer saber onde eles estiveram.",
+                ("Pile of Rusty Nails",
+                 "Chance to fire a nail that causes bleeding.",
+                 ChanceEn(RustyNailRules.ChancePerStack) + $"a nail that deals <style=cIsDamage>{P(RustyNailRules.NailBase, en)} base damage</style> <style=cStack>(+{P(RustyNailRules.NailPerStack, en)} per stack)</style> and inflicts " +
+                 "<style=cIsDamage>bleed</style>.",
+                 "No one knows where they came from. No one wants to know where they've been."),
+                ("Pilha de Pregos Enferrujados",
+                 "Chance de disparar um prego que causa sangramento.",
+                 ChancePt(RustyNailRules.ChancePerStack) + $"um prego que causa <style=cIsDamage>{P(RustyNailRules.NailBase, pt)} de dano base</style> <style=cStack>(+{P(RustyNailRules.NailPerStack, pt)} por acúmulo)</style> e aplica " +
+                 "<style=cIsDamage>sangramento</style>.",
+                 "Ninguém sabe de onde vieram. Ninguém quer saber onde eles estiveram."),
                 log, "RoR2/Base/BleedOnHit/PickupTriTip.prefab");
             _voidDef = ModItem.Register(VoidName, VoidToken, ItemTier.VoidTier1, new[] { ItemTag.Damage, ItemTag.AIBlacklist },
                 "prego_void.png", new Color32(150, 60, 200, 255),
-                "Pilha de Espinhos do Vazio",
-                "Espinhos que marcam e detonam inimigos. <style=cIsVoid>Corrompe todas as Pilhas de Pregos Enferrujados.</style>",
-                Chance(RustyNailRules.VoidChancePerStack) + $"um espinho do Vazio que causa <style=cIsDamage>{P(RustyNailRules.NailBase)} de dano base</style> <style=cStack>(+{P(RustyNailRules.VoidNailPerStack)} por acúmulo)</style> e marca o alvo com " +
-                $"<style=cIsVoid>Estilhaço do Vazio</style> por {RustyNailRules.MarkDuration.ToString("0.#", pt)} s. Ao fim, o alvo sofre uma detonação de " +
-                $"<style=cIsDamage>{P(RustyNailRules.DetonationCoefficient)} de dano base</style> e dispara espinhos em todas as direções " +
-                $"(raio de {RustyNailRules.BurstRadius.ToString("0.#", pt)} m), causando <style=cIsDamage>{P(RustyNailRules.BurstBase)}</style> " +
-                $"<style=cStack>(+{P(RustyNailRules.BurstPerStack)} por acúmulo)</style> e marcando os atingidos. " +
-                "<style=cIsVoid>Corrompe todas as Pilhas de Pregos Enferrujados.</style>",
-                "Os pregos não enferrujaram. Algo os comeu por dentro e deixou só a forma, faminta.",
+                ("Pile of Void Spikes",
+                 "Spikes that mark and detonate enemies. <style=cIsVoid>Corrupts all Piles of Rusty Nails.</style>",
+                 ChanceEn(RustyNailRules.VoidChancePerStack) + $"a Void spike that deals <style=cIsDamage>{P(RustyNailRules.NailBase, en)} base damage</style> <style=cStack>(+{P(RustyNailRules.VoidNailPerStack, en)} per stack)</style> and marks the target with " +
+                 $"<style=cIsVoid>Void Shard</style> for {N(RustyNailRules.MarkDuration, en)} s. When it ends, the target suffers a detonation of " +
+                 $"<style=cIsDamage>{P(RustyNailRules.DetonationCoefficient, en)} base damage</style> and fires spikes in all directions " +
+                 $"({N(RustyNailRules.BurstRadius, en)} m radius), dealing <style=cIsDamage>{P(RustyNailRules.BurstBase, en)}</style> " +
+                 $"<style=cStack>(+{P(RustyNailRules.BurstPerStack, en)} per stack)</style> and marking those hit. " +
+                 "<style=cIsVoid>Corrupts all Piles of Rusty Nails.</style>",
+                 "The nails didn't rust. Something ate them from the inside and left only the shape, hungry."),
+                ("Pilha de Espinhos do Vazio",
+                 "Espinhos que marcam e detonam inimigos. <style=cIsVoid>Corrompe todas as Pilhas de Pregos Enferrujados.</style>",
+                 ChancePt(RustyNailRules.VoidChancePerStack) + $"um espinho do Vazio que causa <style=cIsDamage>{P(RustyNailRules.NailBase, pt)} de dano base</style> <style=cStack>(+{P(RustyNailRules.VoidNailPerStack, pt)} por acúmulo)</style> e marca o alvo com " +
+                 $"<style=cIsVoid>Estilhaço do Vazio</style> por {N(RustyNailRules.MarkDuration, pt)} s. Ao fim, o alvo sofre uma detonação de " +
+                 $"<style=cIsDamage>{P(RustyNailRules.DetonationCoefficient, pt)} de dano base</style> e dispara espinhos em todas as direções " +
+                 $"(raio de {N(RustyNailRules.BurstRadius, pt)} m), causando <style=cIsDamage>{P(RustyNailRules.BurstBase, pt)}</style> " +
+                 $"<style=cStack>(+{P(RustyNailRules.BurstPerStack, pt)} por acúmulo)</style> e marcando os atingidos. " +
+                 "<style=cIsVoid>Corrompe todas as Pilhas de Pregos Enferrujados.</style>",
+                 "Os pregos não enferrujaram. Algo os comeu por dentro e deixou só a forma, faminta."),
                 log, "RoR2/DLC1/BleedOnHitVoid/PickupTriTipVoid.prefab");
             ModItem.Corrupt(_def, _voidDef, log);
 #pragma warning disable CS0618 // pickupModelPrefab: campo "left for modders' use" no 1.5.0
@@ -128,10 +145,12 @@ namespace Ror2Meeeee
         private int _effectsThisFrame;
 
         public RustyNailFeature(Cfg cfg, ManualLogSource log) : base("RustyNail", cfg, log,
+            "Pile of Rusty Nails (white) and Pile of Void Spikes (void) items: per-hit chance to fire a bleeding nail or a spike that marks and detonates. Host only. Off: the items exist but do nothing.",
             "Itens Pilha de Pregos Enferrujados (branco) e Pilha de Espinhos do Vazio (void): chance por golpe de disparar um prego com sangramento ou um espinho que marca e detona. Só no host. Desligado: os itens existem mas não fazem nada.",
             enabledByDefault: true)
         {
             _maxChain = cfg.Bind("RustyNail", "MaxChain", 2,
+                "How many times the Void spike burst can mark again in a chain (mark -> detonation -> mark...). 0 = the burst deals damage but doesn't mark.",
                 "Quantas vezes a chuva de espinhos do Vazio pode marcar de novo em cadeia (marca -> detonação -> marca...). 0 = a chuva causa dano mas não marca.");
             _maxChainValue = _maxChain.Value;
             _maxChain.SettingChanged += (_, __) => _maxChainValue = _maxChain.Value;

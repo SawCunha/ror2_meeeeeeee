@@ -32,7 +32,7 @@ namespace Ror2Meeeee
         public bool Holds(GameObject body) => _holders.Contains(body);
 
         public CervoFeature(Cfg cfg, ManualLogSource log) : base("Cervo", cfg, log,
-            "Item zzz cervo <3 (void verde): toda velocidade de movimento extra vira dano (1:1, +50% de conversão por cópia extra). Desligado: o item existe mas não faz nada.",
+            "zzz cervo <3 item (green void): all bonus movement speed becomes damage (1:1, +50% conversion per extra stack). Off: the item exists but does nothing.", "Item zzz cervo <3 (void verde): toda velocidade de movimento extra vira dano (1:1, +50% de conversão por cópia extra). Desligado: o item existe mas não faz nada.",
             enabledByDefault: true)
         {
         }

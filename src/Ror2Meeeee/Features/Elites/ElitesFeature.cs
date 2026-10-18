@@ -84,30 +84,42 @@ namespace Ror2Meeeee
 
                 var red = new Color32(255, 70, 30, 255);
                 _volatile = Buff("Volatile", red, buffIcon);
-                var volatileEquip = Aspect("Volatile", _volatile, icon, model, "Aspecto Volátil", "Seus ataques explodem.",
-                    "Todo golpe <style=cIsDamage>explode</style> em <style=cIsDamage>4 m</style> por <style=cIsDamage>60%</style> do dano e, a cada 1-5 s, você dispara um <style=cIsDamage>míssil</style>.");
-                AddT1("Volatile", volatileEquip, red, "{0} Volátil", "RoR2/DLC1/Common/ColorRamps/texRampStrongerBurn.png", t1, t1Honor, log);
+                var volatileEquip = Aspect("Volatile", _volatile, icon, model,
+                    ("Volatile Aspect", "Your attacks explode.",
+                     "Every hit <style=cIsDamage>explodes</style> in <style=cIsDamage>4 m</style> for <style=cIsDamage>60%</style> of the damage and, every 1-5 s, you fire a <style=cIsDamage>missile</style>."),
+                    ("Aspecto Volátil", "Seus ataques explodem.",
+                     "Todo golpe <style=cIsDamage>explode</style> em <style=cIsDamage>4 m</style> por <style=cIsDamage>60%</style> do dano e, a cada 1-5 s, você dispara um <style=cIsDamage>míssil</style>."));
+                AddT1("Volatile", volatileEquip, red, "Volatile {0}", "{0} Volátil", "RoR2/DLC1/Common/ColorRamps/texRampStrongerBurn.png", t1, t1Honor, log);
 
                 var yellow = new Color32(255, 220, 40, 255);
                 _frenziedEquip = Load<EquipmentDef>("RoR2/Junk/EliteYellow/EliteYellowEquipment.asset");
                 _frenzied = _frenziedEquip.passiveBuffDef ? _frenziedEquip.passiveBuffDef : Buff("Frenzied", yellow, buffIcon);
                 _frenziedEquip.passiveBuffDef = _frenzied;
-                Describe(_frenziedEquip, "Frenzied", icon, model, "Aspecto Frenético", "Mais rápido. Use para se teleportar.",
-                    "<style=cIsUtility>+2</style> de velocidade de movimento base e <style=cIsDamage>+50%</style> de velocidade de ataque. Ative para se <style=cIsUtility>teleportar 25 m</style> na direção do movimento.");
+                Describe(_frenziedEquip, "Frenzied", icon, model,
+                    ("Frenzied Aspect", "Faster. Use to teleport.",
+                     "<style=cIsUtility>+2</style> base movement speed and <style=cIsDamage>+50%</style> attack speed. Activate to <style=cIsUtility>teleport 25 m</style> in the direction of movement."),
+                    ("Aspecto Frenético", "Mais rápido. Use para se teleportar.",
+                     "<style=cIsUtility>+2</style> de velocidade de movimento base e <style=cIsDamage>+50%</style> de velocidade de ataque. Ative para se <style=cIsUtility>teleportar 25 m</style> na direção do movimento."));
                 _frenziedEquip.cooldown = 10f;
-                AddT1("Frenzied", _frenziedEquip, yellow, "{0} Frenético", "RoR2/Base/Common/ColorRamps/texRampWarbanner2.png", t1, t1Honor, log);
+                AddT1("Frenzied", _frenziedEquip, yellow, "Frenzied {0}", "{0} Frenético", "RoR2/Base/Common/ColorRamps/texRampWarbanner2.png", t1, t1Honor, log);
 
                 var orange = new Color32(255, 128, 0, 255);
                 _empowering = Buff("Empowering", orange, buffIcon);
-                var empoweringEquip = Aspect("Empowering", _empowering, icon, model, "Aspecto Fortalecedor", "Carregue um estandarte de guerra.",
-                    "Aliados a até <style=cIsUtility>25 m</style> recebem o <style=cIsDamage>Warbanner</style>: <style=cIsDamage>+30%</style> de velocidade de ataque e de movimento.");
-                AddT1("Empowering", empoweringEquip, orange, "{0} Fortalecedor", "RoR2/Base/Common/ColorRamps/texRampMagmaWorm.png", t1, t1Honor, log);
+                var empoweringEquip = Aspect("Empowering", _empowering, icon, model,
+                    ("Empowering Aspect", "Carry a war banner.",
+                     "Allies within <style=cIsUtility>25 m</style> receive the <style=cIsDamage>Warbanner</style>: <style=cIsDamage>+30%</style> attack and movement speed."),
+                    ("Aspecto Fortalecedor", "Carregue um estandarte de guerra.",
+                     "Aliados a até <style=cIsUtility>25 m</style> recebem o <style=cIsDamage>Warbanner</style>: <style=cIsDamage>+30%</style> de velocidade de ataque e de movimento."));
+                AddT1("Empowering", empoweringEquip, orange, "Empowering {0}", "{0} Fortalecedor", "RoR2/Base/Common/ColorRamps/texRampMagmaWorm.png", t1, t1Honor, log);
 
                 var black = new Color32(26, 26, 26, 255);
                 _blighted = Buff("Blighted", black, buffIcon);
-                var blightedEquip = Aspect("Blighted", _blighted, icon, model, "Aspecto Arruinado", "Torne-se um aspecto da praga.",
-                    "Receba <style=cIsDamage>2</style> afixos de elite aleatórios.");
-                var blighted = Elite("Blighted", blightedEquip, black, "{0} Arruinado", "RoR2/DLC2/Items/DelayedDamage/texRampWarpedEcho.png", log);
+                var blightedEquip = Aspect("Blighted", _blighted, icon, model,
+                    ("Blighted Aspect", "Become an aspect of the blight.",
+                     "Receive <style=cIsDamage>2</style> random elite affixes."),
+                    ("Aspecto Arruinado", "Torne-se um aspecto da praga.",
+                     "Receba <style=cIsDamage>2</style> afixos de elite aleatórios."));
+                var blighted = Elite("Blighted", blightedEquip, black, "Blighted {0}", "{0} Arruinado", "RoR2/DLC2/Items/DelayedDamage/texRampWarpedEcho.png", log);
                 if (blighted)
                 {
                     blighted.healthBoostCoefficient = BlightedHealth;
@@ -139,11 +151,14 @@ namespace Ror2Meeeee
                 echo.healthBoostCoefficient = t2.healthBoostCoefficient;
                 echo.damageBoostCoefficient = t2.damageBoostCoefficient;
                 echo.modifierToken = "ROR2MEEEEE_ELITE_ECHO";
-                LanguageAPI.Add(echo.modifierToken, "{0} Eco");
+                Loc.Add(echo.modifierToken, "Echo {0}", "{0} Eco");
                 var ramp = Load<Texture2D>("RoR2/Base/Common/ColorRamps/texRampShadowClone.png");
                 if (ramp) EliteRamp.AddRamp(echo, ramp);
-                if (echo.eliteEquipmentDef) Describe(echo.eliteEquipmentDef, "Echo", null, null, "Aspecto Eco", "Invoque ecos de si mesmo.",
-                    "Invoca <style=cIsUtility>2 ecos</style> com <style=cIsHealth>10%</style> da vida, que atiram projéteis caçadores e somem quando você morre.");
+                if (echo.eliteEquipmentDef) Describe(echo.eliteEquipmentDef, "Echo", null, null,
+                    ("Echo Aspect", "Summon echoes of yourself.",
+                     "Summons <style=cIsUtility>2 echoes</style> with <style=cIsHealth>10%</style> health that fire homing projectiles and vanish when you die."),
+                    ("Aspecto Eco", "Invoque ecos de si mesmo.",
+                     "Invoca <style=cIsUtility>2 ecos</style> com <style=cIsHealth>10%</style> da vida, que atiram projéteis caçadores e somem quando você morre."));
                 // O projétil dos ecos fica no grupo Junk, fora do catálogo do jogo: sem isto não chega aos clientes.
                 var projectile = Load<GameObject>("RoR2/Junk/EchoHunterProjectile.prefab");
                 // Sem ghost (endereço nem referência direta) o projétil fica invisível. O R2API só olha o campo antigo
@@ -177,7 +192,7 @@ namespace Ror2Meeeee
             return buff;
         }
 
-        private static EquipmentDef Aspect(string name, BuffDef buff, Sprite icon, GameObject model, string displayName, string pickup, string desc)
+        private static EquipmentDef Aspect(string name, BuffDef buff, Sprite icon, GameObject model, (string Name, string Pickup, string Desc) en, (string Name, string Pickup, string Desc) pt)
         {
             var def = ScriptableObject.CreateInstance<EquipmentDef>();
             def.name = "Ror2MeeeeeAffix" + name;
@@ -189,13 +204,13 @@ namespace Ror2Meeeee
             def.appearsInMultiPlayer = true;
             def.colorIndex = ColorCatalog.ColorIndex.Equipment;
             def.cooldown = 0f;
-            Describe(def, name, icon, model, displayName, pickup, desc);
+            Describe(def, name, icon, model, en, pt);
             if (!ContentAddition.AddEquipmentDef(def)) throw new InvalidOperationException($"ContentAddition recusou o aspecto {def.name}");
             return def;
         }
 
         // Tokens próprios também no equipamento do jogo (Frenético, Eco), que não tem texto em português.
-        private static void Describe(EquipmentDef def, string name, Sprite icon, GameObject model, string displayName, string pickup, string desc)
+        private static void Describe(EquipmentDef def, string name, Sprite icon, GameObject model, (string Name, string Pickup, string Desc) en, (string Name, string Pickup, string Desc) pt)
         {
             var token = "ROR2MEEEEE_AFFIX_" + name.ToUpperInvariant();
             def.nameToken = token + "_NAME";
@@ -206,15 +221,15 @@ namespace Ror2Meeeee
             def.dropOnDeathChance = DropChance;
             if (icon) def.pickupIconSprite = icon;
             if (model) def.pickupModelPrefab = model;
-            LanguageAPI.Add(def.nameToken, displayName);
-            LanguageAPI.Add(def.pickupToken, pickup);
-            LanguageAPI.Add(def.descriptionToken, desc);
+            Loc.Add(def.nameToken, en.Name, pt.Name);
+            Loc.Add(def.pickupToken, en.Pickup, pt.Pickup);
+            Loc.Add(def.descriptionToken, en.Desc, pt.Desc);
         }
 
-        private static EliteDef Elite(string name, EquipmentDef equip, Color32 color, string modifier, string rampKey, ManualLogSource log)
+        private static EliteDef Elite(string name, EquipmentDef equip, Color32 color, string modifierEn, string modifierPt, string rampKey, ManualLogSource log)
         {
             var token = "ROR2MEEEEE_ELITE_" + name.ToUpperInvariant();
-            LanguageAPI.Add(token, modifier);
+            Loc.Add(token, modifierEn, modifierPt);
             // Tiers vazios: o R2API.Elites só registra; quem põe e tira dos tiers é Sync (config do host).
             var custom = new CustomElite("EliteRor2Meeeee" + name, equip, color, token, Array.Empty<CombatDirector.EliteTierDef>());
             if (!EliteAPI.Add(custom)) { log.LogError($"Elites: EliteAPI recusou {name}."); return null; }
@@ -225,16 +240,16 @@ namespace Ror2Meeeee
         }
 
         // T1: um EliteDef normal (estágios 1+) e um de Honra, com os stats do Flamejante de cada um.
-        private static void AddT1(string name, EquipmentDef equip, Color32 color, string modifier, string rampKey,
+        private static void AddT1(string name, EquipmentDef equip, Color32 color, string modifierEn, string modifierPt, string rampKey,
             EliteDef template, EliteDef honorTemplate, ManualLogSource log)
         {
-            var normal = Elite(name, equip, color, modifier, rampKey, log);
+            var normal = Elite(name, equip, color, modifierEn, modifierPt, rampKey, log);
             if (!normal) return;
             normal.healthBoostCoefficient = template.healthBoostCoefficient;
             normal.damageBoostCoefficient = template.damageBoostCoefficient;
             Place(name, normal, EliteAPI.GetEliteTierEnumerable(VanillaEliteTier.BaseTier1));
 
-            var honor = Elite(name + "Honor", equip, color, modifier, rampKey, log);
+            var honor = Elite(name + "Honor", equip, color, modifierEn, modifierPt, rampKey, log);
             if (!honor) return;
             honor.healthBoostCoefficient = honorTemplate.healthBoostCoefficient;
             honor.damageBoostCoefficient = honorTemplate.damageBoostCoefficient;
@@ -249,19 +264,21 @@ namespace Ror2Meeeee
         }
 
         public ElitesFeature(Cfg cfg, ManualLogSource log) : base("Elites", cfg, log,
+            "New elites rolled by the director: Volatile, Frenzied and Empowering (T1), Blighted and Echo (T2, from the loop on). Off: the director doesn't roll them and those already alive lose their extra effects.",
             "Elites novos sorteados pelo diretor: Volátil, Frenético e Fortalecedor (T1), Arruinado e Eco (T2, a partir do loop). Desligado: o diretor não os sorteia e os que já estão vivos perdem os efeitos extras.",
             enabledByDefault: true)
         {
-            Bind("Volatile", "Volátil (T1): todo golpe explode e dispara mísseis a cada 1-5 s.");
-            Bind("Frenzied", "Frenético (T1): mais velocidade de movimento e de ataque; se teleporta até perto do alvo a cada 10 s.");
-            Bind("Empowering", "Fortalecedor (T1): aura de Warbanner de 25 m para os aliados.");
-            Bind("Blighted", "Arruinado (T2): dois afixos de elite T1 aleatórios.");
-            Bind("Echo", "Eco (T2): invoca 2 ecos com 10% da vida que atiram projéteis caçadores.");
+            Bind("Volatile", "Volatile (T1): every hit explodes and fires missiles every 1-5 s.", "Volátil (T1): todo golpe explode e dispara mísseis a cada 1-5 s.");
+            Bind("Frenzied", "Frenzied (T1): more movement and attack speed; teleports close to the target every 10 s.", "Frenético (T1): mais velocidade de movimento e de ataque; se teleporta até perto do alvo a cada 10 s.");
+            Bind("Empowering", "Empowering (T1): 25 m Warbanner aura for allies.", "Fortalecedor (T1): aura de Warbanner de 25 m para os aliados.");
+            Bind("Blighted", "Blighted (T2): two random T1 elite affixes.", "Arruinado (T2): dois afixos de elite T1 aleatórios.");
+            Bind("Echo", "Echo (T2): summons 2 echoes with 10% health that fire homing projectiles.", "Eco (T2): invoca 2 ecos com 10% da vida que atiram projéteis caçadores.");
         }
 
-        private void Bind(string key, string description)
+        private void Bind(string key, string descriptionEn, string descriptionPt)
         {
-            var entry = Cfg.Bind("Elites", key, true, description + " Só o host precisa; vale na hora (próximos spawns).");
+            var entry = Cfg.Bind("Elites", key, true, descriptionEn + " Only the host needs it; applies immediately (next spawns).",
+                descriptionPt + " Só o host precisa; vale na hora (próximos spawns).");
             entry.SettingChanged += (_, __) => Sync(Enabled);
             _enabledByKey[key] = entry;
         }

@@ -31,12 +31,18 @@ namespace Ror2Meeeee
             var extra = (int)(SpeedToDamage.ExtraStackRatio * 100f);
             _def = ModItem.Register(Name, Token, ItemTier.VoidTier2, new[] { ItemTag.Damage, ItemTag.AIBlacklist },
                 "cervo.png", new Color32(150, 60, 170, 255),
-                "zzz cervo <3",
-                "A pressa é inimiga da perfeição.",
-                "Converte toda a <style=cIsUtility>velocidade de movimento adicional</style> em <style=cIsDamage>dano</style>: " +
-                "cada +1% de velocidade vira <style=cIsDamage>+1% de dano</style> " +
-                $"<style=cStack>(+{extra}% de conversão por acúmulo)</style>. Você fica na velocidade normal; lentidões continuam valendo.",
-                "A pressa é inimiga da perfeição.",
+                ("zzz cervo <3",
+                 "Haste makes waste.",
+                 "Converts all <style=cIsUtility>bonus movement speed</style> into <style=cIsDamage>damage</style>: " +
+                 "each +1% speed becomes <style=cIsDamage>+1% damage</style> " +
+                 $"<style=cStack>(+{extra}% conversion per stack)</style>. You stay at normal speed; slows still apply.",
+                 "Haste makes waste."),
+                ("zzz cervo <3",
+                 "A pressa é inimiga da perfeição.",
+                 "Converte toda a <style=cIsUtility>velocidade de movimento adicional</style> em <style=cIsDamage>dano</style>: " +
+                 "cada +1% de velocidade vira <style=cIsDamage>+1% de dano</style> " +
+                 $"<style=cStack>(+{extra}% de conversão por acúmulo)</style>. Você fica na velocidade normal; lentidões continuam valendo.",
+                 "A pressa é inimiga da perfeição."),
                 log, "RoR2/Base/Hoof/PickupHoof.prefab");
             if (_def) _def.pickupModelPrefab = Model(log) ?? _def.pickupModelPrefab;
         }

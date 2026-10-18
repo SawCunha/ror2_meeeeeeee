@@ -50,20 +50,28 @@ namespace Ror2Meeeee
 
         public static void Register(ManualLogSource log)
         {
-            var pt = System.Globalization.CultureInfo.GetCultureInfo("pt-BR");
+            var pt = Loc.PtCulture;
+            var pe = (Bastion.ShieldPerStack * 100f).ToString("0.##", Loc.EnCulture) + "%";
+            var de = Bastion.RegenDelaySeconds.ToString("0.#", Loc.EnCulture);
             var p = (Bastion.ShieldPerStack * 100f).ToString("0.##", pt) + "%";
             var d = Bastion.RegenDelaySeconds.ToString("0.#", pt);
             _def = ModItem.Register(ItemName, Token, ItemTier.Tier3, new[] { ItemTag.Utility, ItemTag.AIBlacklist },
                 "bastiao.png", new Color32(90, 170, 240, 255),
-                "Bastião",
-                "Um escudo enorme que volta rápido.",
-                $"Ganhe <style=cIsHealing>escudo</style> igual a <style=cIsHealing>{p} da sua vida máxima</style> <style=cStack>(+{p} por acúmulo)</style>. " +
-                $"O escudo começa a <style=cIsUtility>recarregar {d} s</style> depois do último golpe (normalmente 7 s).",
-                "Nenhuma muralha cai se for reerguida mais rápido do que é derrubada.",
+                ("Bastion",
+                 "A huge shield that comes back fast.",
+                 $"Gain a <style=cIsHealing>shield</style> equal to <style=cIsHealing>{pe} of your maximum health</style> <style=cStack>(+{pe} per stack)</style>. " +
+                 $"The shield starts <style=cIsUtility>recharging {de} s</style> after the last hit (normally 7 s).",
+                 "No wall falls if it is rebuilt faster than it is torn down."),
+                ("Bastião",
+                 "Um escudo enorme que volta rápido.",
+                 $"Ganhe <style=cIsHealing>escudo</style> igual a <style=cIsHealing>{p} da sua vida máxima</style> <style=cStack>(+{p} por acúmulo)</style>. " +
+                 $"O escudo começa a <style=cIsUtility>recarregar {d} s</style> depois do último golpe (normalmente 7 s).",
+                 "Nenhuma muralha cai se for reerguida mais rápido do que é derrubada."),
                 log, "RoR2/Base/PersonalShield/PickupShieldGenerator.prefab");
         }
 
         public BastionFeature(Cfg cfg, ManualLogSource log) : base("Bastion", cfg, log,
+            "Bastion item (red): shield of 40% of max health per stack and shield recharge 2 s after the last hit (game: 7 s). Off: the item exists but does nothing.",
             "Item Bastião (vermelho): escudo de 40% da vida máxima por cópia e recarga do escudo 2 s depois do último golpe (jogo: 7 s). Desligado: o item existe mas não faz nada.",
             enabledByDefault: true)
         {

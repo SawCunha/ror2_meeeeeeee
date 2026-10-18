@@ -62,13 +62,13 @@ namespace Ror2Meeeee
         // Abre a tela (de ror2meeeee_drop_menu); name vazio = sem seleção.
         public static string OpenWith(string name)
         {
-            if (!_instance) return "Menu indisponível.";
-            if (!Run.instance) return "Entre em uma run primeiro.";
-            if (!FeatureOn()) return "Drop desligado (Drop.Enabled=false).";
-            if (StatsPanel.IsOpen) return "Feche a tela de status primeiro.";
+            if (!_instance) return Loc.T("Menu unavailable.", "Menu indisponível.");
+            if (!Run.instance) return Loc.T("Join a run first.", "Entre em uma run primeiro.");
+            if (!FeatureOn()) return Loc.T("Drop is off (Drop.Enabled=false).", "Drop desligado (Drop.Enabled=false).");
+            if (StatsPanel.IsOpen) return Loc.T("Close the status screen first.", "Feche a tela de status primeiro.");
             _preselect = string.IsNullOrWhiteSpace(name) ? null : name.Trim();
             _instance.SetOpen(true);
-            return "Tela de soltar itens aberta.";
+            return Loc.T("Drop items screen opened.", "Tela de soltar itens aberta.");
         }
 
         // Lê a tecla configurada em Drop.MenuKey; valor inválido volta para F7.
@@ -258,7 +258,7 @@ namespace Ror2Meeeee
                                                || string.Equals(r.Name, _preselect, StringComparison.OrdinalIgnoreCase));
                 if (hit < 0) hit = _rows.FindIndex(r => r.Internal.IndexOf(_preselect, StringComparison.OrdinalIgnoreCase) >= 0
                                                         || r.Name.IndexOf(_preselect, StringComparison.OrdinalIgnoreCase) >= 0);
-                if (hit >= 0) Select(hit); else _status = $"Nenhum item seu combina com '{_preselect}'.";
+                if (hit >= 0) Select(hit); else _status = Loc.T($"None of your items match '{_preselect}'.", $"Nenhum item seu combina com '{_preselect}'.");
                 _preselect = null;
             }
 
@@ -276,11 +276,11 @@ namespace Ror2Meeeee
             if (i < 0) return;
             var row = _rows[i];
             var count = Mathf.Min(_qty, MaxQty(row));
-            if (count <= 0) { _status = "Nada para soltar (Drop.MaxPerCommand = 0?)."; return; }
+            if (count <= 0) { _status = Loc.T("Nothing to drop (Drop.MaxPerCommand = 0?).", "Nada para soltar (Drop.MaxPerCommand = 0?)."); return; }
             var user = LocalUserManager.GetFirstLocalUser();
-            if (user == null || !user.currentNetworkUser) { _status = "Sem usuário local."; return; }
+            if (user == null || !user.currentNetworkUser) { _status = Loc.T("No local user.", "Sem usuário local."); return; }
             RoR2.Console.instance.SubmitCmd(user.currentNetworkUser, $"ror2meeeee_drop {row.Internal} {count}");
-            _status = $"Soltando {count}x {row.Name}...";
+            _status = Loc.T($"Dropping {count}x {row.Name}...", $"Soltando {count}x {row.Name}...");
 
             row.Count -= count;
             if (row.Count > 0) { _rows[i] = row; SetQty(_qty); }
@@ -425,7 +425,7 @@ namespace Ror2Meeeee
             GUI.color = bg;
             Border(panel, new Color(0.9f, 0.8f, 0.4f), 3f);
 
-            GUI.Label(new Rect(panel.x + 24, panel.y + 12, pw - 48, 44), "SOLTAR ITENS", _big);
+            GUI.Label(new Rect(panel.x + 24, panel.y + 12, pw - 48, 44), Loc.T("DROP ITEMS", "SOLTAR ITENS"), _big);
 
             var gridW = pw * 0.58f;
             var grid = new Rect(panel.x + 24, panel.y + 70, gridW, ph - 150f);
@@ -435,7 +435,7 @@ namespace Ror2Meeeee
             var view = new Rect(0, 0, _cols * (Cell + Gap), rowsN * (Cell + Gap));
             var sel = SelectedIndex();
 
-            if (_rows.Count == 0) GUI.Label(grid, "Você não tem itens que possam ser soltos.", _label);
+            if (_rows.Count == 0) GUI.Label(grid, Loc.T("You have no items that can be dropped.", "Você não tem itens que possam ser soltos."), _label);
             _scroll = GUI.BeginScrollView(grid, _scroll, view);
             for (var i = 0; i < _rows.Count; i++)
             {
@@ -461,10 +461,10 @@ namespace Ror2Meeeee
                 DrawIcon(new Rect(dx, panel.y + 74, 150, 150), row.Tex, row.Uv, row.Color);
                 _name.normal.textColor = row.Color;
                 GUI.Label(new Rect(dx + 164, panel.y + 74, dw - 164, 100), row.Name, _name);
-                GUI.Label(new Rect(dx + 164, panel.y + 170, dw - 164, 50), $"Você tem {row.Count}", _label);
+                GUI.Label(new Rect(dx + 164, panel.y + 170, dw - 164, 50), Loc.T($"You have {row.Count}", $"Você tem {row.Count}"), _label);
 
                 var max = MaxQty(row);
-                GUI.Label(new Rect(dx, panel.y + 240, dw, 40), $"Quantidade a soltar (máx. {max} por vez)", _label);
+                GUI.Label(new Rect(dx, panel.y + 240, dw, 40), Loc.T($"Amount to drop (max. {max} at a time)", $"Quantidade a soltar (máx. {max} por vez)"), _label);
                 var typed = GUI.TextField(new Rect(dx, panel.y + 284, dw, 72), _qtyText, 6, _field);
                 if (typed != _qtyText) OnQtyTyped(typed);
                 var bw = (dw - 3 * 8f) / 4f;
@@ -473,15 +473,16 @@ namespace Ror2Meeeee
                 if (GUI.Button(new Rect(dx + (bw + 8f), by, bw, 64), "+1", _button)) ChangeQty(+1);
                 if (GUI.Button(new Rect(dx + 2 * (bw + 8f), by, bw, 64), "+5", _button)) ChangeQty(+5);
                 if (GUI.Button(new Rect(dx + 3 * (bw + 8f), by, bw, 64), "+10", _button)) ChangeQty(+10);
-                if (GUI.Button(new Rect(dx, by + 80, dw, 90), $"SOLTAR {_qty}x", _button)) DropSelected();
+                if (GUI.Button(new Rect(dx, by + 80, dw, 90), Loc.T($"DROP {_qty}x", $"SOLTAR {_qty}x"), _button)) DropSelected();
             }
             else
             {
-                GUI.Label(new Rect(dx, panel.y + 80, dw, 120), "Clique em um item para escolher.", _label);
+                GUI.Label(new Rect(dx, panel.y + 80, dw, 120), Loc.T("Click an item to choose it.", "Clique em um item para escolher."), _label);
             }
 
             var foot = new Rect(panel.x + 24, panel.yMax - 66, pw - 48, 56);
-            GUI.Label(foot, (_status.Length > 0 ? _status + "\n" : "") + $"Clique no item · setas movem · digite ou +/- quantidade · Enter solta · {_key.Value} fecha", _small);
+            GUI.Label(foot, (_status.Length > 0 ? _status + "\n" : "") + Loc.T($"Click the item · arrows move · type or +/- amount · Enter drops · {_key.Value} closes",
+                $"Clique no item · setas movem · digite ou +/- quantidade · Enter solta · {_key.Value} fecha"), _small);
 
             GUI.matrix = oldMatrix;
         }

@@ -22,15 +22,19 @@ namespace Ror2Meeeee
         private long _logged; // concessões logadas na run (amostragem)
         private bool _granting; // guarda de reentrância: a concessão extra nunca multiplica de novo
 
+        private const string CapToken = "ROR2MEEEEE_MULTIPLIER_CAP_CHAT";
+
         public MultiplierFeature(Cfg cfg, ManualLogSource log) : base("Multiplier", cfg, log,
-            "Multiplicador de itens: cada item que um jogador pega rende várias cópias (veja Value). Itens iniciais, de monstros, scrap e temporários não multiplicam. Só o host precisa ligar.",
+            "Item multiplier: each item a player picks up yields several copies (see Value). Starting items, items from monsters, scrap and temporary items don't multiply. Only the host needs to turn it on.", "Multiplicador de itens: cada item que um jogador pega rende várias cópias (veja Value). Itens iniciais, de monstros, scrap e temporários não multiplicam. Só o host precisa ligar.",
             enabledByDefault: true)
         {
+            Loc.Add(CapToken, "<color=#e5c07b>{0}</color>: {1} is already at the cap ({2}); the item disappeared.",
+                "<color=#e5c07b>{0}</color>: {1} já está no teto ({2}); o item sumiu.");
             _value = cfg.Bind("Multiplier", "Value", MultiplierRules.DefaultMultiplier,
-                $"Quantas cópias no total cada item coletado rende (1 = normal, 2 = dobra, 10 = dez cópias). Menor que 1 volta para {MultiplierRules.DefaultMultiplier}.");
-            _includeLunar = cfg.Bind("Multiplier", "IncludeLunar", true, "Também multiplica itens lunares (azuis). Desligado: lunares vêm em 1 cópia.");
-            _includeVoid = cfg.Bind("Multiplier", "IncludeVoid", true, "Também multiplica itens void (roxos). Desligado: void vêm em 1 cópia.");
-            _stackCap = cfg.Bind("Multiplier", "StackCap", 150, "Teto de cópias de um mesmo item por jogador (qualquer item). A multiplicação e o compartilhamento param no teto; item pego com o stack já no teto some (aviso no chat). Impressora, caldeirão e give_item não passam por aqui. 0 = sem limite.");
+                $"How many copies in total each collected item yields (1 = normal, 2 = double, 10 = ten copies). Less than 1 falls back to {MultiplierRules.DefaultMultiplier}.", $"Quantas cópias no total cada item coletado rende (1 = normal, 2 = dobra, 10 = dez cópias). Menor que 1 volta para {MultiplierRules.DefaultMultiplier}.");
+            _includeLunar = cfg.Bind("Multiplier", "IncludeLunar", true, "Also multiplies lunar (blue) items. Off: lunar items come as 1 copy.", "Também multiplica itens lunares (azuis). Desligado: lunares vêm em 1 cópia.");
+            _includeVoid = cfg.Bind("Multiplier", "IncludeVoid", true, "Also multiplies void (purple) items. Off: void items come as 1 copy.", "Também multiplica itens void (roxos). Desligado: void vêm em 1 cópia.");
+            _stackCap = cfg.Bind("Multiplier", "StackCap", 150, "Cap on copies of the same item per player (any item). Multiplying and sharing stop at the cap; an item picked up with the stack already at the cap disappears (chat notice). Printer, cauldron and give_item don't go through here. 0 = no limit.", "Teto de cópias de um mesmo item por jogador (qualquer item). A multiplicação e o compartilhamento param no teto; item pego com o stack já no teto some (aviso no chat). Impressora, caldeirão e give_item não passam por aqui. 0 = sem limite.");
 
             _value.SettingChanged += (_, __) => Refresh();
             _includeLunar.SettingChanged += (_, __) => Refresh();
@@ -111,10 +115,7 @@ namespace Ror2Meeeee
                 try
                 {
                     var who = body.GetUserName();
-                    Chat.SendBroadcastChat(new Chat.SimpleChatMessage
-                    {
-                        baseToken = $"<color=#e5c07b>{who}</color>: {Language.GetString(itemDef.nameToken)} já está no teto ({_rules.StackCap}); o item sumiu."
-                    });
+                    Loc.Broadcast(CapToken, who, Language.GetString(itemDef.nameToken), _rules.StackCap.ToString());
                     Log.LogInfo($"[Multiplier] {itemDef.name}: {who} no teto ({stackBefore}/{_rules.StackCap}); pickup descartado.");
                 }
                 catch (Exception e)

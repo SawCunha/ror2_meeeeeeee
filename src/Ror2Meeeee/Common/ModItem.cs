@@ -16,7 +16,8 @@ namespace Ror2Meeeee
     {
         public static ItemDef Register(string name, string token, ItemTier tier, ItemTag[] tags,
             string iconResource, Color32 iconFallback,
-            string displayName, string pickup, string description, string lore, ManualLogSource log, string modelKey = null)
+            (string Name, string Pickup, string Desc, string Lore) en, (string Name, string Pickup, string Desc, string Lore) pt,
+            ManualLogSource log, string modelKey = null)
         {
             try
             {
@@ -34,10 +35,10 @@ namespace Ror2Meeeee
                 def.pickupIconSprite = TitheArtifact.LoadIcon(iconResource, iconFallback);
                 def.pickupModelPrefab = Model(modelKey, name, log);
 
-                LanguageAPI.Add(token + "_NAME", displayName);
-                LanguageAPI.Add(token + "_PICKUP", pickup);
-                LanguageAPI.Add(token + "_DESC", description);
-                LanguageAPI.Add(token + "_LORE", lore);
+                Loc.Add(token + "_NAME", en.Name, pt.Name);
+                Loc.Add(token + "_PICKUP", en.Pickup, pt.Pickup);
+                Loc.Add(token + "_DESC", en.Desc, pt.Desc);
+                Loc.Add(token + "_LORE", en.Lore, pt.Lore);
 
                 if (!ItemAPI.Add(new CustomItem(def, Array.Empty<ItemDisplayRule>())))
                 {

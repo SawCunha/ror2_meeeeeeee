@@ -9,7 +9,7 @@ grep -q "\"version_number\": \"$ver\"" package/manifest.json || { echo "package/
 dotnet build src/Ror2Meeeee -c Release
 out=src/Ror2Meeeee/bin/Release/netstandard2.1
 stage=$(mktemp -d); trap 'rm -rf "$stage"' EXIT
-cp package/manifest.json package/README.md package/CHANGELOG.md "$out/Ror2Meeeee.dll" "$out/Ror2Meeeee.Core.dll" "$stage/"
+cp package/manifest.json package/README.md package/CHANGELOG.md package/README.pt-BR.md package/CHANGELOG.pt-BR.md "$out/Ror2Meeeee.dll" "$out/Ror2Meeeee.Core.dll" "$stage/"
 cp src/Ror2Meeeee/Assets/mod_icon.png "$stage/icon.png"
 mkdir -p dist; zip -j -q "dist/Sawcunha-Ror2Meeeee-$ver.zip" "$stage"/*
 echo "dist/Sawcunha-Ror2Meeeee-$ver.zip"

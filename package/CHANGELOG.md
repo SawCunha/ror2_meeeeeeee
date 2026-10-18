@@ -1,448 +1,492 @@
 # Changelog
 
+**Language:** English · [Português (Brasil)](https://github.com/SawCunha/ror2_meeeeeeee/blob/main/package/CHANGELOG.pt-BR.md)
+
+## 0.11.0
+
+- **Languages**: the mod now has an English base with a Brazilian Portuguese translation. With the game set to
+  Português (Brasil), everything shows in Portuguese; in any other language, in English. This covers names and
+  descriptions of items, artifacts, equipment and elites, chat messages, the F7/F8 screens, on-screen notices and
+  markers, console command responses and the mod settings descriptions (Risk of Options). "Taxade" is a term of the
+  mod and stays the same in both languages.
+- Chat: the host's messages (Tithe, I.M.P. Contract, Grimoire, Tombstone, Drop, Multiplier cap, Progression summary and
+  Greater Bazaar) arrive as mod text, and each player reads them in their own language. Player and item names inside
+  them come as the host sees them.
+- Config: the descriptions in the `.cfg` are now in English; keys and values don't change and existing configs keep
+  working. The mod settings screen shows the descriptions in Portuguese when the game is in pt-BR. With an old Risk of
+  Options without token support, the mod settings screen doesn't show up and the log warns about it (the mod keeps
+  working through the `.cfg`).
+- Logs (`LogOutput.log`) and the diagnostic tools (Probe, `ror2meeeee_status`, `ror2meeeee_effects`,
+  `ror2meeeee_spend`) stay in Portuguese.
+- README and CHANGELOG in English, with the Portuguese versions (`README.pt-BR.md` and `CHANGELOG.pt-BR.md`) and a link
+  at the top to choose the language.
+
 ## 0.10.4
 
-- Desempenho: **mísseis** (`MissileProjectile`: ATG, Disposable Missile Launcher, aspecto Volátil...) entram na lista
-  padrão do `[ProjectileBudget]` (15 por segundo, dano dos que não saem somado ao próximo). Numa run de 4 jogadores, o
-  Bazar, sem nenhum inimigo, tinha 675 mísseis a cada 30 s. Em uma config existente, acrescente `MissileProjectile` a
-  `Prefabs` à mão.
-- Desempenho: teto global de projéteis de jogadores (`[ProjectileBudget] GlobalMaxPerSecond`) de 80 para **40** por
-  segundo. Na mesma run, mesmo com os tetos por tipo, a soma passava de 50/s com 1 a 3 monstros vivos e o frame médio
-  chegava a 34 ms (p95 54 ms). O dano dos projéteis que não saem é somado aos seguintes do mesmo tipo. Em uma config
-  existente, mude `GlobalMaxPerSecond` à mão.
-- Diagnóstico: o `NullReferenceException` do `InventorySafekeepController` ao fim da run (o jogo tenta devolver os
-  inventários guardados de cada jogador depois que a run já foi desmontada; não há perda de itens numa run em
-  andamento) passa a ser contado como ruído conhecido, assim como o do `SetStateOnHurt.GetModifiedDuration` (inimigo
-  atingido no mesmo frame em que nasce, antes de o jogo preencher os controladores de atordoamento; corrigir exigiria
-  um hook em todo golpe, caro demais para um caso raro) e o do `ParticleSystemColorFromEffectData` (efeito do jogo criado
-  sem passar pelo `EffectManager`; a partícula só não recebe a cor) e o `Unable to SpawnEffect from prefab named
-  'GenericHugeFootstepDust'` (efeito de pisada do jogo que não está no catálogo de efeitos; só esse nome) e o
-  `BaseAchievement: localUser is null!` (conquista verificada sem usuário local num desbloqueio em multiplayer) e o do
-  `MasterSuicideOnTimer.OnDestroy` (ajudante temporário destruído antes de o jogo terminar de montá-lo) e o do
-  `BrotherUltUtils.EvaluatePattern` (fase 2 do Mithrix: o ataque mira quem matou o inimigo, e uma torreta ou drone sem
-  direção estoura o cálculo; o ataque só não sai) e o da conquista do Captain na zona de choque
-  (`CaptainSupplyDropFinaleAchievement`), que também aparece como `Failed at InvokeHandler, probably malformed packet!`.
-- README: seção de créditos com quem desenvolve e testa o mod (SawCunha, Sleeping_tv_, Póker.the.wolf e
-  Artie_saito) e link do projeto no GitHub (topo da página e créditos).
+- Performance: **missiles** (`MissileProjectile`: ATG, Disposable Missile Launcher, Volatile aspect...) join the
+  default `[ProjectileBudget]` list (15 per second, damage from those that don't fire added to the next one). In a
+  4-player run, the Bazaar, with no enemies at all, had 675 missiles every 30 s. In an existing config, add
+  `MissileProjectile` to `Prefabs` by hand.
+- Performance: global player projectile cap (`[ProjectileBudget] GlobalMaxPerSecond`) from 80 down to **40** per
+  second. In the same run, even with the per-type caps, the total went past 50/s with 1 to 3 monsters alive and the
+  average frame reached 34 ms (p95 54 ms). The damage from projectiles that don't fire is added to the next ones of the
+  same type. In an existing config, change `GlobalMaxPerSecond` by hand.
+- Diagnostics: the `InventorySafekeepController` `NullReferenceException` at the end of the run (the game tries to give
+  back each player's stored inventories after the run has already been torn down; no items are lost in a run in
+  progress) is now counted as known noise, as are the one from `SetStateOnHurt.GetModifiedDuration` (enemy hit on the
+  same frame it spawns, before the game fills in the stun controllers; fixing it would need a hook on every hit, too
+  expensive for a rare case), the one from `ParticleSystemColorFromEffectData` (game effect created without going
+  through the `EffectManager`; the particle just doesn't get its color), `Unable to SpawnEffect from prefab named
+  'GenericHugeFootstepDust'` (game footstep effect that isn't in the effect catalog; only that name),
+  `BaseAchievement: localUser is null!` (achievement checked without a local user during a multiplayer unlock), the one
+  from `MasterSuicideOnTimer.OnDestroy` (temporary minion destroyed before the game finishes setting it up), the one
+  from `BrotherUltUtils.EvaluatePattern` (Mithrix phase 2: the attack aims at whoever killed the enemy, and a turret or
+  drone without a direction breaks the calculation; the attack just doesn't happen) and the one from the Captain's
+  shock zone achievement (`CaptainSupplyDropFinaleAchievement`), which also shows up as `Failed at InvokeHandler,
+  probably malformed packet!`.
+- README: credits section with the people who develop and test the mod (SawCunha, Sleeping_tv_, Póker.the.wolf and
+  Artie_saito) and the project's GitHub link (top of the page and credits).
 
 ## 0.10.3
 
-- Desempenho: **Fireworks** (`FireworkProjectile`) entra na lista padrão do `[ProjectileBudget]`: no máximo 15 por
-  segundo, somando todos os jogadores, com o dano dos que não saem somado ao próximo (mesmo dano total). Numa run de 4
-  jogadores chegaram a 902 mísseis a cada 30 s antes de o jogo travar; o `[LimitedCalc]` limita cada lançador, mas com o
-  Multiplicador são muitos lançadores. Em uma config existente, acrescente `FireworkProjectile` a `Prefabs` à mão.
-- Diagnóstico: o aviso de enxurrada de ouro (`[Diag] enxurrada de eventos de ouro`) passa a usar 40 eventos por
-  segundo **por jogador**; com 3 jogadores, cada abate gera 3 eventos e um pico normal de abates já disparava o aviso.
-- Correções do jogo (`[GameFixes]`): o **Dunestrider** que morria sem o ponto "Center" no modelo estourava
-  `NullReferenceException` no efeito de morte **antes** de destruir o modelo e o corpo, e o jogo não tentava de novo: o
-  corpo morto ficava no servidor até o fim do estágio. Agora o efeito usa a posição do corpo e a limpeza do jogo roda
-  inteira (uma checagem por morte de Dunestrider).
-  O **Baú Mímico** sem o ponto "Muzzle" no modelo estourava ao abrir e ao se enterrar; ao abrir, o estouro pulava a
-  linha que marca o mímico como "ator falso", mas a saída do estado desmarcava mesmo assim: o contador ficava negativo e
-  a camada de colisão do mímico, errada. Agora o mod trata só esse estouro esperado e completa a linha pulada.
-- Diagnóstico: passam a ser contados como ruído conhecido do jogo o `CombatSquad has no living members. Triggering
-  defeat...` (registrado como erro quando um grupo de chefe/evento é derrotado) e o `Unable to set gate state for ...`
-  (mapa que referencia uma passagem ausente do grafo de navegação, ao carregar o estágio) e o `PickupDisplay bounds are
-  zero!` (modelo de pickup do jogo com tamanho zero, como o do HelpWake), além dos erros de rede e da prévia de
-  personagem quando alguém sai do lobby (`host id {0} invoked wrong io operation`, `host id {0} out of bound...`,
-  `SurvivorMannequinSlotController.ApplyLoadoutToMannequinInstance`) e o `NullReferenceException` do Extractor Unit sem
-  animator (`ExtractLunge.OnEnter`; sem animator ele não ativa a hitbox e não rouba itens, então não há o que corrigir) e o
-  do Solus Amalgamator (`DetatchState.OnEnter`: o jogo dispara as separações no corpo já morto, sem modelo).
+- Performance: **Fireworks** (`FireworkProjectile`) joins the default `[ProjectileBudget]` list: at most 15 per second,
+  all players combined, with the damage from those that don't fire added to the next one (same total damage). In a
+  4-player run there were 902 missiles every 30 s before the game froze; `[LimitedCalc]` limits each launcher, but with
+  the Multiplier there are many launchers. In an existing config, add `FireworkProjectile` to `Prefabs` by hand.
+- Diagnostics: the gold flood warning (`[Diag] enxurrada de eventos de ouro`) now uses 40 events per second **per
+  player**; with 3 players, each kill produces 3 events and a normal kill spike already triggered the warning.
+- Game fixes (`[GameFixes]`): the **Dunestrider** dying without the "Center" point on its model threw a
+  `NullReferenceException` in the death effect **before** destroying the model and the body, and the game didn't try
+  again: the dead body stayed on the server until the end of the stage. Now the effect uses the body's position and the
+  game's cleanup runs in full (one check per Dunestrider death).
+  The **Mimic Chest** without the "Muzzle" point on its model broke when opening and when burrowing; when opening, the
+  error skipped the line that marks the mimic as a "fake actor", but leaving the state unmarked it anyway: the counter
+  went negative and the mimic's collision layer was wrong. Now the mod handles only that expected error and completes
+  the skipped line.
+- Diagnostics: these are now counted as known game noise: `CombatSquad has no living members. Triggering defeat...`
+  (logged as an error when a boss/event group is defeated), `Unable to set gate state for ...` (map that references a
+  passage missing from the navigation graph, when loading the stage) and `PickupDisplay bounds are zero!` (game pickup
+  model with zero size, like HelpWake's), plus the network and character preview errors when someone leaves the lobby
+  (`host id {0} invoked wrong io operation`, `host id {0} out of bound...`,
+  `SurvivorMannequinSlotController.ApplyLoadoutToMannequinInstance`), the Extractor Unit's `NullReferenceException`
+  without an animator (`ExtractLunge.OnEnter`; without an animator it doesn't enable its hitbox and doesn't steal items,
+  so there's nothing to fix) and the Solus Amalgamator's (`DetatchState.OnEnter`: the game fires the detachments on the
+  already dead body, without a model).
 
 ## 0.10.2
 
-- **Diagnóstico de travamento**: a vigia grava a cada 5 s um "último sinal de vida" em
-  `BepInEx/ror2meeeee-heartbeat.txt` (estágio, frame, monstros, abates, ouro, lâminas cortadas, exceções, RAM). Fechar o
-  jogo normalmente apaga o arquivo; se ele existir na abertura seguinte, o log ganha `[Vigia] a sessão anterior não
-  fechou normalmente...` com o estado da partida no fim. Motivo: numa run de 3 jogadores o processo inteiro congelou
-  (log, Unity e a própria vigia pararam no mesmo segundo) e não sobrou nada para saber o que acontecia.
-- Dificuldade: as almas do **Artefato da Alma** (uma por monstro morto, milhares por run) não recebem mais os itens de
-  Boost de vida e dano; morrem num golpe e o Boost só custava um recálculo de atributos a cada uma.
-- Lâminas Fantasmas (`[GhostBlades]`): teto padrão de 15 para **10** por segundo (a run que travou ficou no teto,
-  ~400 lâminas a cada 30 s). Vale para configs novas; em uma existente, mude `MaxPerSecond` à mão.
-- **README reescrito para o Thunderstore**: cada artefato, item, equipamento, elite e sistema em uma seção própria, com
-  o que faz, como usar e um exemplo; tabela de resumo, comandos e perguntas frequentes. Descrição e site do pacote
-  atualizados.
-- Elite Eco: se o projétil dos ecos vier sem ghost (endereço e referência vazios), o mod usa o `EchoHunterGhost` do
-  jogo para os tiros não ficarem invisíveis.
-- **Bazar Maior**: o item que flutua sobre o baú podia ser pego (o `Start()` do jogo zerava a marca `consumed` que o
-  mod colocava logo depois de criá-lo). Agora a vitrine usa um tempo de espera infinito, que o jogo não reinicia, e
-  nunca é concedida. Com o **Artefato do Comando**, o baú volta a soltar o cubo de escolha do mesmo tier em vez do item
-  direto; só a vitrine ignora o artefato.
-- Correções do jogo (`[GameFixes]`): a Craca do Vazio chamava um efeito de spawn vazio a cada vez que nascia (o 1.5.0
-  deixou o endereço do efeito em branco), gerando um erro com pilha no log por craca. O mod descarta o efeito vazio
-  antes; sem custo por tick, uma checagem por spawn.
-  A Defective Unit estourava `NullReferenceException` ao morrer já sem modelo (o jogo lia o modelo sem checar); nesse
-  caso o mod pula só o trecho do efeito de morte, que não teria onde aparecer.
-- `ror2meeeee_reload`: o texto de ajuda dizia que `Enabled` exigia reiniciar; ele já vale na hora, entre partidas.
-- Desempenho: o crédito do Dízimo (`[Gold]`) não monta mais uma string de diagnóstico a cada ouro ganho (só quando a
-  enxurrada é detectada, uma vez por estágio); o Grimório guarda o efeito de teleporte em vez de recarregá-lo a cada uso.
-- Métrica de carga: a linha `[Carga]` agora lista as etapas do Awake que levaram 5 ms ou mais (registro de cada
-  item/artefato/elite, interface, config, `Enable` de cada feature e tela de mods), para achar o que pesa na abertura.
-- Diagnóstico: passam a ser contados como ruído conhecido do jogo (não do mod) o `IndexOutOfRangeException` do
-  Facepunch na lista do lobby quando alguém entra, o `AddPlayer` duplicado ao um jogador entrar (`already a player at
-  that playerControllerId` / `connection has already been set as ready`), o `NullReferenceException` do
-  `SteamworksLobbyDataGenerator` no lobby, o do `ViewableTag.OnDisable` ao fechar o jogo e o `GenericPool: ReleasePools
-  called on non-empty pool` da troca de cena e o `AssignClientAuthority` de ajudantes do jogo. O aviso de "erro novo"
-  mostra a primeira linha da pilha e ignora números (IDs de conexão) ao decidir se o erro já foi visto.
+- **Freeze diagnostics**: the watchdog writes a "last sign of life" every 5 s to `BepInEx/ror2meeeee-heartbeat.txt`
+  (stage, frame, monsters, kills, gold, trimmed blades, exceptions, RAM). Closing the game normally deletes the file; if
+  it exists on the next launch, the log gets `[Vigia] a sessão anterior não fechou normalmente...` with the state of the
+  match at the end. Reason: in a 3-player run the whole process froze (log, Unity and the watchdog itself stopped in the
+  same second) and nothing was left to tell what was happening.
+- Difficulty: the souls from the **Artifact of Soul** (one per monster killed, thousands per run) no longer get the
+  health and damage Boost items; they die in one hit and the Boost only cost a stat recalculation for each one.
+- Ghost Blades (`[GhostBlades]`): default cap from 15 down to **10** per second (the run that froze stayed at the cap,
+  ~400 blades every 30 s). Applies to new configs; in an existing one, change `MaxPerSecond` by hand.
+- **README rewritten for Thunderstore**: each artifact, item, equipment, elite and system in its own section, with what
+  it does, how to use it and an example; summary table, commands and FAQ. Package description and website updated.
+- Echo elite: if the echoes' projectile comes without a ghost (empty address and reference), the mod uses the game's
+  `EchoHunterGhost` so the shots aren't invisible.
+- **Greater Bazaar**: the item floating over the chest could be picked up (the game's `Start()` reset the `consumed`
+  flag the mod set right after creating it). Now the display uses an infinite wait time, which the game doesn't reset,
+  and is never granted. With the **Artifact of Command**, the chest drops the choice cube of the same tier again instead
+  of the item directly; only the display ignores the artifact.
+- Game fixes (`[GameFixes]`): the Void Barnacle called an empty spawn effect every time it spawned (1.5.0 left the
+  effect's address blank), producing an error with a stack trace in the log per barnacle. The mod discards the empty
+  effect first; no per-tick cost, one check per spawn.
+  The Defective Unit threw a `NullReferenceException` when dying already without a model (the game read the model
+  without checking); in that case the mod skips only the death effect part, which would have nowhere to show.
+- `ror2meeeee_reload`: the help text said `Enabled` required a restart; it already applies immediately, between
+  matches.
+- Performance: the Tithe credit (`[Gold]`) no longer builds a diagnostic string on every gold earned (only when the
+  flood is detected, once per stage); the Grimoire keeps the teleport effect instead of reloading it on every use.
+- Load metric: the `[Carga]` line now lists the Awake steps that took 5 ms or more (registration of each
+  item/artifact/elite, interface, config, each feature's `Enable` and the mod settings screen), to find what weighs on
+  startup.
+- Diagnostics: these are now counted as known game noise (not the mod's): Facepunch's `IndexOutOfRangeException` in the
+  lobby list when someone joins, the duplicate `AddPlayer` when a player joins (`already a player at that
+  playerControllerId` / `connection has already been set as ready`), the `SteamworksLobbyDataGenerator`
+  `NullReferenceException` in the lobby, the one from `ViewableTag.OnDisable` when closing the game, `GenericPool:
+  ReleasePools called on non-empty pool` on scene change and `AssignClientAuthority` from game minions. The "new error"
+  warning shows the first line of the stack trace and ignores numbers (connection IDs) when deciding whether the error
+  has been seen already.
 
 ## 0.10.1
 
-- **Elite Eco volta a funcionar no jogo 1.5.0**: o patch moveu os assets do Eco de `RoR2/InDev/` para `RoR2/Junk/`
-  (`edEcho.asset` e `EchoHunterProjectile.prefab`); na 0.10.0 o elite não era registrado e o log mostrava
+- **Echo elite works again on game 1.5.0**: the patch moved the Echo assets from `RoR2/InDev/` to `RoR2/Junk/`
+  (`edEcho.asset` and `EchoHunterProjectile.prefab`); in 0.10.0 the elite wasn't registered and the log showed
   `InvalidKeyException ... Key=RoR2/InDev/edEcho.asset`.
 
 ## 0.10.0
 
-- **Bazar Maior** (`[Bazaar]`, novo, ligado; reescrita do BiggerBazaar 1.14.5): o Bazar entre Tempos ganha até 6 baús
-  com o item à mostra, comprados com o ouro que sobrou do estágio (o ouro não vira XP ao entrar no portal do bazar) ou
-  com moedas lunares (`PayWithLunarCoins`), e um casulo ao lado do Newt que troca moeda lunar por ouro. Peso, preço,
-  preço lunar e estoque por tier (10 compras por baú), sem limite de compras por jogador; limite de trocas no casulo;
-  10% de chance de baú de itens temporários.
-  Em relação ao original: preço = baú pequeno do estágio anterior × multiplicador (o original escalava duas vezes),
-  sorteio próprio (não mexe no RNG da run), item comprado cai no chão e passa pelo Multiplicador/Comunismo, a Sale Star
-  não é gasta à toa, o casulo não dispara Fogos, o Reciclador não troca o item à mostra, o Comando não troca o item
-  comprado, itens únicos do mod ficam fora da loja e o hack do Captain não abre os baús. Sem ShareSuite, sem preço dos
-  terminais originais do bazar e sem compra direto no inventário.
-- **Elites novos** (`[Elites]`, novo, ligado; reescrita do MoreElites 0.9.5 e do BlightedElites 1.2.2): Volátil,
-  Frenético e Fortalecedor (T1, com versão de Honra), Arruinado e Eco (T2). Só assets do jogo: o Frenético é o elite
-  amarelo do jogo e o Eco é o edEcho do jogo, que o diretor nunca sorteava. Em relação aos originais: mísseis e
-  teleporte só no host (não duplicam nos clientes), o aspecto Frenético usado por jogador não teleporta para (0,0,0),
-  o elite de Honra tem os stats de Honra do jogo, o Volátil não dá um Brilliant Behemoth que nunca sai, o Fortalecedor
-  não apaga um Warbanner de verdade, o projétil do Eco é registrado (chegava aos clientes sem catálogo) e os tiers vêm
-  do R2API.Elites, não de índices fixos. Nova dependência: **R2API_Elites 1.1.3**.
-- **Elite Dourado em IA** (`[GameFixes]`): drones, aliados e monstros Dourados soltavam pepitas de ouro a cada golpe
-  em quem não é jogador, sem o cooldown nem a chance que o jogador tem, até travar a partida. Agora seguem a regra do
-  jogador (mesma correção do GildedChunkSpamFix; não instale os dois).
-- **Artefato do Enxame** (`[GameFixes]`): as cópias do Enxame nasciam em cima do jogador ou não nasciam, porque o
-  jogo deixava zeradas as distâncias de spawn delas nos spawns normais do diretor. Agora recebem as distâncias do
-  spawn original (mesmo bug que o SwarmsFix corrige; não instale os dois).
-- **Tela de soltar itens** (F7): parou de criar estilos de texto novos a cada desenho (vários por frame, um por item)
-  e só procura ícones no HUD quando falta algum, em vez de a cada 0,5 s. Menos lixo de memória com a tela aberta.
-- **Chamado da Horda**: a descrição dizia +25% por cópia; o padrão é +50% (`Horde.QuantityPerStack = 0.5`).
-- **Progressão**: fechar o jogo logo depois do fim da run não perde mais o nível nem a linha do CSV (a gravação roda na
-  hora quando o jogo está fechando).
-- **Teto de projéteis** (`[ProjectileBudget]`): projéteis fora da lista `Prefabs` cortados pelo teto global perdiam o
-  dano; agora ele vai para o próximo disparo do mesmo tipo, como já acontecia com os da lista (dano total mantido).
+- **Greater Bazaar** (`[Bazaar]`, new, on; rewrite of BiggerBazaar 1.14.5): the Bazaar Between Time gets up to 6 chests
+  with the item on display, bought with the gold left over from the stage (gold doesn't become XP when entering the
+  bazaar portal) or with lunar coins (`PayWithLunarCoins`), and a pod next to Newt that trades lunar coins for gold.
+  Weight, price, lunar price and stock per tier (10 purchases per chest), no purchase limit per player; trade limit at
+  the pod; 10% chance of a temporary items chest.
+  Compared to the original: price = small chest of the previous stage × multiplier (the original scaled twice), its own
+  roll (doesn't touch the run's RNG), the purchased item drops on the ground and goes through the
+  Multiplier/Communism, the Sale Star isn't wasted, the pod doesn't trigger Fireworks, the Recycler doesn't swap the
+  displayed item, Command doesn't swap the purchased item, the mod's unique items stay out of the shop and the
+  Captain's hack doesn't open the chests. No ShareSuite, no prices for the bazaar's original terminals and no buying
+  straight into the inventory.
+- **New elites** (`[Elites]`, new, on; rewrite of MoreElites 0.9.5 and BlightedElites 1.2.2): Volatile, Frenzied and
+  Empowering (T1, with an Honor version), Blighted and Echo (T2). Game assets only: Frenzied is the game's yellow elite
+  and Echo is the game's edEcho, which the director never rolled. Compared to the originals: missiles and teleport only
+  on the host (they don't duplicate on clients), the Frenzied aspect used by a player doesn't teleport to (0,0,0), the
+  Honor elite has the game's Honor stats, Volatile doesn't give a Brilliant Behemoth that never fires, Empowering doesn't
+  erase a real Warbanner, the Echo's projectile is registered (it reached clients without a catalog entry) and the tiers
+  come from R2API.Elites, not fixed indexes. New dependency: **R2API_Elites 1.1.3**.
+- **Golden elite on AI** (`[GameFixes]`): Golden drones, allies and monsters dropped gold nuggets on every hit on
+  non-players, without the cooldown or the chance the player has, until the match froze. Now they follow the player's
+  rule (same fix as GildedChunkSpamFix; don't install both).
+- **Artifact of Swarms** (`[GameFixes]`): Swarms copies spawned on top of the player or didn't spawn, because the game
+  left their spawn distances at zero in the director's normal spawns. Now they get the original spawn's distances (same
+  bug SwarmsFix fixes; don't install both).
+- **Drop items screen** (F7): stopped creating new text styles on every draw (several per frame, one per item) and only
+  looks for icons in the HUD when one is missing, instead of every 0.5 s. Less memory garbage with the screen open.
+- **Call of the Horde**: the description said +25% per stack; the default is +50% (`Horde.QuantityPerStack = 0.5`).
+- **Progression**: closing the game right after the run ends no longer loses the level or the CSV line (writing runs
+  immediately when the game is closing).
+- **Projectile cap** (`[ProjectileBudget]`): projectiles outside the `Prefabs` list cut by the global cap lost their
+  damage; now it goes to the next shot of the same type, as already happened with the listed ones (total damage kept).
 
 ## 0.9.6
 
-- **Teto de projéteis** (`[ProjectileBudget]`), novos padrões medidos numa run de 3 jogadores (~8 mil itens, FPS
-  caindo para ~11 nas lutas): `DaggerProjectile`, `EngiGrenadeProjectile` e `ShurikenProjectile` entram na lista
-  `Prefabs`; `PerTypeMaxPerSecond` **15** (antes 30) e `GlobalMaxPerSecond` **80** (antes 300, que nunca era
-  atingido). O dano total continua o mesmo: menos projéteis, cada um mais forte.
-- **Lâminas Fantasmas** (`[GhostBlades]`): `MaxPerSecond` **15** (antes 30, que ficava sempre no teto).
-- **Partículas** (`[Particles]`): explosões (`OmniExplosionVFXQuick`) saem da isenção total e ganham teto próprio
-  maior: nova lista `Raised` (padrão `OmniExplosionVFXQuick`) com `RaisedMaxPerSecond` **60**. Sem teto, eram o
-  efeito mais frequente da run (190 mil+). `Exempt` passa a ter só os golpes do Mercenary.
-- **Correções de bugs do jogo** (`[GameFixes]`, novo, ligado): erros que se repetiam centenas de vezes por partida
-  (com pilha no log, custando FPS) deixam de acontecer:
-  - **Runic Lens**: se quem acertou morre antes do meteoro cair, o jogo repetia o erro a cada tick; o meteoro desse
-    golpe é cancelado.
-  - **Unstable Transmitter**: corpo com o item e sem inventário dava erro a cada frame; orbe cujo dono já morreu dava
-    erro ao tocar inimigos; inimigo sem modelo não era teleportado e perdia também sangramento, atordoamento e debuff
-    (agora fica onde está e recebe o resto do efeito).
-  - **War Bonds**: torreta do Engi com o item dava erro ao morrer.
-  - **Equipamento**: corpo sem inventário com pedido de uso de equipamento dava erro a cada tick.
-- **Log**: as linhas por uso do Ghor's Tome e do Bundle of Fireworks (`[LimitedCalc]`, centenas por run) só aparecem
-  com `General.VerboseLogging`.
-- Configs existentes mantêm os valores salvos: para pegar os novos padrões, apague as chaves (ou o `.cfg`) ou ajuste
-  na tela de mods.
+- **Projectile cap** (`[ProjectileBudget]`), new defaults measured in a 3-player run (~8k items, FPS dropping to ~11 in
+  fights): `DaggerProjectile`, `EngiGrenadeProjectile` and `ShurikenProjectile` join the `Prefabs` list;
+  `PerTypeMaxPerSecond` **15** (was 30) and `GlobalMaxPerSecond` **80** (was 300, which was never reached). Total damage
+  stays the same: fewer projectiles, each one stronger.
+- **Ghost Blades** (`[GhostBlades]`): `MaxPerSecond` **15** (was 30, which was always at the cap).
+- **Particles** (`[Particles]`): explosions (`OmniExplosionVFXQuick`) leave the full exemption and get their own higher
+  cap: new `Raised` list (default `OmniExplosionVFXQuick`) with `RaisedMaxPerSecond` **60**. Without a cap, they were
+  the most frequent effect of the run (190k+). `Exempt` now has only the Mercenary strikes.
+- **Game bug fixes** (`[GameFixes]`, new, on): errors that repeated hundreds of times per match (with a stack trace in
+  the log, costing FPS) no longer happen:
+  - **Runic Lens**: if the attacker dies before the meteor lands, the game repeated the error every tick; that hit's
+    meteor is cancelled.
+  - **Unstable Transmitter**: a body with the item and no inventory errored every frame; an orb whose owner had already
+    died errored when touching enemies; an enemy without a model wasn't teleported and also lost bleed, stun and debuff
+    (now it stays where it is and gets the rest of the effect).
+  - **War Bonds**: an Engi turret with the item errored when dying.
+  - **Equipment**: a body without an inventory with an equipment use request errored every tick.
+- **Log**: the per-use lines for Ghor's Tome and Bundle of Fireworks (`[LimitedCalc]`, hundreds per run) only appear
+  with `General.VerboseLogging`.
+- Existing configs keep their saved values: to get the new defaults, delete the keys (or the `.cfg`) or adjust them on
+  the mod settings screen.
 
 ## 0.9.5
 
-- **Partículas**: teto padrão reduzido para **10/s por tipo de efeito** (antes 20/s), com exceções padrão para os
-  golpes do Mercenary (`BladeComboSwingEffect`) e explosões (`OmniExplosionVFXQuick`), que seguem completos.
-  Configs existentes mantêm os valores salvos de `MaxPerSecond` e `Exempt`.
+- **Particles**: default cap reduced to **10/s per effect type** (was 20/s), with default exemptions for the Mercenary
+  strikes (`BladeComboSwingEffect`) and explosions (`OmniExplosionVFXQuick`), which stay complete. Existing configs keep
+  their saved `MaxPerSecond` and `Exempt` values.
 
 ## 0.9.4
 
-- Atualizado para o **Risk of Rain 2 1.5.0#1224** (Steam build 25921972): sem o aviso de versão divergente no log.
-- **Égide Vampírica** e **Égide do Devorador** ganharam modelo 3D próprio (escudo redondo com umbo: vermelho e
-  dourado / roxo com brilho do Vazio), no chão e no logbook, no lugar do Rose Buckler e do Safer Spaces.
-- **Pregos Enferrujados / Espinhos do Vazio**: corrigidas 6 chaves de assets do jogo que nunca carregavam (ícone da
-  marca do Estilhaço, rastro dos pregos, efeito da detonação e modelo reserva). Some o `InvalidKeyException` no início.
-- Métrica de carga: o log ganha `[Carga] Awake em X ms` (registro de itens/artefatos e features/hooks separados).
-- **Partículas**: o corte local (`Disable`) virou **teto por segundo para todos os efeitos** (`MaxPerSecond`, padrão
-  20/s por tipo de efeito), menos os listados em `Exempt`. Vale também para o que cada jogador **envia** aos outros,
-  host incluído: quem tem o mod gera e transmite menos efeitos. Na troca de fase o log diz quantos efeitos o teto
-  segurou. A chave `Disable` antiga deixa de ser usada.
-- **Multiplicador**: `Multiplier.StackCap` passa a ter padrão **150** e vale para qualquer item multiplicado ou
-  compartilhado (antes os itens do Cálculo limitado eram isentos). Teto rígido: item pego com o stack já no teto
-  some, sem entrar no inventário, com aviso no chat; o compartilhamento não dá nada a quem já está no teto.
-  Impressora, caldeirão e `give_item` não passam por esse teto. Configs existentes mantêm o valor salvo.
-- **zzz cervo <3** ganhou modelo 3D próprio (cervo marrom de olhos esbugalhados, boca aberta e patas finas), no
-  lugar do Paul's Goat Hoof.
-- **Bateria do Portal** ganhou modelo 3D próprio (bateria deitada de metal gasto, anéis escuros e faixa/terminal
-  ciano), no lugar da Fuel Cell do jogo.
+- Updated to **Risk of Rain 2 1.5.0#1224** (Steam build 25921972): no more version mismatch warning in the log.
+- **Vampiric Aegis** and **Devourer's Aegis** got their own 3D model (round shield with a boss: red and gold / purple
+  with a Void glow), on the ground and in the logbook, replacing the Rose Buckler and Safer Spaces.
+- **Rusty Nails / Void Spikes**: fixed 6 game asset keys that never loaded (Shard mark icon, nail tracer, detonation
+  effect and fallback model). The `InvalidKeyException` at startup is gone.
+- Load metric: the log gets `[Carga] Awake em X ms` (item/artifact registration and features/hooks separately).
+- **Particles**: the local cut (`Disable`) became a **per-second cap for all effects** (`MaxPerSecond`, default 20/s
+  per effect type), except those listed in `Exempt`. It also applies to what each player **sends** to the others, host
+  included: whoever has the mod generates and transmits fewer effects. On stage change the log says how many effects the
+  cap held back. The old `Disable` key is no longer used.
+- **Multiplier**: `Multiplier.StackCap` now defaults to **150** and applies to any multiplied or shared item (before,
+  the Limited calculation items were exempt). Hard cap: an item picked up with the stack already at the cap disappears,
+  without entering the inventory, with a chat notice; sharing gives nothing to those already at the cap. Printer,
+  cauldron and `give_item` don't go through this cap. Existing configs keep the saved value.
+- **zzz cervo <3** got its own 3D model (brown deer with bulging eyes, open mouth and thin legs), replacing Paul's Goat
+  Hoof.
+- **Portal Battery** got its own 3D model (lying battery of worn metal, dark rings and a cyan band/terminal), replacing
+  the game's Fuel Cell.
 
 ## 0.9.3
 
-- **Partículas**: com `Particles.CountSpawns` ligado, a lista dos 20 efeitos mais frequentes da run (a mesma do
-  `ror2meeeee_effects`) sai sozinha no console e no `LogOutput.log` a cada fase nova (`[Particles] efeitos mais
-  frequentes após N fase(s)`). Roda em cada jogador, não só no host.
+- **Particles**: with `Particles.CountSpawns` on, the list of the run's 20 most frequent effects (the same as
+  `ror2meeeee_effects`) is printed automatically to the console and `LogOutput.log` on each new stage (`[Particles]
+  efeitos mais frequentes após N fase(s)`). Runs on every player, not just the host.
 
 ## 0.9.2
 
-- **Ghor's Tome** no cálculo limitado (`[LimitedCalc.GhorsTome]`, padrão `Aggregate`, `Limit = 5`): a chance de soltar
-  pacote de ouro fica em até 4% × `Limit` (20%) e cada pacote vale proporcionalmente mais (até 5×), mantendo o ouro
-  esperado por kill com menos pacotes no mapa. `Clamp` só corta a chance; `Off` = como no jogo. Vale para todos os
-  jogadores, pela config do host. Log: `[LimitedCalc] GhorsTome Aggregate: pacote X -> Y`.
+- **Ghor's Tome** in the limited calculation (`[LimitedCalc.GhorsTome]`, default `Aggregate`, `Limit = 5`): the chance
+  to drop a gold pack stays at most 4% × `Limit` (20%) and each pack is worth proportionally more (up to 5×), keeping the
+  expected gold per kill with fewer packs on the map. `Clamp` only cuts the chance; `Off` = as in the game. Applies to all
+  players, through the host's config. Log: `[LimitedCalc] GhorsTome Aggregate: pacote X -> Y`.
 
 ## 0.9.1
 
-- **Pilha de Pregos Enferrujados** e **Pilha de Espinhos do Vazio** ganharam modelo 3D próprio (pilha de pregos
-  enferrujados / roxos), no chão e no logbook, no lugar da Tri-Tip do jogo.
-- Com `General.VerboseLogging` ligado, o `LogOutput.log` registra cada prego, espinho do Vazio e detonação
-  (`RustyNail: ...`).
-- Ícones próprios do **Artefato do Comunismo** no lobby.
+- **Pile of Rusty Nails** and **Pile of Void Spikes** got their own 3D model (pile of rusty / purple nails), on the
+  ground and in the logbook, replacing the game's Tri-Tip.
+- With `General.VerboseLogging` on, `LogOutput.log` records each nail, Void spike and detonation (`RustyNail: ...`).
+- Custom icons for the **Artifact of Communism** in the lobby.
 
 ## 0.9.0
 
-- Novo item **Pilha de Pregos Enferrujados** (branco): 2% de chance por golpe (+0,1% por cópia extra) de disparar um
-  prego de 10% do dano base (+0,1% por cópia extra) que aplica sangramento. Console: `give_item Ror2MeeeeeRustyNailStack 1`.
-- Novo item **Pilha de Espinhos do Vazio** (void; corrompe a anterior): 2% de chance (+0,5% por cópia extra) de disparar
-  um espinho de 10% do dano base (+0,5% por cópia extra) que marca o alvo com Estilhaço do Vazio por 3 s. Ao fim, detonação
-  de 250% e chuva de espinhos num raio de 12 m (150%, +50% por cópia extra) que marca os atingidos. A cadeia é limitada
-  por `RustyNail.MaxChain` (padrão 2). Console: `give_item Ror2MeeeeeVoidSpikeStack 1`.
-- Tela de soltar itens (F7): a quantidade agora respeita `Drop.MaxPerCommand` (antes a tela deixava escolher 50, o
-  servidor soltava 10 e o valor não batia) e a contagem cai na hora. Novo campo para digitar a quantidade e botões
-  −1, +1, +5 e +10.
-- Compartilhamento virou o **Artefato do Comunismo**: só funciona com o artefato ativo no lobby (a opção
-  `Sharing.Enabled` foi removida) e agora compartilha todo
-  tipo de item (lunar e void mesmo sem multiplicar, sucata, tiers das expansões, temporários e alugados no mesmo modo).
+- New item **Pile of Rusty Nails** (white): 2% chance per hit (+0.1% per extra stack) to fire a nail dealing 10% of base
+  damage (+0.1% per extra stack) that applies bleed. Console: `give_item Ror2MeeeeeRustyNailStack 1`.
+- New item **Pile of Void Spikes** (void; corrupts the previous one): 2% chance (+0.5% per extra stack) to fire a spike
+  dealing 10% of base damage (+0.5% per extra stack) that marks the target with Void Shard for 3 s. When it ends, a 250%
+  detonation and a spike burst in a 12 m radius (150%, +50% per extra stack) that marks those hit. The chain is limited by
+  `RustyNail.MaxChain` (default 2). Console: `give_item Ror2MeeeeeVoidSpikeStack 1`.
+- Drop items screen (F7): the amount now respects `Drop.MaxPerCommand` (before, the screen let you choose 50, the server
+  dropped 10 and the value didn't match) and the count drops immediately. New field to type the amount and −1, +1, +5
+  and +10 buttons.
+- Sharing became the **Artifact of Communism**: it only works with the artifact active in the lobby (the
+  `Sharing.Enabled` option was removed) and now shares every type of item (lunar and void even without multiplying,
+  scrap, expansion tiers, temporary and rented items the same way).
 
 ## 0.8.6
 
-- Probe: três colunas novas por janela de 30 s, para achar o que pesa em runs longas: `heal_events` (quantos eventos de
-  cura, não só quanto), `minions` (drones, torretas e outros ajudantes dos jogadores) e `player_items` (total de cópias de
-  itens dos jogadores). Também no log `[Probe] Fase ...` e no `tools/probe-report.py`. O CSV antigo é arquivado sozinho.
-- Grimório: quando não há diretor de combate ativo (Bazar, fim de estágio), o chat diz "Sem diretor ativo: nenhuma onda
-  desta vez" em vez de dizer que o contrato foi cobrado. Nomes no chat e no log sem os títulos de elite.
-- Novo `[ProjectileBudget]`: teto de projéteis dos jogadores e ajudantes, no host. Por tipo (`Prefabs`, padrão
-  StickyBomb, FireMeatBall (Molten Perforator) e LightningStake; `PerTypeMaxPerSecond` 30) e global
-  (`GlobalMaxPerSecond` 300). Acima do teto o projétil não sai e o dano dele vai para o próximo: menos projéteis, cada um
-  mais forte, mesmo dano total. Em runs longas esses itens passavam de 11 mil projéteis em 30 s (~1 FPS) e o lixo gerado
-  causava travadas de vários segundos. Projéteis de monstros não mudam.
-- Chamado da Horda não é mais multiplicado nem compartilhado (1 pickup = 1 cópia, como o Cano Extra). Com 3-4 jogadores
-  ele chegava a 60 cópias e x43 inimigos, com ciclos de morte e quedas de FPS.
-- Lâminas Fantasmas: teto padrão de 100 para 30 por segundo (com 100 ficava sempre no teto, ~2,8 mil projéteis por 30 s).
-  Configs existentes mantêm o valor gravado; ajuste `GhostBlades.MaxPerSecond` se quiser.
+- Probe: three new columns per 30 s window, to find what weighs in long runs: `heal_events` (how many healing events,
+  not just how much), `minions` (players' drones, turrets and other minions) and `player_items` (total copies of players'
+  items). Also in the `[Probe] Fase ...` log and in `tools/probe-report.py`. The old CSV is archived automatically.
+- Grimoire: when there's no active combat director (Bazaar, end of stage), the chat says there is no wave this time
+  instead of saying the contract was charged. Names in chat and log without elite titles.
+- New `[ProjectileBudget]`: cap on projectiles from players and minions, on the host. Per type (`Prefabs`, default
+  StickyBomb, FireMeatBall (Molten Perforator) and LightningStake; `PerTypeMaxPerSecond` 30) and global
+  (`GlobalMaxPerSecond` 300). Above the cap the projectile doesn't fire and its damage goes to the next one: fewer
+  projectiles, each one stronger, same total damage. In long runs these items went past 11k projectiles in 30 s (~1 FPS)
+  and the garbage produced caused freezes of several seconds. Monster projectiles don't change.
+- Call of the Horde is no longer multiplied or shared (1 pickup = 1 copy, like Extra Barrel). With 3-4 players it reached
+  60 copies and x43 enemies, with death cycles and FPS drops.
+- Ghost Blades: default cap from 100 down to 30 per second (with 100 it was always at the cap, ~2.8k projectiles per
+  30 s). Existing configs keep the saved value; adjust `GhostBlades.MaxPerSecond` if you want.
 
 ## 0.8.5
 
-- Lápide: quem morre com vida extra do jogo (Dio's Best Friend ou a versão do Vazio) não gera lápide; o jogo já o traz de
-  volta. Antes a lápide aparecia e sumia 2 s depois. Log: `[Revive] X morreu com vida extra ... sem lápide`.
+- Tombstone: whoever dies with an extra life from the game (Dio's Best Friend or the Void version) doesn't create a
+  tombstone; the game already brings them back. Before, the tombstone appeared and vanished 2 s later. Log: `[Revive] X
+  morreu com vida extra ... sem lápide`.
 
 ## 0.8.4
 
-- Tela de status (F8): falhava ao abrir ("Expected data type ULong, got data type Double"). As estatísticas da run são
-  inteiras no jogo; agora são lidas com a leitura que aceita qualquer tipo.
+- Status screen (F8): failed to open ("Expected data type ULong, got data type Double"). The run stats are integers in
+  the game; now they're read with the reader that accepts any type.
 
 ## 0.8.3
 
-- Lápide sem visual e marcador do I.M.P. invisível (desde a 0.7.0): os prefabs dos efeitos do mod (modelo da lápide,
-  pulso silencioso, marcador do contrato) eram criados no menu sem `DontDestroyOnLoad`; a primeira troca de cena os
-  destruía e o envio era pulado em silêncio. Agora sobrevivem às trocas de cena.
-- Coração Pesado/Bastião: vida máxima + escudo agora param em 1 bilhão. Acima de ~2,1 bilhões a barra de vida do jogo
-  (que usa int) estourava e lançava OverflowException a cada frame (centenas por minuto no log, custo de desempenho).
-- Nova tela de status (`Stats.MenuKey`, padrão **F8**): atributos atuais do seu personagem (vida, escudo, regeneração,
-  dano, velocidade de ataque, crítico, armadura, velocidade, nível) e totais da run (dano causado, dano dos ajudantes, maior
-  golpe, cura, dano recebido, abates, mortes, itens). Os totais vêm das estatísticas do próprio jogo (as da tela de fim de
-  run). Mostra todos os jogadores: vida, dano e totais da run de cada um. O jogo só manda ao cliente os próprios totais;
-  o host envia os de todos a cada 2 s (só com cliente conectado). **Nova dependência: R2API Networking.**
-- Telas F7 (soltar itens) e F8 (status): fecham só pela própria tecla (Esc não fecha mais) e não abrem uma sobre a outra.
+- Tombstone without visuals and invisible I.M.P. marker (since 0.7.0): the prefabs of the mod's effects (tombstone model,
+  silent pulse, contract marker) were created in the menu without `DontDestroyOnLoad`; the first scene change destroyed
+  them and sending was silently skipped. Now they survive scene changes.
+- Heavy Heart/Bastion: max health + shield now stop at 1 billion. Above ~2.1 billion the game's health bar (which uses
+  int) overflowed and threw OverflowException every frame (hundreds per minute in the log, a performance cost).
+- New status screen (`Stats.MenuKey`, default **F8**): your character's current stats (health, shield, regen, damage,
+  attack speed, crit, armor, speed, level) and run totals (damage dealt, minion damage, biggest hit, healing, damage
+  taken, kills, deaths, items). The totals come from the game's own stats (those on the end-of-run screen). Shows all
+  players: health, damage and run totals for each. The game only sends clients their own totals; the host sends everyone's
+  every 2 s (only with a client connected). **New dependency: R2API Networking.**
+- F7 (drop items) and F8 (status) screens: they close only with their own key (Esc no longer closes them) and don't open
+  on top of each other.
 
 ## 0.8.2
 
-- Ordem de aplicação fixa para os itens que mexem em vida, escudo, velocidade e dano (antes, cada item tinha o seu hook e
-  a ordem dependia de quem registrou primeiro). Um hook só por ponto do jogo (`BodyHooks`), ligado só com portador:
-  - Status: Coração Pesado (vida) -> Bastião (escudo sobre a vida já multiplicada) -> Cervo (velocidade em dano) -> vida e
-    escudo atuais reajustados uma vez, no host.
-  - Dano recebido: Égide sorteia o bloqueio -> Coração Pesado aumenta o dano de inimigo (só se não bloqueou) -> jogo ->
-    Égide rouba vida se bloqueou.
+- Fixed application order for items that change health, shield, speed and damage (before, each item had its own hook and
+  the order depended on who registered first). A single hook per game point (`BodyHooks`), only on while someone holds
+  the item:
+  - Stats: Heavy Heart (health) -> Bastion (shield over the already multiplied health) -> Cervo (speed into damage) ->
+    current health and shield readjusted once, on the host.
+  - Damage taken: Aegis rolls the block -> Heavy Heart increases enemy damage (only if not blocked) -> game -> Aegis
+    steals health if it blocked.
   Log: `[BodyHooks] hook de stats/dano ligado/desligado`.
-- Taxa do Taxade é sempre o último passo: calculada sobre a vida máxima final e aplicada direto, sem bloqueio da Égide nem
-  aumento do Coração Pesado. A Égide também passa a respeitar BypassBlock (como o Tougher Times do jogo).
-- Compras com ordem fixa (`PurchaseHub`, um assinante só): Spend registra o gasto e o Taxade vem por último (antes, a
-  ordem dependia de qual feature ligou primeiro, inclusive ao religar pela tela de mods). O custo de vida do revive também
-  passa direto, como a taxa.
-- Bateria do Portal: como os outros itens, os hooks das zonas de carga só existem enquanto alguém tem o item. Log:
+- The Taxade tax is always the last step: calculated on the final max health and applied directly, without the Aegis
+  block or the Heavy Heart increase. The Aegis also respects BypassBlock now (like the game's Tougher Times).
+- Purchases in a fixed order (`PurchaseHub`, a single subscriber): Spend records the spending and Taxade comes last
+  (before, the order depended on which feature turned on first, including when re-enabling from the mod settings
+  screen). The revive's health cost also goes straight through, like the tax.
+- Portal Battery: like the other items, the charge zone hooks only exist while someone has the item. Log:
   `[PortalBattery] hooks de carga ligados/desligados`.
 
 ## 0.8.1
 
-- Coração Pesado: o aumento de dano recebido só vale para dano vindo de outro personagem. Antes ele também multiplicava
-  cobranças em vida (Void Cradle, Santuário de Sangue): abrir um baú do Vazio deixava o jogador com 1 de vida, e o golpe
-  seguinte matava. Queda e dano sem atacante também não aumentam mais.
-- Artefato Taxade: abrir um baú normal podia matar (com Tax.Lethal desligado). O limite "deixa 1 de vida" era calculado
-  antes de outros efeitos multiplicarem o dano (Coração Pesado, Death Mark). Agora o dano da taxa é NonLethal: o próprio
-  jogo garante 1 de vida, seja qual for o multiplicador.
+- Heavy Heart: the damage taken increase only applies to damage coming from another character. Before, it also
+  multiplied health costs (Void Cradle, Shrine of Blood): opening a Void chest left the player with 1 health, and the
+  next hit killed. Fall damage and damage without an attacker are no longer increased either.
+- Artifact of Taxade: opening a normal chest could kill (with Tax.Lethal off). The "leaves 1 health" limit was
+  calculated before other effects multiplied the damage (Heavy Heart, Death Mark). Now the tax damage is NonLethal: the
+  game itself guarantees 1 health, whatever the multiplier.
 
 ## 0.8.0
 
-- Novo item lunar **Coração Pesado** (`[HeavyHeart]`): cada cópia multiplica a vida máxima por 1,5 e o dano recebido por
-  1,3 (composto, sem teto: 10 cópias = vida x57,7 e dano x13,8). Ao pegar o item a vida extra já vem cheia (como os itens
-  de vida do jogo); ao perder, a vida é cortada no novo máximo. Modelo: Pearl.
+- New lunar item **Heavy Heart** (`[HeavyHeart]`): each stack multiplies max health by 1.5 and damage taken by 1.3
+  (compounding, no cap: 10 stacks = health x57.7 and damage x13.8). When picking up the item, the extra health comes
+  full (like the game's health items); when losing it, health is cut to the new maximum. Model: Pearl.
   Console: `give_item Ror2MeeeeeHeavyHeart 1`.
-- Novo **Artefato do Vazio** (`[VoidBounty]`): com ele ativado no lobby, cada estágio ganha +5 baús do Vazio (Void Cradle;
-  `VoidBounty.ExtraChests`) e todo baú do Vazio sorteia entre todos os itens do Vazio (branco 60%, verde 30%, vermelho 8%,
-  boss 2%). Preço: todos os inimigos nascem com +50% de vida. Precisa do DLC Survivors of the Void na run.
-- Novo item verde **Bateria do Portal** (`[PortalBattery]`): o teleportador e as outras zonas de carga carregam +10% mais
-  rápido por cópia, somando as cópias de todo o time (sem teto). Modelo: Fuel Cell.
+- New **Artifact of the Void** (`[VoidBounty]`): with it enabled in the lobby, each stage gets +5 Void chests (Void
+  Cradle; `VoidBounty.ExtraChests`) and every Void chest rolls among all Void items (white 60%, green 30%, red 8%, boss
+  2%). Price: all enemies spawn with +50% health. Needs the Survivors of the Void DLC in the run.
+- New green item **Portal Battery** (`[PortalBattery]`): the teleporter and other charge zones charge +10% faster per
+  stack, adding up the stacks of the whole team (no cap). Model: Fuel Cell.
   Console: `give_item Ror2MeeeeePortalBattery 1`.
-- Novo item vermelho **Bastião** (`[Bastion]`): escudo de 40% da vida máxima por cópia (sem teto) e o escudo começa a
-  recarregar 2 s depois do último golpe (o jogo espera 7 s), na mesma velocidade de recarga do jogo. Modelo: Personal Shield
+- New red item **Bastion** (`[Bastion]`): shield of 40% of max health per stack (no cap) and the shield starts
+  recharging 2 s after the last hit (the game waits 7 s), at the game's recharge speed. Model: Personal Shield
   Generator. Console: `give_item Ror2MeeeeeBastion 1`.
-- Grimório do Stolas: em mapas com poucos nós (Bazar) o teleporte "até o aliado" caía num ponto aleatório do mapa (o jogo
-  usa um ponto aleatório quando não acha nó livre perto). Agora só aceita nó a até 10 m do aliado; senão, 2 m atrás dele, no
-  chão. O log mostra a distância final.
+- Stolas' Grimoire: on maps with few nodes (Bazaar) the teleport "to the ally" landed on a random point of the map (the
+  game uses a random point when it can't find a free node nearby). Now it only accepts a node within 10 m of the ally;
+  otherwise, 2 m behind them, on the ground. The log shows the final distance.
 
 ## 0.7.1
 
-- Lápide sem visual na 0.7.0: o Overlay volta a ficar sempre ligado (a otimização que o desligava quando ocioso foi
-  desfeita) e o modelo do Dio's Best Friend é medido e ajustado para ~2,5 m de altura (a escala nativa do modelo de
-  pickup não é confiável). Log `[Revive] lápide visível nesta máquina: ...` na 1ª vez de cada sessão.
-- Todos os jogadores precisam desta mesma versão (0.7.0 teve vários pacotes com conteúdo diferente).
+- Tombstone without visuals in 0.7.0: the Overlay is always on again (the optimization that turned it off when idle was
+  undone) and the Dio's Best Friend model is measured and adjusted to ~2.5 m tall (the pickup model's native scale isn't
+  reliable). Log `[Revive] lápide visível nesta máquina: ...` the first time each session.
+- All players need this same version (0.7.0 had several packages with different contents).
 
 ## 0.7.0
 
-- zzz cervo <3: o hook em `CharacterBody.RecalculateStats` (todo corpo, monstros inclusive) só fica registrado enquanto
-  alguém tem o item, como já era no Cano Extra, nos Fungos e nas Égides. Log: `[Cervo] hook de stats ligado/desligado`.
-- Novos itens **Égide Vampírica** (verde) e **Égide do Devorador** (void verde, corrompe a primeira), `[Aegis]`. Ambas dão 5% de
-  chance de bloquear (não acumula) e reagem a qualquer bloqueio do jogo (Tougher Times, Safer Spaces, parry, armadura do
-  Captain); imunidade/invencibilidade não conta. Vampírica: rouba 8% da vida atual do agressor por cópia (até 50%) e cura
-  você. Devorador: onda do Vazio que rouba 3% da vida atual de cada inimigo num raio de 13 m (+3% e +2 m por cópia, até 20% e
-  30 m) e cura pela soma. Modelos: Rose Buckler e Safer Spaces. Console: `give_item Ror2MeeeeeVampiricAegis 1` /
-  `give_item Ror2MeeeeeDevourerAegis 1`.
-- Modelos 3D no chão para os itens do mod (antes todos eram a "caixa misteriosa"): Chamado da Horda = War Horn,
-  zzz cervo <3 = Paul's Goat Hoof, Cano Extra = Brilliant Behemoth, Contrato da I.M.P. = Death Mark, Grimório do Stolas =
-  Ghor's Tome, Capitalismo = Roll of Pennies. Se um modelo não carregar, volta para a caixa misteriosa.
-- Novos itens **Fungo Egoísta** (verde) e **Fungo Egoísta do Vazio** (void verde, corrompe o primeiro), `[SelfishFungus]`:
-  curam **sempre** (andando ou parado) só você e seus drones/torretas/ajudantes, onde estiverem; não curam outros jogadores.
-  Egoísta: 5 de vida por segundo (cresce 20% por nível) +0,01% da vida máxima por cópia extra, com o brilho do Medkit
-  a cada 3 s. Vazio: 15/s +0,5% por cópia extra, com a aura roxa do Weeping Fungus. A base é fixa (não em %) para não
-  escalar com a vida inflada pelo multiplicador. Ninguém com vida cheia é "curado" (sem eventos
-  de cura à toa). Console: `give_item Ror2MeeeeeSelfishFungus 1` / `give_item Ror2MeeeeeSelfishFungusVoid 1`.
-- Grimório do Stolas: agora teleporta para perto do primeiro aliado vivo (na ordem da lista de jogadores). Sozinho, ou com
-  todos os outros mortos, continua indo para o teleportador; sem aliado e sem teleportador (Bazar, Lua) o uso não é gasto.
-- Contrato da I.M.P.: o aviso "novo contrato" e o marcador "ALVO DO CONTRATO" (maior, fonte 26) aparecem para **todos**
-  os jogadores, não só para o host. O marcador some sozinho em ~1 s quando o alvo morre.
-- Lápide (Artefato da Ressurreição): agora tem o modelo 3D do Dio's Best Friend (2,5x) no local, e o marcador
-  "LÁPIDE de <nome>" ficou maior (fonte 30) e aparece para **todos** os jogadores, não só para o host. O host reenvia o
-  modelo como efeito a cada 1 s; ao reviver, ele some em ~1 s. Nova dependência de compilação: `Unity.Addressables`.
-- Overlay (avisos e marcadores) e tela de soltar itens ficam desligados quando não há nada na tela: o Unity deixa de
-  chamar o `OnGUI`/`Update` deles a cada frame. A tecla `Drop.MenuKey` passa a ser lida no update do jogo.
-- Cano Extra: os hooks de disparo (`BulletAttack.Fire`, `ProjectileManager.FireProjectile`, `OrbManager.AddOrb`) só ficam
-  registrados enquanto algum corpo tem o item. Sem portador, nenhum tiro do jogo (inclusive de monstros) passa pelo mod.
-  O log mostra `[CanoExtra] hooks de disparo ligados/desligados` a cada mudança.
-- Ícone do pacote (r2modman) agora é a mesma arte da tela de mods do jogo (`Assets/mod_icon.png`). Até a 0.6.5 o zip
-  levava um `icon.png` antigo, copiado de versão em versão.
+- zzz cervo <3: the hook on `CharacterBody.RecalculateStats` (every body, monsters included) only stays registered while
+  someone has the item, as was already the case for Extra Barrel, the Fungi and the Aegises. Log: `[Cervo] hook de stats
+  ligado/desligado`.
+- New items **Vampiric Aegis** (green) and **Devourer's Aegis** (green void, corrupts the first), `[Aegis]`. Both give a
+  5% chance to block (doesn't stack) and react to any block from the game (Tougher Times, Safer Spaces, parry, Captain's
+  armor); immunity/invincibility doesn't count. Vampiric: steals 8% of the attacker's current health per stack (up to
+  50%) and heals you. Devourer: Void wave that steals 3% of the current health of each enemy within 13 m (+3% and +2 m
+  per stack, up to 20% and 30 m) and heals for the total. Models: Rose Buckler and Safer Spaces. Console:
+  `give_item Ror2MeeeeeVampiricAegis 1` / `give_item Ror2MeeeeeDevourerAegis 1`.
+- 3D models on the ground for the mod's items (before, all of them were the "mystery box"): Call of the Horde = War
+  Horn, zzz cervo <3 = Paul's Goat Hoof, Extra Barrel = Brilliant Behemoth, I.M.P. Contract = Death Mark, Stolas'
+  Grimoire = Ghor's Tome, Capitalism = Roll of Pennies. If a model doesn't load, it falls back to the mystery box.
+- New items **Selfish Fungus** (green) and **Selfish Void Fungus** (green void, corrupts the first), `[SelfishFungus]`:
+  they heal **always** (moving or standing still) only you and your drones/turrets/minions, wherever they are; they don't
+  heal other players. Selfish: 5 health per second (grows 20% per level) +0.01% of max health per extra stack, with the
+  Medkit glow every 3 s. Void: 15/s +0.5% per extra stack, with the Weeping Fungus purple aura. The base is flat (not %)
+  so it doesn't scale with the health inflated by the multiplier. Nobody at full health is "healed" (no pointless
+  healing events). Console: `give_item Ror2MeeeeeSelfishFungus 1` / `give_item Ror2MeeeeeSelfishFungusVoid 1`.
+- Stolas' Grimoire: now teleports near the first living ally (in player list order). Alone, or with everyone else dead,
+  it still goes to the teleporter; with no ally and no teleporter (Bazaar, Moon) the use isn't spent.
+- I.M.P. Contract: the "new contract" notice and the "CONTRACT TARGET" marker (larger, font 26) show up for **all**
+  players, not just the host. The marker disappears on its own in ~1 s when the target dies.
+- Tombstone (Artifact of Resurrection): now has the Dio's Best Friend 3D model (2.5x) on the spot, and the "<name>'s
+  TOMBSTONE" marker got larger (font 30) and shows up for **all** players, not just the host. The host resends the model
+  as an effect every 1 s; on revive, it disappears in ~1 s. New build dependency: `Unity.Addressables`.
+- Overlay (notices and markers) and drop items screen are off when there's nothing on screen: Unity no longer calls
+  their `OnGUI`/`Update` every frame. The `Drop.MenuKey` key is now read in the game's update.
+- Extra Barrel: the firing hooks (`BulletAttack.Fire`, `ProjectileManager.FireProjectile`, `OrbManager.AddOrb`) only
+  stay registered while some body has the item. With no holder, no shot in the game (including monsters') goes through
+  the mod. The log shows `[CanoExtra] hooks de disparo ligados/desligados` on each change.
+- Package icon (r2modman) is now the same art as the in-game mod settings screen (`Assets/mod_icon.png`). Up to 0.6.5
+  the zip carried an old `icon.png`, copied from version to version.
 
 ## 0.6.5
 
-- Novo `[GhostBlades]`: teto de gerações/renovações das Lâminas Fantasmas (item Curse do DLC4) por segundo
-  (`GhostBlades.MaxPerSecond`, padrão 100; 0 = sem teto). Em runs longas o jogo chegava a ~700 por segundo
-  (20 a 47 mil projéteis por 30 s), o que levava a memória nativa a mais de 3 GB e o frame a 100-300 ms.
-  Só no host; `GhostBlades.Enabled` desliga. `ror2meeeee_status` mostra quantas foram puladas.
+- New `[GhostBlades]`: cap on Ghost Blade (DLC4 Curse item) spawns/renewals per second (`GhostBlades.MaxPerSecond`,
+  default 100; 0 = no cap). In long runs the game reached ~700 per second (20k to 47k projectiles per 30 s), which pushed
+  native memory past 3 GB and the frame to 100-300 ms. Host only; `GhostBlades.Enabled` turns it off.
+  `ror2meeeee_status` shows how many were skipped.
 
 ## 0.6.4
 
-- Tela de soltar itens: a imagem agora é lida dos ícones que o próprio HUD do jogo já desenhou (`ItemIcon`), porque
-  `pickupIconTexture`/`pickupIconSprite` chegavam nulos. Se ainda faltar imagem, o log lista os campos de ícone do `ItemDef`
-  (`[DropMenu] campos de ícone ...`) e o quadrado mostra o nome.
+- Drop items screen: the image is now read from the icons the game's own HUD has already drawn (`ItemIcon`), because
+  `pickupIconTexture`/`pickupIconSprite` came in null. If an image is still missing, the log lists the `ItemDef` icon
+  fields (`[DropMenu] campos de ícone ...`) and the square shows the name.
 
 ## 0.6.3
 
-- Tela de soltar itens: os ícones continuavam em branco na 0.6.2. Nesta versão do jogo `pickupIconSprite` está obsoleto e vem nulo;
-  a imagem agora vem de `ItemDef.pickupIconTexture` (com `PickupDef.iconTexture` e os sprites antigos de reserva).
-  Sem imagem, o quadrado ainda mostra o nome do item.
+- Drop items screen: the icons were still blank in 0.6.2. In this game version `pickupIconSprite` is obsolete and comes
+  in null; the image now comes from `ItemDef.pickupIconTexture` (with `PickupDef.iconTexture` and the old sprites as
+  fallback). Without an image, the square still shows the item name.
 
 ## 0.6.2
 
-- Tela de soltar itens: os ícones estavam em branco. Agora usam `PickupDef.iconSprite` (o mesmo da UI do jogo), com
-  `ItemDef.pickupIconSprite` de reserva; sem imagem, o quadrado mostra o nome do item na cor da tier. O log registra
-  `[DropMenu] ícones: N de M itens com imagem` na primeira abertura.
+- Drop items screen: the icons were blank. Now they use `PickupDef.iconSprite` (the same as the game's UI), with
+  `ItemDef.pickupIconSprite` as fallback; without an image, the square shows the item name in the tier color. The log
+  records `[DropMenu] ícones: N de M itens com imagem` on first opening.
 
 ## 0.6.1
 
-- Soltar itens: item solto com o `Drop` e pego de volta não é mais multiplicado nem compartilhado de novo. Antes, soltar 4 e pegar
-  de volta com multiplicador x10 virava 40 (duplicação); agora volta 4. O registro de itens soltos zera a cada estágio e a cada run.
-- Tela de soltar itens refeita: grade de ícones grandes (escalada pela resolução), clique no item mostra o painel dele já selecionado
-  (nome, quantidade, botões grandes), cursor liberado enquanto aberta; setas movem, +/- quantidade, Enter solta.
-  Novo comando `ror2meeeee_drop_menu [nome]` abre a tela já com o item escolhido.
+- Drop items: an item dropped with `Drop` and picked back up is no longer multiplied or shared again. Before, dropping 4
+  and picking them back up with a x10 multiplier became 40 (duplication); now 4 come back. The record of dropped items
+  resets every stage and every run.
+- Drop items screen remade: grid of large icons (scaled by resolution), clicking an item shows its panel already
+  selected (name, amount, big buttons), cursor released while open; arrows move, +/- amount, Enter drops.
+  New command `ror2meeeee_drop_menu [name]` opens the screen with the item already chosen.
 
 ## 0.6.0
 
-- Novo "Soltar itens" (`[Drop]`): comando `ror2meeeee_drop [nome] [quantidade]` e menu na tela (tecla `Drop.MenuKey`, padrão F7;
-  setas escolhem, Enter solta). Solta itens do próprio inventário no chão para dar a um aliado; `Drop.MaxPerCommand` (padrão 10).
-- Grimório do Stolas: teto de crédito por uso (`Grimoire.MaxCreditPerUse`, 600) e trava por monstros vivos (`Grimoire.MaxMonsters`, 80);
-  com a trava o uso ainda teleporta, só não dá crédito.
-- Contrato da I.M.P.: teto do ouro extra por contrato (`ImpContract.MaxGold`, 20000); o log mostra quanto tempo o alvo viveu.
-- Diagnóstico sempre ligado: `[Identidade]` e `[Config]` no início (versão, build da DLL e configs), resumo `[Estágio]` por estágio
-  (duração, pior frame, abates, pico de monstros, ouro/crédito, exceções, erros novos do jogo), `[Vigia]` para travadas
-  (jogo sem atualizar por 3 s ou mais), classificação dos erros do Unity (ruído conhecido contado, erro novo logado uma vez)
-  e detector de enxurrada com pilha de chamadas (ouro e dano), uma vez por estágio.
-- Probe: monstros (média/pico), eventos de ouro, crédito dado/cortado, variação de memória Unity e pior frame por fase
-  (colunas novas no CSV; o antigo é guardado à parte) e `ALERTA` quando a fase degrada (frame médio mais de 3x a melhor fase
-  da run, +300 MB de memória nativa ou frame acima de 1 s), com os monstros vivos por tipo.
-- `ror2meeeee_status` mostra o diagnóstico (ouro, monstros, exceções, usos do Grimório e custo amostrado do hook de ouro).
-- Ressurreição: o log mostra quando a posição da lápide foi ajustada, o tempo de vida de cada lápide e o tempo até o revive.
+- New "Drop items" (`[Drop]`): command `ror2meeeee_drop [name] [amount]` and on-screen menu (key `Drop.MenuKey`, default
+  F7; arrows choose, Enter drops). Drops items from your own inventory on the ground to give to an ally;
+  `Drop.MaxPerCommand` (default 10).
+- Stolas' Grimoire: cap on credit per use (`Grimoire.MaxCreditPerUse`, 600) and a lock by monsters alive
+  (`Grimoire.MaxMonsters`, 80); with the lock the use still teleports, it just doesn't give credit.
+- I.M.P. Contract: cap on extra gold per contract (`ImpContract.MaxGold`, 20000); the log shows how long the target
+  lived.
+- Diagnostics always on: `[Identidade]` and `[Config]` at startup (version, DLL build and configs), a `[Estágio]` summary
+  per stage (duration, worst frame, kills, monster peak, gold/credit, exceptions, new game errors), `[Vigia]` for freezes
+  (game not updating for 3 s or more), classification of Unity errors (known noise counted, new error logged once) and a
+  flood detector with a call stack (gold and damage), once per stage.
+- Probe: monsters (mean/peak), gold events, credit given/cut, Unity memory change and worst frame per phase (new CSV
+  columns; the old one is kept aside) and `ALERTA` when the phase degrades (average frame more than 3x the run's best
+  phase, +300 MB of native memory or a frame above 1 s), with the monsters alive by type.
+- `ror2meeeee_status` shows the diagnostics (gold, monsters, exceptions, Grimoire uses and sampled cost of the gold
+  hook).
+- Resurrection: the log shows when the tombstone position was adjusted, each tombstone's lifetime and the time until the
+  revive.
 
 ## 0.5.0
 
-- Ressurreição: a lápide agora aparece na tela de quem roda o mod (banner e marcador com nome e distância; seta na borda quando fora de vista).
-- Ressurreição: pulsos repetidos usam um clone silencioso do efeito (o som toca só uma vez, na criação da lápide); coluna de luz visível de longe.
-- Ressurreição: lápide criada em posição segura (chão abaixo da morte; sem chão, no aliado vivo mais próximo), evitando lápide inalcançável fora do mapa.
-- Contrato da I.M.P.: o alvo ganha marcador vermelho na tela e banner de aviso.
-- Dízimo: novo teto de crédito por segundo (`Gold.MaxCreditPerSecond`, padrão 150) e trava por monstros vivos (`Gold.MaxMonsters`, padrão 80), contra a bola de neve ouro -> crédito -> inimigos -> lag.
-- Dízimo: o log registra a pilha de chamadas na primeira enxurrada de eventos de ouro (diagnóstico).
-- Novo comando de console `ror2meeeee_demo`: mostra por 15 s a lápide e o alvo de teste na tela.
+- Resurrection: the tombstone now shows on the screen of whoever runs the mod (banner and marker with name and distance;
+  arrow on the edge when out of view).
+- Resurrection: repeated pulses use a silent clone of the effect (the sound plays only once, when the tombstone is
+  created); light column visible from afar.
+- Resurrection: tombstone created at a safe position (ground below the death; without ground, at the nearest living
+  ally), avoiding an unreachable tombstone off the map.
+- I.M.P. Contract: the target gets a red on-screen marker and a warning banner.
+- Tithe: new cap on credit per second (`Gold.MaxCreditPerSecond`, default 150) and a lock by monsters alive
+  (`Gold.MaxMonsters`, default 80), against the snowball gold -> credit -> enemies -> lag.
+- Tithe: the log records the call stack on the first flood of gold events (diagnostics).
+- New console command `ror2meeeee_demo`: shows the test tombstone and target on screen for 15 s.
 
 ## 0.4.0
 
-- Desempenho do Cano Extra: orbs extras (flechas da Huntress) clonados sem reflexão por tiro e rotações do leque pré-calculadas.
-- Ressurreição: jogador morto operando um drone (Operação Remota) agora conta como morto e a lápide revive; drone operado não revive ninguém.
-- Ressurreição: logs de diagnóstico (artefato ativo por estágio, lápide criada/removida, morte sem artefato).
-- Um único hook em CharacterMaster.GiveMoney para Taxade e Dízimo (antes eram dois).
-- Logs de compra (Taxade) e de multiplicação (Multiplicador) amostrados: as primeiras da run e depois 1 a cada N.
+- Extra Barrel performance: extra orbs (Huntress arrows) cloned without reflection per shot and precomputed spread
+  rotations.
+- Resurrection: a dead player operating a drone (Remote Operation) now counts as dead and the tombstone revives; an
+  operated drone doesn't revive anyone.
+- Resurrection: diagnostic logs (artifact active per stage, tombstone created/removed, death without the artifact).
+- A single hook on CharacterMaster.GiveMoney for Taxade and Tithe (there were two).
+- Purchase (Taxade) and multiplication (Multiplier) logs sampled: the first ones of the run and then 1 every N.
 
 ## 0.3.0
 
-- Novos itens (tema Helluva Boss):
-  - Equipamento lunar "Grimório do Stolas": teleporta para o teleportador; cada uso dá crédito ao diretor (onda de inimigos).
-  - Item vermelho "Contrato da I.M.P.": o primeiro elite ou chefe do estágio vira alvo marcado; matá-lo paga ouro extra
-    (+100% por cópia) e solta um item verde.
-  - "Artefato da Ressurreição": quem morre deixa uma lápide; um aliado perto dela por 3 s revive o jogador com metade
-    da vida, pagando metade da própria vida.
-  - Ícones provisórios (cor sólida).
-- Novo item vermelho "Cano Extra": +1 tiro em leque na arma principal por cópia (até `MaxExtraShots`, padrão 5;
-  teto global por frame). Não é multiplicado; torretas não copiam. Custo zero por tiro quando ninguém tem o item.
-- Novo item void verde "zzz cervo <3": toda a velocidade de movimento extra vira dano (1:1, +50% de conversão por
-  cópia extra). Sai em Void Cradles.
-- Novo `[Cleanup]`: cadáveres somem rápido (máximo 10, 2 s, mesmo à vista) usando o sistema do jogo; corrige o erro
-  do jogo no Totem dos Lynx (NullReferenceException a cada tick quando os aliados já morreram).
-- Artefato do Dízimo: o diretor agradece no chat o ouro recebido (em R$), acumulado, no máximo 1 vez por
-  `Gold.ThankIntervalSeconds` (padrão 60 s) e no fim do estágio.
-- Artefato Taxade: a taxa vale para toda compra paga com ouro (baús, santuários, drones...) e nunca para outras moedas.
-- Padrões novos: quase todas as features ligadas, multiplicador x10 com lunares/void, dificuldade +75% vida/+50% dano,
-  Horda 0.5/20, Fireworks em Aggregate (20). Probe continua desligado.
-- Descrições da tela de mods reescritas: cada `Enabled` explica o que a feature faz e do que depende.
-- Probe: coluna `ram_unity_alloc_mb` (memória alocada, em vez de reservada); CSV antigo é guardado à parte.
-- Correção: ao fechar o jogo no meio da run, o CSV do Spend e a última janela do Probe se perdiam; agora são gravados na hora.
-- Interno: acesso aos diretores de combate centralizado em `Common/Directors` (nenhuma feature referencia outra).
+- New items (Helluva Boss theme):
+  - Lunar equipment "Stolas' Grimoire": teleports to the teleporter; each use gives credit to the director (wave of
+    enemies).
+  - Red item "I.M.P. Contract": the first elite or boss of the stage becomes a marked target; killing it pays extra gold
+    (+100% per stack) and drops a green item.
+  - "Artifact of Resurrection": whoever dies leaves a tombstone; an ally near it for 3 s revives the player with half
+    health, paying half of their own health.
+  - Placeholder icons (solid color).
+- New red item "Extra Barrel": +1 shot in a spread on the primary weapon per stack (up to `MaxExtraShots`, default 5;
+  global cap per frame). Not multiplied; turrets don't copy it. Zero cost per shot when nobody has the item.
+- New green void item "zzz cervo <3": all bonus movement speed becomes damage (1:1, +50% conversion per extra stack).
+  Drops from Void Cradles.
+- New `[Cleanup]`: corpses disappear quickly (maximum 10, 2 s, even in view) using the game's system; fixes the game bug
+  in the Lynx Totem (NullReferenceException every tick when the allies had already died).
+- Artifact of Tithe: the director thanks you in chat for the gold received, accumulated, at most once every
+  `Gold.ThankIntervalSeconds` (default 60 s) and at the end of the stage.
+- Artifact of Taxade: the tax applies to every purchase paid with gold (chests, shrines, drones...) and never to other
+  currencies.
+- New defaults: almost all features on, x10 multiplier with lunar/void, difficulty +75% health/+50% damage, Horde
+  0.5/20, Fireworks in Aggregate (20). Probe stays off.
+- Mod settings screen descriptions rewritten: each `Enabled` explains what the feature does and what it depends on.
+- Probe: `ram_unity_alloc_mb` column (allocated memory, instead of reserved); the old CSV is kept aside.
+- Fix: when closing the game mid-run, the Spend CSV and the Probe's last window were lost; now they're written
+  immediately.
+- Internal: access to the combat directors centralized in `Common/Directors` (no feature references another).
 
 ## 0.2.0
 
-- Novo: progressão de dificuldade entre runs (`[Progression]`), com resumo da run no chat e CSV de histórico.
-  Cálculo e gravação em disco fora da thread principal.
-- Novo: itens "Capitalismo" (branco/verde/vermelho): alívio da taxa do Taxade e bônus de ouro (+10/+20/+30%);
-  1 de cada por jogador, trocados no baú de quem já tem.
-- `[Tax]` passa a vir ligado por padrão.
-- Desempenho: hooks de `LimitedCalc` e `Particles` só ficam registrados quando há algo a fazer; ícones sem cópia
-  na RAM; menos alocação em Sharing, Spend e Probe; cache de reflexão no Difficulty.
-- Correção: memória que crescia por inimigo durante a run (Difficulty).
+- New: difficulty progression between runs (`[Progression]`), with a run summary in chat and a history CSV. Calculation
+  and disk writing off the main thread.
+- New: "Capitalism" items (white/green/red): relief from the Taxade tax and gold bonus (+10/+20/+30%); 1 of each per
+  player, swapped in the chest for those who already have it.
+- `[Tax]` is now on by default.
+- Performance: `LimitedCalc` and `Particles` hooks only stay registered when there's something to do; icons without a
+  copy in RAM; less allocation in Sharing, Spend and Probe; reflection cache in Difficulty.
+- Fix: memory that grew per enemy during the run (Difficulty).
 
 ## 0.1.0
 
-- Primeira versão: multiplicador, cálculo limitado, dificuldade, item Chamado da Horda, Probe.
+- First version: multiplier, limited calculation, difficulty, Call of the Horde item, Probe.

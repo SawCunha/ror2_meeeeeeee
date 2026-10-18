@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.IO;
 using System.Threading;
 using BepInEx;
@@ -47,17 +48,18 @@ namespace Ror2Meeeee
         private double _healthBarsLost;
 
         public ProgressionFeature(Cfg cfg, ManualLogSource log) : base("Progression", cfg, log,
-            "Progressão entre runs: no fim de cada run o grupo recebe uma nota (velocidade, mortes, dano sofrido, abates), o resumo aparece no chat e o diretor fica mais forte na próxima run se vocês foram bem (vitória com nota alta sobe um nível; derrota desce um). Comandos: ror2meeeee_progress e ror2meeeee_progress_reset.",
+            "Progression between runs: at the end of each run the group gets a score (speed, deaths, damage taken, kills), the summary shows up in chat and the director gets stronger next run if you did well (a victory with a high score goes up one level; a defeat goes down one). Commands: ror2meeeee_progress and ror2meeeee_progress_reset.", "Progressão entre runs: no fim de cada run o grupo recebe uma nota (velocidade, mortes, dano sofrido, abates), o resumo aparece no chat e o diretor fica mais forte na próxima run se vocês foram bem (vitória com nota alta sobe um nível; derrota desce um). Comandos: ror2meeeee_progress e ror2meeeee_progress_reset.",
             enabledByDefault: true)
         {
-            _step = cfg.Bind("Progression", "Step", 0.15f, "Quanto o diretor ganha de orçamento de spawn por nível (0.15 = +15% de inimigos por nível).");
-            _maxMultiplier = cfg.Bind("Progression", "MaxMultiplier", 3f, "Limite do fortalecimento (3 = no máximo 3x mais orçamento de spawn). Também define o nível máximo.");
-            _raiseAt = cfg.Bind("Progression", "RaiseAt", 0.5f, "Nota mínima (0 a 1) que uma vitória precisa para subir de nível. 0.5 = desempenho médio. Derrota sempre desce um nível.");
-            _parCharge = cfg.Bind("Progression", "ParChargeSeconds", 240f, "Referência de velocidade: segundos do início do estágio até carregar o teleportador considerados normais. Mais rápido que isso aumenta a nota.");
-            _parDeaths = cfg.Bind("Progression", "ParDeathsPerPlayer", 1f, "Referência de mortes por jogador na run consideradas normais. Menos mortes aumenta a nota.");
-            _parDamage = cfg.Bind("Progression", "ParHealthBarsPerMinute", 0.5f, "Referência de dano sofrido por jogador por minuto, em barras de vida inteiras (0.5 = meia barra por minuto). Menos dano aumenta a nota.");
-            _parKills = cfg.Bind("Progression", "ParKillsPerMinute", 20f, "Referência de abates por minuto do time todo. Mais abates aumenta a nota.");
-            _showInChat = cfg.Bind("Progression", "ShowInChat", true, "Mostra o resumo da run no chat para todos. Desligado: só no log.");
+            Loc.Add(SummaryToken, ProgressionLadder.SummaryEn, ProgressionLadder.SummaryPt);
+            _step = cfg.Bind("Progression", "Step", 0.15f, "How much spawn budget the director gains per level (0.15 = +15% enemies per level).", "Quanto o diretor ganha de orçamento de spawn por nível (0.15 = +15% de inimigos por nível).");
+            _maxMultiplier = cfg.Bind("Progression", "MaxMultiplier", 3f, "Cap on the strengthening (3 = at most 3x more spawn budget). Also sets the maximum level.", "Limite do fortalecimento (3 = no máximo 3x mais orçamento de spawn). Também define o nível máximo.");
+            _raiseAt = cfg.Bind("Progression", "RaiseAt", 0.5f, "Minimum score (0 to 1) a victory needs to go up a level. 0.5 = average performance. A defeat always goes down one level.", "Nota mínima (0 a 1) que uma vitória precisa para subir de nível. 0.5 = desempenho médio. Derrota sempre desce um nível.");
+            _parCharge = cfg.Bind("Progression", "ParChargeSeconds", 240f, "Speed reference: seconds from the start of the stage until charging the teleporter that count as normal. Faster than that raises the score.", "Referência de velocidade: segundos do início do estágio até carregar o teleportador considerados normais. Mais rápido que isso aumenta a nota.");
+            _parDeaths = cfg.Bind("Progression", "ParDeathsPerPlayer", 1f, "Reference deaths per player in the run that count as normal. Fewer deaths raise the score.", "Referência de mortes por jogador na run consideradas normais. Menos mortes aumenta a nota.");
+            _parDamage = cfg.Bind("Progression", "ParHealthBarsPerMinute", 0.5f, "Reference damage taken per player per minute, in whole health bars (0.5 = half a bar per minute). Less damage raises the score.", "Referência de dano sofrido por jogador por minuto, em barras de vida inteiras (0.5 = meia barra por minuto). Menos dano aumenta a nota.");
+            _parKills = cfg.Bind("Progression", "ParKillsPerMinute", 20f, "Reference kills per minute for the whole team. More kills raise the score.", "Referência de abates por minuto do time todo. Mais abates aumenta a nota.");
+            _showInChat = cfg.Bind("Progression", "ShowInChat", true, "Shows the run summary in chat for everyone. Off: only in the log.", "Mostra o resumo da run no chat para todos. Desligado: só no log.");
             LoadState();
         }
 
@@ -222,9 +224,9 @@ namespace Ror2Meeeee
                     Volatile.Write(ref _level, newLevel);
                     Volatile.Write(ref _runs, runs);
                 }
-                var summary = ProgressionLadder.Summary(stats, score, oldLevel, newLevel, ProgressionLadder.Multiplier(newLevel, rules));
-                Log.LogInfo("[Progression] " + summary.Replace('\n', ' '));
-                if (chat) RoR2Application.onNextUpdate += () => PostChat(summary);
+                var args = ProgressionLadder.SummaryArgs(stats, score, oldLevel, newLevel, ProgressionLadder.Multiplier(newLevel, rules));
+                Log.LogInfo("[Progression] " + string.Format(CultureInfo.InvariantCulture, ProgressionLadder.SummaryPt, args).Replace('\n', ' '));
+                if (chat) RoR2Application.onNextUpdate += () => PostChat(args);
             }
             catch (Exception e)
             {
@@ -232,11 +234,13 @@ namespace Ror2Meeeee
             }
         }
 
-        private void PostChat(string summary)
+        private const string SummaryToken = "ROR2MEEEEE_PROGRESSION_SUMMARY";
+
+        private void PostChat(string[] args)
         {
             try
             {
-                if (NetworkServer.active) Chat.SendBroadcastChat(new Chat.SimpleChatMessage { baseToken = summary });
+                if (NetworkServer.active) Loc.Broadcast(SummaryToken, args);
             }
             catch (Exception e)
             {

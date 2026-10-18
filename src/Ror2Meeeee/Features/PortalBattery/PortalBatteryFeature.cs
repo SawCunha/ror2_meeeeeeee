@@ -36,15 +36,20 @@ namespace Ror2Meeeee
 
         public static void Register(ManualLogSource log)
         {
-            var pt = System.Globalization.CultureInfo.GetCultureInfo("pt-BR");
-            var p = (PortalBattery.ChargePerStack * 100f).ToString("0.##", pt) + "%";
+            var pe = (PortalBattery.ChargePerStack * 100f).ToString("0.##", Loc.EnCulture) + "%";
+            var p = (PortalBattery.ChargePerStack * 100f).ToString("0.##", Loc.PtCulture) + "%";
             _def = ModItem.Register(ItemName, Token, ItemTier.Tier2, new[] { ItemTag.Utility, ItemTag.AIBlacklist, ItemTag.HoldoutZoneRelated },
                 "bateria_portal.png", new Color32(240, 200, 60, 255),
-                "Bateria do Portal",
-                "O teleportador carrega mais rápido.",
-                $"O <style=cIsUtility>teleportador</style> e outras zonas de carga carregam <style=cIsUtility>{p} mais rápido</style> " +
-                $"<style=cStack>(+{p} por acúmulo)</style>. As cópias de todo o time somam.",
-                "Energia emprestada de algum lugar que ainda não percebeu.",
+                ("Portal Battery",
+                 "The teleporter charges faster.",
+                 $"The <style=cIsUtility>teleporter</style> and other charge zones charge <style=cIsUtility>{pe} faster</style> " +
+                 $"<style=cStack>(+{pe} per stack)</style>. Stacks from the whole team add up.",
+                 "Energy borrowed from somewhere that hasn't noticed yet."),
+                ("Bateria do Portal",
+                 "O teleportador carrega mais rápido.",
+                 $"O <style=cIsUtility>teleportador</style> e outras zonas de carga carregam <style=cIsUtility>{p} mais rápido</style> " +
+                 $"<style=cStack>(+{p} por acúmulo)</style>. As cópias de todo o time somam.",
+                 "Energia emprestada de algum lugar que ainda não percebeu."),
                 log, "RoR2/Base/EquipmentMagazine/PickupBattery.prefab");
             if (_def) _def.pickupModelPrefab = BatteryModel(log) ?? _def.pickupModelPrefab;
         }
@@ -75,6 +80,7 @@ namespace Ror2Meeeee
         }
 
         public PortalBatteryFeature(Cfg cfg, ManualLogSource log) : base("PortalBattery", cfg, log,
+            "Portal Battery item (green): charge zones (teleporter etc.) charge +10% faster per team stack. Off: the item exists but does nothing.",
             "Item Bateria do Portal (verde): zonas de carga (teleportador etc.) carregam +10% mais rápido por cópia do time. Desligado: o item existe mas não faz nada.",
             enabledByDefault: true)
         {

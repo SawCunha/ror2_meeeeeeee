@@ -22,11 +22,11 @@ namespace Ror2Meeeee
 
         // Ligada por padrão: os itens Capitalismo existem sempre e só têm efeito com esta feature.
         public TaxFeature(Cfg cfg, ManualLogSource log) : base("Tax", cfg, log,
-            "Artefato Taxade e itens Capitalismo: com o artefato ativado no lobby, toda compra paga com ouro (baú, santuário, drone...) custa vida. Os itens Capitalismo (branco, verde, vermelho) reduzem essa taxa e dão bônus de ouro mesmo sem o artefato; esta opção precisa estar ligada para eles funcionarem.",
+            "Artifact of Taxade and Capitalism items: with the artifact enabled in the lobby, every purchase paid with gold (chest, shrine, drone...) costs health. The Capitalism items (white, green, red) reduce this tax and give a gold bonus even without the artifact; this option must be on for them to work.", "Artefato Taxade e itens Capitalismo: com o artefato ativado no lobby, toda compra paga com ouro (baú, santuário, drone...) custa vida. Os itens Capitalismo (branco, verde, vermelho) reduzem essa taxa e dão bônus de ouro mesmo sem o artefato; esta opção precisa estar ligada para eles funcionarem.",
             enabledByDefault: true)
         {
-            _percent = cfg.Bind("Tax", "Percent", 30f, "Artefato Taxade: vida perdida a cada compra paga com ouro, em % da vida máxima (30 = 30%). 0 = sem taxa.");
-            _lethal = cfg.Bind("Tax", "Lethal", false, "Desligado: a taxa nunca mata (deixa 1 de vida). Ligado: comprar com pouca vida pode matar.");
+            _percent = cfg.Bind("Tax", "Percent", 30f, "Artifact of Taxade: health lost on each purchase paid with gold, as % of max health (30 = 30%). 0 = no tax.", "Artefato Taxade: vida perdida a cada compra paga com ouro, em % da vida máxima (30 = 30%). 0 = sem taxa.");
+            _lethal = cfg.Bind("Tax", "Lethal", false, "Off: the tax never kills (leaves 1 health). On: buying with low health can kill.", "Desligado: a taxa nunca mata (deixa 1 de vida). Ligado: comprar com pouca vida pode matar.");
             _percent.SettingChanged += (_, __) => Refresh();
             _lethal.SettingChanged += (_, __) => Refresh();
             Refresh();

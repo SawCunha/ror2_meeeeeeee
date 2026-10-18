@@ -35,19 +35,19 @@ namespace Ror2Meeeee
         private bool _hooked; // SpawnEffect é muito chamado: sem teto nem contagem, não há hook
 
         public ParticlesFeature(Cfg cfg, ManualLogSource log) : base("Particles", cfg, log,
-            "Teto de partículas: limita quantas vezes por segundo cada tipo de efeito aparece (todos, menos os da lista Exempt). Vale para o que você mostra e para o que você envia aos outros (host e clientes com o mod). Não muda dano.",
+            "Particle cap: limits how many times per second each type of effect appears (all of them, except those in the Exempt list). Applies to what you show and to what you send to others (host and clients with the mod). Does not change damage.", "Teto de partículas: limita quantas vezes por segundo cada tipo de efeito aparece (todos, menos os da lista Exempt). Vale para o que você mostra e para o que você envia aos outros (host e clientes com o mod). Não muda dano.",
             enabledByDefault: true)
         {
             _list = cfg.Bind("Particles", "Exempt", "BladeComboSwingEffect",
-                "Efeitos que NUNCA são limitados, separados por vírgula (padrão: golpes do Mercenary). Todos os outros seguem MaxPerSecond (ou RaisedMaxPerSecond, se estiverem em Raised). Para descobrir os nomes, ligue CountSpawns e use o comando ror2meeeee_effects.");
+                "Effects that are NEVER limited, comma-separated (default: Mercenary strikes). All others follow MaxPerSecond (or RaisedMaxPerSecond, if they are in Raised). To find the names, turn on CountSpawns and use the ror2meeeee_effects command.", "Efeitos que NUNCA são limitados, separados por vírgula (padrão: golpes do Mercenary). Todos os outros seguem MaxPerSecond (ou RaisedMaxPerSecond, se estiverem em Raised). Para descobrir os nomes, ligue CountSpawns e use o comando ror2meeeee_effects.");
             _max = cfg.Bind("Particles", "MaxPerSecond", 10,
-                "Máximo de vezes por segundo que cada tipo de efeito aparece/é enviado (cada tipo tem a sua conta); o excesso não é mostrado nem enviado. 0 = sem teto.");
+                "Maximum times per second each type of effect appears/is sent (each type has its own count); the excess is neither shown nor sent. 0 = no cap.", "Máximo de vezes por segundo que cada tipo de efeito aparece/é enviado (cada tipo tem a sua conta); o excesso não é mostrado nem enviado. 0 = sem teto.");
             _raisedList = cfg.Bind("Particles", "Raised", "OmniExplosionVFXQuick",
-                "Efeitos com teto próprio, maior (RaisedMaxPerSecond), separados por vírgula (padrão: explosões). Se o mesmo nome estiver em Exempt, vale Exempt.");
+                "Effects with their own higher cap (RaisedMaxPerSecond), comma-separated (default: explosions). If the same name is in Exempt, Exempt wins.", "Efeitos com teto próprio, maior (RaisedMaxPerSecond), separados por vírgula (padrão: explosões). Se o mesmo nome estiver em Exempt, vale Exempt.");
             _raisedMax = cfg.Bind("Particles", "RaisedMaxPerSecond", 60,
-                "Máximo por segundo para cada efeito da lista Raised. 0 = sem teto para eles.");
+                "Maximum per second for each effect in the Raised list. 0 = no cap for them.", "Máximo por segundo para cada efeito da lista Raised. 0 = sem teto para eles.");
             _count = cfg.Bind("Particles", "CountSpawns", false,
-                "Conta quantas vezes cada efeito aparece, para descobrir quais mais pesam (comando ror2meeeee_effects; a lista também sai no console/log a cada fase nova). Custo pequeno; desligue depois de escolher.");
+                "Counts how many times each effect appears, to find which ones weigh the most (ror2meeeee_effects command; the list is also printed to the console/log on each new stage). Small cost; turn it off after choosing.", "Conta quantas vezes cada efeito aparece, para descobrir quais mais pesam (comando ror2meeeee_effects; a lista também sai no console/log a cada fase nova). Custo pequeno; desligue depois de escolher.");
             _list.SettingChanged += (_, __) => { _resolved = false; SyncHook(); };
             _raisedList.SettingChanged += (_, __) => _resolved = false;
             _raisedMax.SettingChanged += (_, __) => _resolved = false;

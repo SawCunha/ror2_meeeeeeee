@@ -35,7 +35,7 @@ namespace Ror2Meeeee
         private readonly Entry[] _entries;
 
         public LimitedCalcFeature(Cfg cfg, ManualLogSource log) : base("LimitedCalc", cfg, log,
-            "Cálculo limitado: reduz o peso no FPS de itens com muitas cópias (Bustling Fungus, Bundle of Fireworks e Ghor's Tome) sem tirar o efeito. Escolha o modo de cada item nas seções LimitedCalc.*.",
+            "Limited calculation: reduces the FPS cost of items with many stacks (Bustling Fungus, Bundle of Fireworks and Ghor's Tome) without removing the effect. Choose each item's mode in the LimitedCalc.* sections.", "Cálculo limitado: reduz o peso no FPS de itens com muitas cópias (Bustling Fungus, Bundle of Fireworks e Ghor's Tome) sem tirar o efeito. Escolha o modo de cada item nas seções LimitedCalc.*.",
             enabledByDefault: true)
         {
             _fungus = NewEntry("BustlingFungus", StackMode.Off, 10, () => RoR2Content.Items.Mushroom,
@@ -59,8 +59,8 @@ namespace Ror2Meeeee
                 Item = item,
                 Register = register,
                 Unregister = unregister,
-                Mode = Cfg.Bind(section, "Mode", defaultMode, "Off = como no jogo. Clamp = o item funciona como se tivesse no máximo Limit cópias. Aggregate = Fireworks: menos mísseis, cada um mais forte, mesmo dano total; Ghor's Tome: menos pacotes de ouro, cada um vale mais, mesmo ouro esperado; no Fungus é igual a Clamp."),
-                Limit = Cfg.Bind(section, "Limit", defaultLimit, "Máximo de cópias consideradas nos modos Clamp e Aggregate (mínimo 1)."),
+                Mode = Cfg.Bind(section, "Mode", defaultMode, "Off = as in the game. Clamp = the item works as if it had at most Limit stacks. Aggregate = Fireworks: fewer missiles, each one stronger, same total damage; Ghor's Tome: fewer gold packs, each worth more, same expected gold; for the Fungus it's the same as Clamp.", "Off = como no jogo. Clamp = o item funciona como se tivesse no máximo Limit cópias. Aggregate = Fireworks: menos mísseis, cada um mais forte, mesmo dano total; Ghor's Tome: menos pacotes de ouro, cada um vale mais, mesmo ouro esperado; no Fungus é igual a Clamp."),
+                Limit = Cfg.Bind(section, "Limit", defaultLimit, "Maximum stacks considered in Clamp and Aggregate modes (minimum 1).", "Máximo de cópias consideradas nos modos Clamp e Aggregate (mínimo 1)."),
             };
             e.Mode.SettingChanged += (_, __) => Refresh(e);
             e.Limit.SettingChanged += (_, __) => Refresh(e);

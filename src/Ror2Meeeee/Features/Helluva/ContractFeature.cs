@@ -42,16 +42,28 @@ namespace Ror2Meeeee
         private float _nextBeacon;
         private int _bannerSends; // primeiros envios pedem o aviso (cobre um envio perdido ou alvo ainda não visto no cliente)
 
+        private const string NewToken = Token + "_CHAT_NEW", DoneToken = Token + "_CHAT_DONE";
+
         public static void Register(ManualLogSource log)
         {
+            Loc.Add(NewToken, "<color=#e06c75>I.M.P.:</color> new contract! Eliminate {0} (marked). Payment: ${1} extra and an item.",
+                "<color=#e06c75>I.M.P.:</color> novo contrato! Eliminem {0} (marcado). Pagamento: R$ {1} extra e um item.");
+            Loc.Add(DoneToken, "<color=#e06c75>I.M.P.:</color> contract fulfilled! ${0} extra and an item for the head.",
+                "<color=#e06c75>I.M.P.:</color> contrato cumprido! R$ {0} extra e um item pela cabeça.");
             _def = ModItem.Register(ItemName, Token, ItemTier.Tier3, new[] { ItemTag.Utility, ItemTag.AIBlacklist },
                 "contrato_imp.png", new Color32(200, 40, 60, 255),
-                "Contrato da I.M.P.",
-                "Um alvo por estágio. Mate-o e receba o pagamento.",
-                "No início de cada estágio, o primeiro <style=cIsDamage>elite ou chefe</style> vira o alvo do contrato " +
-                "(<style=cDeath>marcado para morrer</style>). Matá-lo paga <style=cShrine>ouro em dobro</style> " +
-                "<style=cStack>(+100% por cópia)</style> e solta um <style=cIsHealing>item verde</style>.",
-                "Matamos pessoas! E fazemos isso bem!",
+                ("I.M.P. Contract",
+                 "One target per stage. Kill it and get paid.",
+                 "At the start of each stage, the first <style=cIsDamage>elite or boss</style> becomes the contract target " +
+                 "(<style=cDeath>marked for death</style>). Killing it pays <style=cShrine>double gold</style> " +
+                 "<style=cStack>(+100% per stack)</style> and drops a <style=cIsHealing>green item</style>.",
+                 "We kill people! And we're good at it!"),
+                ("Contrato da I.M.P.",
+                 "Um alvo por estágio. Mate-o e receba o pagamento.",
+                 "No início de cada estágio, o primeiro <style=cIsDamage>elite ou chefe</style> vira o alvo do contrato " +
+                 "(<style=cDeath>marcado para morrer</style>). Matá-lo paga <style=cShrine>ouro em dobro</style> " +
+                 "<style=cStack>(+100% por cópia)</style> e solta um <style=cIsHealing>item verde</style>.",
+                 "Matamos pessoas! E fazemos isso bem!"),
                 log, "RoR2/Base/DeathMark/PickupDeathMark.prefab");
             try
             {
@@ -76,10 +88,12 @@ namespace Ror2Meeeee
         }
 
         public ContractFeature(Cfg cfg, ManualLogSource log) : base("ImpContract", cfg, log,
+            "I.M.P. Contract item (red): the first elite or boss of the stage becomes a marked target; killing it pays extra gold and drops a green item. Off: the item exists but does nothing.",
             "Item Contrato da I.M.P. (vermelho): o primeiro elite ou chefe do estágio vira alvo marcado; matá-lo paga ouro extra e solta um item verde. Desligado: o item existe mas não faz nada.",
             enabledByDefault: true)
         {
             _maxGold = cfg.Bind("ImpContract", "MaxGold", 20000,
+                "Cap on the extra gold paid per contract (the target's gold grows with difficulty and has gone past 80k). 0 = no cap.",
                 "Teto do ouro extra pago por contrato (o ouro do alvo cresce com a dificuldade e já passou de 80 mil). 0 = sem teto.");
             _maxGoldValue = (uint)Math.Max(0, _maxGold.Value);
             _maxGold.SettingChanged += (_, __) => _maxGoldValue = (uint)Math.Max(0, _maxGold.Value);
@@ -179,11 +193,7 @@ namespace Ror2Meeeee
                 _bannerSends = 3;
                 SetTicking(true);
                 var gold = body.TryGetComponent<DeathRewards>(out var dr) ? HelluvaRules.ContractGoldCapped(dr.goldReward, TeamStacks(), _maxGoldValue) : 0u;
-                Chat.SendBroadcastChat(new Chat.SimpleChatMessage
-                {
-                    baseToken = $"<color=#e06c75>I.M.P.:</color> novo contrato! Eliminem {Util.GetBestBodyName(body.gameObject)} (marcado). " +
-                                $"Pagamento: R$ {gold} extra e um item."
-                });
+                Loc.Broadcast(NewToken, Util.GetBestBodyName(body.gameObject), gold.ToString());
                 Log.LogInfo($"[ImpContract] alvo: {master.name} (ouro extra {gold})");
             }
             catch (Exception e)
@@ -213,10 +223,7 @@ namespace Ror2Meeeee
                     var pos = body ? body.corePosition : report.damageInfo.position;
                     PickupDropletController.CreatePickupDroplet(new UniquePickup(_rng.NextElementUniform(run.availableTier2DropList)), pos, Vector3.up * 20f, isDuplicated: false);
                 }
-                Chat.SendBroadcastChat(new Chat.SimpleChatMessage
-                {
-                    baseToken = $"<color=#e06c75>I.M.P.:</color> contrato cumprido! R$ {gold} extra e um item pela cabeça."
-                });
+                Loc.Broadcast(DoneToken, gold.ToString());
                 Log.LogInfo($"[ImpContract] cumprido em {Time.time - _targetSince:F0} s: +{gold} ouro, item verde");
             }
             catch (Exception e)
@@ -237,9 +244,10 @@ namespace Ror2Meeeee
             var data = ec ? ec.effectData : null;
             var target = data != null ? data.ResolveNetworkedObjectReference() : null;
             if (!target) return; // alvo ainda não existe neste cliente: o próximo envio (1 s) resolve
-            Overlay.Mark(this, target.transform, "ALVO DO CONTRATO", LabelColor, 26);
+            Overlay.Mark(this, target.transform, Loc.T("CONTRACT TARGET", "ALVO DO CONTRATO"), LabelColor, 26);
             if (data.genericUInt == 1u)
-                Overlay.Banner($"I.M.P.: novo contrato! Elimine {Util.GetBestBodyName(target)} (marcado em vermelho).");
+                Overlay.Banner(Loc.T($"I.M.P.: new contract! Eliminate {Util.GetBestBodyName(target)} (marked in red).",
+                    $"I.M.P.: novo contrato! Elimine {Util.GetBestBodyName(target)} (marcado em vermelho)."));
         }
 
         private void OnDestroy() => Overlay.Unmark(this);

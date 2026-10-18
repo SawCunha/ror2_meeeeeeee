@@ -36,21 +36,21 @@ namespace Ror2Meeeee
         private int _boostedCount;
 
         public DifficultyFeature(Cfg cfg, ManualLogSource log) : base("Difficulty", cfg, log,
-            "Dificuldade: inimigos mais fortes e numerosos (Factor e bônus fixos de vida e dano). Também ativa o efeito do item Chamado da Horda. Só o host.",
+            "Difficulty: stronger and more numerous enemies (Factor and fixed health and damage bonuses). Also enables the effect of the Call of the Horde item. Host only.", "Dificuldade: inimigos mais fortes e numerosos (Factor e bônus fixos de vida e dano). Também ativa o efeito do item Chamado da Horda. Só o host.",
             enabledByDefault: true)
         {
             _factor = cfg.Bind("Difficulty", "Factor", DifficultyCurve.DefaultFactor,
-                "Multiplicador geral de dificuldade. 1.0 = jogo normal; 2.0 = o dobro, repartido entre vida, dano, quantidade e ritmo pelos ganhos abaixo. Inválido volta para 1.0.");
-            _healthGain = cfg.Bind("Difficulty", "HealthGain", 1f, "Quanto do Factor vai para a vida dos inimigos. 1 = Factor 2.0 dá +100% de vida; 0 = a vida não muda.");
-            _damageGain = cfg.Bind("Difficulty", "DamageGain", 0.5f, "Quanto do Factor vai para o dano dos inimigos. 0.5 = Factor 2.0 dá +50% de dano; 0 = o dano não muda.");
-            _quantityGain = cfg.Bind("Difficulty", "QuantityGain", 2f, "Quanto do Factor vai para a quantidade de inimigos. 2 = Factor 2.0 dá o triplo de spawns; 0 = a quantidade não muda.");
-            _paceGain = cfg.Bind("Difficulty", "PaceGain", 0.5f, "Quanto do Factor acelera a subida da dificuldade com o tempo. 0.5 = Factor 2.0 escala 50% mais rápido; 0 = ritmo normal.");
+                "Overall difficulty multiplier. 1.0 = normal game; 2.0 = double, split between health, damage, quantity and pace by the gains below. Invalid falls back to 1.0.", "Multiplicador geral de dificuldade. 1.0 = jogo normal; 2.0 = o dobro, repartido entre vida, dano, quantidade e ritmo pelos ganhos abaixo. Inválido volta para 1.0.");
+            _healthGain = cfg.Bind("Difficulty", "HealthGain", 1f, "How much of Factor goes to enemy health. 1 = Factor 2.0 gives +100% health; 0 = health doesn't change.", "Quanto do Factor vai para a vida dos inimigos. 1 = Factor 2.0 dá +100% de vida; 0 = a vida não muda.");
+            _damageGain = cfg.Bind("Difficulty", "DamageGain", 0.5f, "How much of Factor goes to enemy damage. 0.5 = Factor 2.0 gives +50% damage; 0 = damage doesn't change.", "Quanto do Factor vai para o dano dos inimigos. 0.5 = Factor 2.0 dá +50% de dano; 0 = o dano não muda.");
+            _quantityGain = cfg.Bind("Difficulty", "QuantityGain", 2f, "How much of Factor goes to enemy quantity. 2 = Factor 2.0 gives triple spawns; 0 = quantity doesn't change.", "Quanto do Factor vai para a quantidade de inimigos. 2 = Factor 2.0 dá o triplo de spawns; 0 = a quantidade não muda.");
+            _paceGain = cfg.Bind("Difficulty", "PaceGain", 0.5f, "How much Factor speeds up the difficulty ramp over time. 0.5 = Factor 2.0 scales 50% faster; 0 = normal pace.", "Quanto do Factor acelera a subida da dificuldade com o tempo. 0.5 = Factor 2.0 escala 50% mais rápido; 0 = ritmo normal.");
             _healthBonus = cfg.Bind("Difficulty", "MonsterHealthBonus", 75f,
-                "Vida extra de todos os inimigos, em %, somada ao Factor (75 = +75%). 0 = sem bônus. Vale para inimigos que nascerem depois, em passos de 10%.");
+                "Extra health for all enemies, in %, added to Factor (75 = +75%). 0 = no bonus. Applies to enemies spawned afterwards, in 10% steps.", "Vida extra de todos os inimigos, em %, somada ao Factor (75 = +75%). 0 = sem bônus. Vale para inimigos que nascerem depois, em passos de 10%.");
             _damageBonus = cfg.Bind("Difficulty", "MonsterDamageBonus", 50f,
-                "Dano extra de todos os inimigos, em %, somado ao Factor (50 = +50%). 0 = sem bônus. Vale para inimigos que nascerem depois, em passos de 10%.");
-            _hordePerStack = cfg.Bind("Horde", "QuantityPerStack", 0.5f, "Item Chamado da Horda: cada cópia que o time tiver aumenta os spawns de inimigos nesta fração (0.5 = +50%). Precisa da Dificuldade ligada.");
-            _hordeMax = cfg.Bind("Horde", "MaxMultiplier", 20f, "Item Chamado da Horda: teto do aumento de spawns (20 = no máximo 20x).");
+                "Extra damage for all enemies, in %, added to Factor (50 = +50%). 0 = no bonus. Applies to enemies spawned afterwards, in 10% steps.", "Dano extra de todos os inimigos, em %, somado ao Factor (50 = +50%). 0 = sem bônus. Vale para inimigos que nascerem depois, em passos de 10%.");
+            _hordePerStack = cfg.Bind("Horde", "QuantityPerStack", 0.5f, "Call of the Horde item: each stack the team has increases enemy spawns by this fraction (0.5 = +50%). Requires Difficulty on.", "Item Chamado da Horda: cada cópia que o time tiver aumenta os spawns de inimigos nesta fração (0.5 = +50%). Precisa da Dificuldade ligada.");
+            _hordeMax = cfg.Bind("Horde", "MaxMultiplier", 20f, "Call of the Horde item: cap on the spawn increase (20 = at most 20x).", "Item Chamado da Horda: teto do aumento de spawns (20 = no máximo 20x).");
 
             foreach (var e in new[] { _factor, _healthGain, _damageGain, _quantityGain, _paceGain, _healthBonus, _damageBonus, _hordePerStack, _hordeMax })
                 e.SettingChanged += (_, __) => Refresh();

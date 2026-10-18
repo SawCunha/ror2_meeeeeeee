@@ -1,247 +1,267 @@
 # Ror2Meeeee
 
-Mod para **Risk of Rain 2** (1.5.0#1224, build Steam 25921972) feito com BepInEx 5 e R2API. Deixa o jogo mais caótico:
-multiplica os itens coletados, deixa os inimigos mais fortes e numerosos, adiciona itens, um equipamento e artefatos
-novos, e inclui ferramentas para manter o FPS de pé quando o inventário explode.
+**Language:** English · [Português (Brasil)](README.pt-BR.md)
 
-- **Versão atual:** 0.10.4 (`src/Ror2Meeeee.Core/ModInfo.cs`; histórico em [`package/CHANGELOG.md`](package/CHANGELOG.md))
-- **GUID:** `com.sawcunha.ror2meeeee` · **Pacote:** `Sawcunha-Ror2Meeeee`
+A **Risk of Rain 2** mod (1.5.0#1224, Steam build 25921972) made with BepInEx 5 and R2API. It makes the game more
+chaotic: multiplies collected items, makes enemies stronger and more numerous, adds new items, an equipment and
+artifacts, and includes tools to keep FPS up when the inventory explodes.
+
+- **Current version:** 0.11.0 (`src/Ror2Meeeee.Core/ModInfo.cs`; history in [`package/CHANGELOG.md`](package/CHANGELOG.md))
+- **GUID:** `com.sawcunha.ror2meeeee` · **Package:** `Sawcunha-Ror2Meeeee`
 - **GitHub:** [https://github.com/SawCunha/ror2_meeeeeeee](https://github.com/SawCunha/ror2_meeeeeeee) · **Thunderstore:** [thunderstore.io/c/riskofrain2/p/SawCunhaOS/Ror2Meeeee](https://thunderstore.io/c/riskofrain2/p/SawCunhaOS/Ror2Meeeee/)
-- **Multiplayer:** todos os jogadores precisam do mesmo mod na mesma versão. A lógica de gameplay roda **só no host**,
-  então valem as opções do `.cfg` de quem hospeda.
+- **Multiplayer:** every player needs the same mod on the same version. Gameplay logic runs **only on the host**, so
+  the host's `.cfg` options apply.
 
 ---
 
-## Instalação
+## Installation
 
-### Pelo Thunderstore (jogadores)
+### From Thunderstore (players)
 
-O mod está publicado em [thunderstore.io/c/riskofrain2/p/SawCunhaOS/Ror2Meeeee](https://thunderstore.io/c/riskofrain2/p/SawCunhaOS/Ror2Meeeee/):
-use *Install with Mod Manager* (r2modman ou Thunderstore Mod Manager). O guia de cada item, artefato e sistema, com
-exemplos, está no [`package/README.md`](package/README.md), que é a página do mod no site.
+The mod is published at [thunderstore.io/c/riskofrain2/p/SawCunhaOS/Ror2Meeeee](https://thunderstore.io/c/riskofrain2/p/SawCunhaOS/Ror2Meeeee/):
+use *Install with Mod Manager* (r2modman or Thunderstore Mod Manager). The guide to each item, artifact and system,
+with examples, is in [`package/README.md`](package/README.md), which is the mod's page on the site (in Portuguese:
+[`package/README.pt-BR.md`](package/README.pt-BR.md)).
 
-### Pelo zip local (r2modman)
+### From the local zip (r2modman)
 
-1. Gere ou baixe `Sawcunha-Ror2Meeeee-<versão>.zip` (veja [Build](#build-e-desenvolvimento)).
-2. No r2modman: **Settings → Import local mod** e escolha o zip.
-3. As dependências (`package/manifest.json`) são instaladas junto:
-   BepInExPack, HookGenPatcher, RoR2BepInExPack 1.45.0 e os módulos R2API Core, ContentManagement, Elites, Items,
-   Language e Networking.
+1. Build or download `Sawcunha-Ror2Meeeee-<version>.zip` (see [Build](#build-and-development)).
+2. In r2modman: **Settings → Import local mod** and pick the zip.
+3. The dependencies (`package/manifest.json`) are installed along with it:
+   BepInExPack, HookGenPatcher, RoR2BepInExPack 1.45.0 and the R2API Core, ContentManagement, Elites, Items, Language
+   and Networking modules.
 
-Opcional: **Risk of Options** mostra todas as opções numa tela de mods dentro do jogo.
+Optional: **Risk of Options** shows every option on an in-game mod settings screen.
 
-### Instalação manual
+### Manual installation
 
-Copie `Ror2Meeeee.dll` e `Ror2Meeeee.Core.dll` para `BepInEx/plugins/Sawcunha-Ror2Meeeee/`. Use **só uma pasta**
-com o plugin: duas cópias com o mesmo GUID fazem o BepInEx escolher uma delas, e o `Core.dll` pode vir da errada.
+Copy `Ror2Meeeee.dll` and `Ror2Meeeee.Core.dll` to `BepInEx/plugins/Sawcunha-Ror2Meeeee/`. Use **only one folder**
+with the plugin: two copies with the same GUID make BepInEx pick one of them, and `Core.dll` may come from the wrong
+one.
 
 ---
 
-## Itens
+## Languages
 
-Todos os itens podem ser criados pelo console com `give_item <nome interno> <quantidade>`.
-Desligar a seção do item no config mantém o item no jogo, mas sem efeito.
+**English** base, with a **Brazilian Portuguese** translation. With the game set to Português (Brasil), items,
+artifacts, elites, chat, the F7/F8 screens, notices, command responses and the mod settings screen show in Portuguese;
+in any other language, in English. "Taxade" is a term of the mod and stays the same in both. The `.cfg` descriptions
+are in English; logs and diagnostic tools stay in Portuguese.
 
-| Item | Raridade | Efeito | Nome interno |
+---
+
+## Items
+
+Every item can be spawned from the console with `give_item <internal name> <amount>`.
+Turning off the item's section in the config keeps the item in the game, but without effect.
+
+| Item | Rarity | Effect | Internal name |
 |---|---|---|---|
-| **Chamado da Horda** | Branco | +50% no orçamento de spawn de inimigos por cópia (`Horde.QuantityPerStack`, teto em `Horde.MaxMultiplier`) | `Ror2MeeeeeHorde` |
-| **Capitalismo** | Branco | Taxa do Taxade −20% e +10% de todo ouro ganho. Máximo 1 por jogador | `Ror2MeeeeeTaxReliefWhite` |
-| **Pilha de Pregos Enferrujados** | Branco | 2% de chance por golpe (+0,1% por cópia) de disparar um prego de 10% do dano base (+0,1% por cópia) que aplica sangramento | `Ror2MeeeeeRustyNailStack` |
-| **Capitalismo** | Verde | Taxa −30% e +20% de ouro. Máximo 1 por jogador | `Ror2MeeeeeTaxReliefGreen` |
-| **Fungo Egoísta** | Verde | Cura 5 de vida/s sempre (+% da vida por cópia extra), só em você e nos seus drones, torretas e ajudantes | `Ror2MeeeeeSelfishFungus` |
-| **Égide Vampírica** | Verde | 5% de chance de bloquear um golpe; ao bloquear, rouba vida do agressor | `Ror2MeeeeeVampiricAegis` |
-| **Bateria do Portal** | Verde | Teleportador e outras zonas de carga carregam +10% mais rápido por cópia do time | `Ror2MeeeeePortalBattery` |
-| **Capitalismo** | Vermelho | Taxa −50% e +30% de ouro. Máximo 1 por jogador | `Ror2MeeeeeTaxReliefRed` |
-| **Cano Extra** | Vermelho | Cada cópia faz a arma principal disparar +1 tiro em leque (balas, projéteis e flechas; corpo a corpo não). Até 5 extras. Não é multiplicado | `Ror2MeeeeeCanoExtra` |
-| **Contrato da I.M.P.** | Vermelho | O primeiro elite ou chefe do estágio vira alvo marcado; matá-lo paga ouro extra (+100% por cópia, até `ImpContract.MaxGold`) e solta um item verde | `Ror2MeeeeeImpContract` |
-| **Bastião** | Vermelho | Escudo de 40% da vida máxima por cópia, que começa a recarregar 2 s depois do último golpe (no jogo são 7 s) | `Ror2MeeeeeBastion` |
-| **Coração Pesado** | Lunar | Cada cópia multiplica a vida máxima por 1,5 e o dano recebido de inimigos por 1,3 (composto) | `Ror2MeeeeeHeavyHeart` |
-| **Pilha de Espinhos do Vazio** | Vazio (branco) | Corrompe os Pregos. 2% de chance (+0,5% por cópia) de um espinho de 10% do dano base (+0,5% por cópia) que marca o alvo por 3 s. Ao fim: detonação de 250% e chuva de espinhos num raio de 12 m (150%, +50% por cópia) que marca os atingidos, em cadeia até `RustyNail.MaxChain` | `Ror2MeeeeeVoidSpikeStack` |
-| **Fungo Egoísta do Vazio** | Vazio (verde) | Corrompe o Fungo Egoísta. Cura 15 de vida/s (+% da vida por cópia extra), só em você e nos seus ajudantes | `Ror2MeeeeeSelfishFungusVoid` |
-| **Égide do Devorador** | Vazio (verde) | Corrompe a Égide Vampírica. 5% de chance de bloquear; ao bloquear, rouba vida de todos os inimigos próximos | `Ror2MeeeeeDevourerAegis` |
-| **zzz cervo <3** | Vazio (verde) | *A pressa é inimiga da perfeição.* Toda velocidade de movimento extra vira dano (1:1; +50% de conversão por cópia extra). Não corrompe nenhum item; sai em Void Cradles e Potentials | `Ror2MeeeeeCervo` |
+| **Call of the Horde** | White | +50% enemy spawn budget per stack (`Horde.QuantityPerStack`, cap in `Horde.MaxMultiplier`) | `Ror2MeeeeeHorde` |
+| **Capitalism** | White | Taxade tax −20% and +10% of all gold earned. At most 1 per player | `Ror2MeeeeeTaxReliefWhite` |
+| **Pile of Rusty Nails** | White | 2% chance per hit (+0.1% per stack) to fire a nail dealing 10% base damage (+0.1% per stack) that applies bleed | `Ror2MeeeeeRustyNailStack` |
+| **Capitalism** | Green | Tax −30% and +20% gold. At most 1 per player | `Ror2MeeeeeTaxReliefGreen` |
+| **Selfish Fungus** | Green | Heals 5 health/s always (+% of health per extra stack), only you and your drones, turrets and minions | `Ror2MeeeeeSelfishFungus` |
+| **Vampiric Aegis** | Green | 5% chance to block a hit; on block, steals health from the attacker | `Ror2MeeeeeVampiricAegis` |
+| **Portal Battery** | Green | Teleporter and other charge zones charge +10% faster per team stack | `Ror2MeeeeePortalBattery` |
+| **Capitalism** | Red | Tax −50% and +30% gold. At most 1 per player | `Ror2MeeeeeTaxReliefRed` |
+| **Extra Barrel** | Red | Each stack makes the primary weapon fire +1 shot in a spread (bullets, projectiles and arrows; not melee). Up to 5 extra. Not multiplied | `Ror2MeeeeeCanoExtra` |
+| **I.M.P. Contract** | Red | The first elite or boss of the stage becomes a marked target; killing it pays extra gold (+100% per stack, up to `ImpContract.MaxGold`) and drops a green item | `Ror2MeeeeeImpContract` |
+| **Bastion** | Red | Shield of 40% of max health per stack, which starts recharging 2 s after the last hit (7 s in the game) | `Ror2MeeeeeBastion` |
+| **Heavy Heart** | Lunar | Each stack multiplies max health by 1.5 and damage taken from enemies by 1.3 (compounding) | `Ror2MeeeeeHeavyHeart` |
+| **Pile of Void Spikes** | Void (white) | Corrupts the Nails. 2% chance (+0.5% per stack) of a spike dealing 10% base damage (+0.5% per stack) that marks the target for 3 s. When it ends: 250% detonation and a spike burst in a 12 m radius (150%, +50% per stack) that marks those hit, chaining up to `RustyNail.MaxChain` | `Ror2MeeeeeVoidSpikeStack` |
+| **Selfish Void Fungus** | Void (green) | Corrupts the Selfish Fungus. Heals 15 health/s (+% of health per extra stack), only you and your minions | `Ror2MeeeeeSelfishFungusVoid` |
+| **Devourer's Aegis** | Void (green) | Corrupts the Vampiric Aegis. 5% chance to block; on block, steals health from all nearby enemies | `Ror2MeeeeeDevourerAegis` |
+| **zzz cervo <3** | Void (green) | *Haste makes waste.* All bonus movement speed becomes damage (1:1; +50% conversion per extra stack). Corrupts no item; drops from Void Cradles and Potentials | `Ror2MeeeeeCervo` |
 
-Os itens Capitalismo não duplicam e deixam de sair em baús para quem já tem o da mesma cor.
+The Capitalism items don't duplicate and stop dropping from chests for those who already have the same color.
 
-### Equipamento
+### Equipment
 
-| Equipamento | Tipo | Efeito | Nome interno |
+| Equipment | Type | Effect | Internal name |
 |---|---|---|---|
-| **Grimório do Stolas** | Lunar (recarga 60 s) | Teleporta para perto do primeiro aliado vivo (sozinho: para o teleportador do estágio). Cada uso dá crédito ao diretor, que manda uma onda de inimigos | `Ror2MeeeeeStolasGrimoire` |
+| **Stolas' Grimoire** | Lunar (60 s cooldown) | Teleports near the first living ally (alone: to the stage's teleporter). Each use gives credit to the director, which sends a wave of enemies | `Ror2MeeeeeStolasGrimoire` |
 
 Console: `give_equipment Ror2MeeeeeStolasGrimoire`.
 
 ---
 
-## Artefatos
+## Artifacts
 
-Só têm efeito se forem ativados no lobby.
+They only take effect if enabled in the lobby.
 
-| Artefato | Efeito |
+| Artifact | Effect |
 |---|---|
-| **Comunismo** | Todo item que um jogador pega também vai para os outros jogadores vivos: todos os tipos, de todas as expansões, inclusive sucata, temporários e alugados. Equipamentos e itens únicos do mod não são compartilhados. Não tem opção no config: o artefato é o interruptor |
-| **Dízimo** | Parte de todo ouro ganho (`Gold.Ratio`, 10%) vira crédito para o diretor gerar mais inimigos, e o diretor agradece no chat a cada `ThankIntervalSeconds` (60 s). Limites: `MaxCreditPerSecond` (150) e `MaxMonsters` (80 vivos) |
-| **Taxade** | Toda compra paga com ouro (baú, santuário, drone...) custa vida: 30% da vida máxima por padrão (`Tax.Percent`). Compras com outras moedas não pagam. Com `Tax.Lethal = false` (padrão), a taxa nunca mata: deixa 1 de vida. Os itens Capitalismo reduzem a taxa |
-| **Vazio** | +5 baús do Vazio por estágio (`VoidBounty.ExtraChests`), cada um sorteando entre todos os itens do Vazio. Inimigos com +50% de vida |
-| **Ressurreição** | Quem morre deixa uma lápide. Um aliado que fica a até 4 m dela por 3 s revive o jogador com metade da vida, pagando metade da própria vida. Só faz sentido em multiplayer; `ror2meeeee_demo` mostra os marcadores na tela |
+| **Communism** | Every item a player picks up also goes to the other living players: all types, from all expansions, including scrap, temporary and rented items. Equipment and the mod's unique items are not shared. No config option: the artifact is the switch |
+| **Tithe** | Part of all gold earned (`Gold.Ratio`, 10%) becomes credit for the director to spawn more enemies, and the director thanks you in chat every `ThankIntervalSeconds` (60 s). Limits: `MaxCreditPerSecond` (150) and `MaxMonsters` (80 alive) |
+| **Taxade** | Every purchase paid with gold (chest, shrine, drone...) costs health: 30% of max health by default (`Tax.Percent`). Purchases with other currencies don't pay. With `Tax.Lethal = false` (default), the tax never kills: it leaves 1 health. The Capitalism items reduce the tax |
+| **Void** | +5 Void chests per stage (`VoidBounty.ExtraChests`), each rolling among all Void items. Enemies with +50% health |
+| **Resurrection** | Whoever dies leaves a tombstone. An ally who stays within 4 m of it for 3 s revives the player with half health, paying half of their own health. Only makes sense in multiplayer; `ror2meeeee_demo` shows the on-screen markers |
 
 ---
 
-## Sistemas de gameplay
+## Gameplay systems
 
-### Multiplicador de pickup (`[Multiplier]`)
+### Pickup multiplier (`[Multiplier]`)
 
-Cada item elegível coletado rende **N cópias** (`Value`, padrão **10**).
+Each eligible item collected yields **N copies** (`Value`, default **10**).
 
-- Lunares e itens do Vazio também multiplicam (`IncludeLunar` e `IncludeVoid`, ligados por padrão).
-- `StackCap` (padrão **150**) é o teto de cópias de um mesmo item por jogador, para qualquer item: a multiplicação e o
-  compartilhamento param no teto, e um item pego com o stack já no teto **some** (aviso no chat). Impressora,
-  caldeirão e `give_item` não passam por esse teto. 0 = sem teto.
-- Não multiplicam: itens iniciais, conversões (Vazio, sucata), itens de monstros, temporários e o Cano Extra.
-- Jogadores mortos não recebem as cópias extras.
+- Lunar and Void items also multiply (`IncludeLunar` and `IncludeVoid`, on by default).
+- `StackCap` (default **150**) is the cap on copies of the same item per player, for any item: multiplying and sharing
+  stop at the cap, and an item picked up with the stack already at the cap **disappears** (chat notice). Printer,
+  cauldron and `give_item` don't go through this cap. 0 = no cap.
+- These don't multiply: starting items, conversions (Void, scrap), items from monsters, temporary items and Extra
+  Barrel.
+- Dead players don't get the extra copies.
 
-### Dificuldade (`[Difficulty]`)
+### Difficulty (`[Difficulty]`)
 
-Deixa os inimigos mais fortes e numerosos. Tudo roda no host.
+Makes enemies stronger and more numerous. Everything runs on the host.
 
-- **Bônus fixo:** `MonsterHealthBonus` (+75% de vida) e `MonsterDamageBonus` (+50% de dano), aplicados com os itens
-  `BoostHp`/`BoostDamage` do próprio jogo, uma vez por inimigo.
-- **Fator único** (`Factor`, 1,0 = sem mudança), distribuído por ganhos separados:
-  - `QuantityGain` (2): mais créditos para o diretor, ou seja, mais inimigos;
-  - `PaceGain` (0,5): a dificuldade sobe mais rápido com o tempo;
-  - `HealthGain` (1) e `DamageGain` (0,5): vida e dano.
-- Também aplica o efeito do item **Chamado da Horda**.
+- **Fixed bonus:** `MonsterHealthBonus` (+75% health) and `MonsterDamageBonus` (+50% damage), applied with the game's
+  own `BoostHp`/`BoostDamage` items, once per enemy.
+- **Single factor** (`Factor`, 1.0 = no change), split by separate gains:
+  - `QuantityGain` (2): more credits for the director, i.e. more enemies;
+  - `PaceGain` (0.5): difficulty rises faster over time;
+  - `HealthGain` (1) and `DamageGain` (0.5): health and damage.
+- Also applies the effect of the **Call of the Horde** item.
 
-### Progressão entre runs (`[Progression]`)
+### Progression between runs (`[Progression]`)
 
-No fim de cada run, o grupo recebe uma nota baseada em velocidade, mortes, dano sofrido e abates. As metas de
-referência ficam nas opções `Par*`. O resumo aparece no chat (`ShowInChat`).
+At the end of each run, the group gets a score based on speed, deaths, damage taken and kills. The reference targets
+are in the `Par*` options. The summary shows up in chat (`ShowInChat`).
 
-- Vitória com nota a partir de `RaiseAt` (0,5) sobe um nível; derrota desce um.
-- Cada nível muda o orçamento de spawn do diretor da próxima run em `Step` (15%), até `MaxMultiplier` (3×).
-- Run abandonada no meio não conta.
-- O nível fica em `BepInEx/config/ror2meeeee-progress.txt` e o histórico em `BepInEx/ror2meeeee-runs.csv`.
-- O cálculo roda fora da thread principal.
+- A victory with a score from `RaiseAt` (0.5) goes up one level; a defeat goes down one.
+- Each level changes the director's spawn budget for the next run by `Step` (15%), up to `MaxMultiplier` (3×).
+- A run abandoned midway doesn't count.
+- The level is in `BepInEx/config/ror2meeeee-progress.txt` and the history in `BepInEx/ror2meeeee-runs.csv`.
+- The calculation runs off the main thread.
 
-### Bazar Maior (`[Bazaar]`)
+### Greater Bazaar (`[Bazaar]`)
 
-O Bazar entre Tempos vira loja. Reescrita do BiggerBazaar 1.14.5 (MagnusMagnuson). Tudo roda no host.
+The Bazaar Between Time becomes a shop. Rewrite of BiggerBazaar 1.14.5 (MagnusMagnuson). Everything runs on the host.
 
-- Ao entrar no portal do bazar, o ouro **não** vira XP (`KeepMoney`): fica para gastar. O que sobrar vira XP ao sair.
-- Até 6 baús (`Chests`) com o item à mostra. O tier de cada baú é sorteado por peso (`<Tier>Weight`; padrão 55% branco,
-  30% verde, 15% vermelho; chefe, lunar e equipamentos desligados). Preço em ouro = `<Tier>Cost` baús pequenos do
-  estágio anterior (1 / 2 / 16); com `PayWithLunarCoins`, `<Tier>LunarCost` moedas lunares.
-- Cada baú vende `<Tier>Stock` vezes (10 em todos os tiers; -1 = sem limite); sem limite de compras por jogador.
-- `TemporaryChance` (10%): o baú vende `TemporaryAmount` (5) cópias temporárias por compra.
-- Casulo ao lado do Newt: 1 moeda lunar = `LunarCoinGold` (50, escala com a dificuldade), até `MaxExchangesPerPlayer`
-  (3) vezes.
-- O item comprado cai no chão e passa pelo Multiplicador e pelo Comunismo como qualquer pickup; com o Artefato do
-  Comando, cai o cubo de escolha do mesmo tier. O item à mostra é só vitrine (não pode ser pego). Itens únicos do mod
-  não aparecem na loja; o hack do Captain não abre os baús.
+- When entering the bazaar portal, gold does **not** become XP (`KeepMoney`): it stays to be spent. Whatever is left
+  becomes XP when leaving.
+- Up to 6 chests (`Chests`) with the item on display. Each chest's tier is rolled by weight (`<Tier>Weight`; default
+  55% white, 30% green, 15% red; boss, lunar and equipment off). Gold price = `<Tier>Cost` small chests of the previous
+  stage (1 / 2 / 16); with `PayWithLunarCoins`, `<Tier>LunarCost` lunar coins.
+- Each chest sells `<Tier>Stock` times (10 on every tier; -1 = no limit); no purchase limit per player.
+- `TemporaryChance` (10%): the chest sells `TemporaryAmount` (5) temporary copies per purchase.
+- Pod next to Newt: 1 lunar coin = `LunarCoinGold` (50, scales with difficulty), up to `MaxExchangesPerPlayer` (3)
+  times.
+- The purchased item drops on the ground and goes through the Multiplier and Communism like any pickup; with the
+  Artifact of Command, the choice cube of the same tier drops. The displayed item is just a showcase (can't be picked
+  up). The mod's unique items don't appear in the shop; the Captain's hack doesn't open the chests.
 
-### Elites novos (`[Elites]`)
+### New elites (`[Elites]`)
 
-Cinco elites a mais no sorteio do diretor. Reescrita do MoreElites 0.9.5 (Nuxlar) e do BlightedElites 1.2.2 (Moffein),
-só com assets do jogo. Tudo roda no host; cada elite tem sua chave (`Volatile`, `Frenzied`, `Empowering`, `Blighted`,
-`Echo`), que vale para os próximos spawns.
+Five more elites in the director's roll. Rewrite of MoreElites 0.9.5 (Nuxlar) and BlightedElites 1.2.2 (Moffein), using
+only game assets. Everything runs on the host; each elite has its own key (`Volatile`, `Frenzied`, `Empowering`,
+`Blighted`, `Echo`), which applies to the next spawns.
 
-- **Volátil** (T1): todo golpe explode (como um Brilliant Behemoth) e dispara um míssil a cada 1 a 5 s.
-- **Frenético** (T1): +2 de velocidade base e +50% de velocidade de ataque (o elite amarelo que o jogo tem e não usa);
-  a cada 10 s se teleporta para perto do alvo. O aspecto usado por um jogador teleporta 25 m na direção do movimento.
-- **Fortalecedor** (T1): Warbanner de 25 m para os aliados. Nos clientes, o anel aparece com o visual do da Celestine.
-- **Arruinado** (T2): dois afixos T1 aleatórios e diferentes (Flamejante, Glacial, Sobrecarregado, Mending). 16× vida, 4× dano.
-- **Eco** (T2): o elite Eco que já existe no jogo, mas que ele não sorteia: 2 ecos com 10% da vida que atiram projéteis
-  caçadores.
+- **Volatile** (T1): every hit explodes (like a Brilliant Behemoth) and fires a missile every 1 to 5 s.
+- **Frenzied** (T1): +2 base speed and +50% attack speed (the yellow elite the game has and doesn't use); every 10 s it
+  teleports close to its target. The aspect used by a player teleports 25 m in the direction of movement.
+- **Empowering** (T1): 25 m Warbanner for allies. On clients, the ring shows with the Celestine's visuals.
+- **Blighted** (T2): two different random T1 affixes (Blazing, Glacial, Overloaded, Mending). 16× health, 4× damage.
+- **Echo** (T2): the Echo elite that already exists in the game, but which it never rolls: 2 echoes with 10% health
+  that fire homing projectiles.
 
-Stats iguais aos dos elites do jogo (T1, T1 de Honra e Malaquita). Os aspectos caem com a chance do jogo (1 em 4000).
+Stats equal to the game's elites (T1, Honor T1 and Malachite). The aspects drop with the game's chance (1 in 4000).
 
-### Soltar itens (`[Drop]`)
+### Drop items (`[Drop]`)
 
-Solta itens do seu inventário no chão para dar a um aliado.
+Drops items from your inventory on the ground to give to an ally.
 
-- **Menu:** tecla **F7** (`Drop.MenuKey`). Clique no ícone, ajuste a quantidade (campo, −1/+1/+5/+10, setas ou +/−) e
-  confirme em **SOLTAR** ou com Enter.
-- **Console:** `ror2meeeee_drop [nome] [quantidade]` (sem argumentos, lista o que dá para soltar) e
-  `ror2meeeee_drop_menu [nome]`.
-- No máximo `MaxPerCommand` (10) por vez.
+- **Menu:** **F7** key (`Drop.MenuKey`). Click the icon, adjust the amount (field, −1/+1/+5/+10, arrows or +/−) and
+  confirm with **DROP** or Enter.
+- **Console:** `ror2meeeee_drop [name] [amount]` (with no arguments, lists what can be dropped) and
+  `ror2meeeee_drop_menu [name]`.
+- At most `MaxPerCommand` (10) at a time.
 
-### Tela de status (F8)
+### Status screen (F8)
 
-Mostra seus atributos atuais e, de todos os jogadores, o total da run de dano causado, cura e dano recebido. Tecla em
-`Stats.MenuKey`. Precisa do R2API Networking.
+Shows your current stats and, for every player, the run total of damage dealt, healing and damage taken. Key in
+`Stats.MenuKey`. Needs R2API Networking.
 
 ---
 
-## Desempenho
+## Performance
 
-Com o multiplicador em 10×, o inventário cresce muito rápido. Estes sistemas seguram o FPS sem tirar o efeito dos itens:
+With the multiplier at 10×, the inventory grows very fast. These systems hold FPS up without removing the items'
+effect:
 
-| Seção | O que faz | Padrão |
+| Section | What it does | Default |
 |---|---|---|
-| `[LimitedCalc.BustlingFungus]` | Trata o Bustling Fungus como se tivesse no máximo `Limit` cópias (`Mode = Clamp`) | `Off`, limite 10 |
-| `[LimitedCalc.BundleOfFireworks]` | `Aggregate`: menos mísseis, cada um mais forte, mesmo dano total | `Aggregate`, limite 20 |
-| `[LimitedCalc.GhorsTome]` | `Aggregate`: menos pacotes de ouro no chão, cada um vale mais, mesmo ouro esperado | `Aggregate`, limite 5 |
-| `[ProjectileBudget]` | Teto de projéteis dos jogadores e ajudantes (Sticky Bomb, Molten Perforator, estacas, Fireworks, mísseis...): menos projéteis, cada um mais forte, mesmo dano total. Projéteis de monstros não mudam | 15/s por tipo, 40/s no total |
-| `[GhostBlades]` | Limita quantas Lâminas Fantasmas (item Curse do DLC4) o jogo gera ou renova por segundo | 10/s |
-| `[Cleanup]` | Cadáveres somem rápido, mesmo à vista, e corrige um erro do jogo no Totem dos Lynx que gerava centenas de exceções | 10 corpos, 2 s |
-| `[GameFixes]` | Corrige erros do jogo que se repetiam centenas de vezes por partida e custavam FPS: Runic Lens, Unstable Transmitter, War Bonds e equipamento de corpos sem inventário; também conserta o artefato do Enxame e os drones/monstros Dourados que travavam a partida soltando pepitas de ouro (mesma correção do GildedChunkSpamFix) | ligado |
-| `[Particles]` | Teto por segundo (`MaxPerSecond`) para **todo** tipo de efeito, menos os da lista `Exempt`; os da lista `Raised` têm teto próprio maior (`RaisedMaxPerSecond`). Vale para o que você mostra **e para o que você envia** aos outros (host e clientes com o mod). Não muda dano | 10/s por tipo; explosões 60/s; exceção: golpes do Mercenary |
+| `[LimitedCalc.BustlingFungus]` | Treats Bustling Fungus as if it had at most `Limit` stacks (`Mode = Clamp`) | `Off`, limit 10 |
+| `[LimitedCalc.BundleOfFireworks]` | `Aggregate`: fewer missiles, each one stronger, same total damage | `Aggregate`, limit 20 |
+| `[LimitedCalc.GhorsTome]` | `Aggregate`: fewer gold packs on the ground, each worth more, same expected gold | `Aggregate`, limit 5 |
+| `[ProjectileBudget]` | Cap on projectiles from players and minions (Sticky Bomb, Molten Perforator, stakes, Fireworks, missiles...): fewer projectiles, each one stronger, same total damage. Monster projectiles don't change | 15/s per type, 40/s total |
+| `[GhostBlades]` | Limits how many Ghost Blades (DLC4 Curse item) the game spawns or renews per second | 10/s |
+| `[Cleanup]` | Corpses disappear quickly, even in view, and fixes a game bug in the Lynx Totem that produced hundreds of exceptions | 10 bodies, 2 s |
+| `[GameFixes]` | Fixes game errors that repeated hundreds of times per match and cost FPS: Runic Lens, Unstable Transmitter, War Bonds and equipment on bodies without an inventory; also fixes the Swarms artifact and the Golden drones/monsters that froze the match dropping gold nuggets (same fix as GildedChunkSpamFix) | on |
+| `[Particles]` | Per-second cap (`MaxPerSecond`) for **every** type of effect, except those in the `Exempt` list; those in the `Raised` list have their own higher cap (`RaisedMaxPerSecond`). Applies to what you show **and to what you send** to others (host and clients with the mod). Doesn't change damage | 10/s per type; explosions 60/s; exception: Mercenary strikes |
 
 ---
 
-## Configuração
+## Configuration
 
-O arquivo é `BepInEx/config/com.sawcunha.ror2meeeee.cfg` (só o host precisa ajustar), ou a tela do Risk of Options.
+The file is `BepInEx/config/com.sawcunha.ror2meeeee.cfg` (only the host needs to adjust it), or the Risk of Options
+screen.
 
-- Os padrões já vêm prontos para jogar: quase tudo ligado. Só o Probe (medição) vem desligado.
-- Cada seção tem um `Enabled` com a explicação do que ela faz. `Enabled` vale entre partidas.
-- Os outros valores podem ser relidos com `ror2meeeee_reload`.
+- The defaults are ready to play: almost everything on. Only the Probe (measurement) comes off.
+- Each section has an `Enabled` explaining what it does. `Enabled` applies between matches.
+- The other values can be reloaded with `ror2meeeee_reload`.
 
 ### `[General]`
 
-| Opção | Padrão | Uso |
+| Option | Default | Use |
 |---|---|---|
-| `VerboseLogging` | `false` | Logs extras de depuração no `LogOutput.log` (ex.: cada prego, espinho e detonação do RustyNail). Custa FPS |
-| `MaxFailures` | 50 (mínimo) | Quantos erros uma feature pode ter antes de se desligar sozinha |
-| `ProbeEnabled` | `false` | Liga o Probe de medição |
-| `ProbeAutoWindowSeconds` | 30 | Tamanho da janela automática do Probe |
+| `VerboseLogging` | `false` | Extra debug logs in `LogOutput.log` (e.g. each RustyNail nail, spike and detonation). Costs FPS |
+| `MaxFailures` | 50 (minimum) | How many errors a feature can have before it turns itself off |
+| `ProbeEnabled` | `false` | Turns on the measurement Probe |
+| `ProbeAutoWindowSeconds` | 30 | Size of the Probe's automatic window |
 
 ---
 
-## Comandos de console
+## Console commands
 
-Abra o console com **Ctrl+Alt+`** (ou F2, conforme o teclado).
+Open the console with **Ctrl+Alt+`** (or F2, depending on the keyboard).
 
-| Comando | O que faz |
+| Command | What it does |
 |---|---|
-| `ror2meeeee_status` | Lista as features, falhas e hooks do mod |
-| `ror2meeeee_reload` | Relê o `.cfg` (`Enabled` ainda exige reiniciar a partida) |
-| `ror2meeeee_drop [nome] [qtd]` | Solta itens do seu inventário |
-| `ror2meeeee_drop_menu [nome]` | Abre a tela de soltar itens |
-| `ror2meeeee_demo` | Mostra por 15 s os marcadores de teste (lápide e alvo) |
-| `ror2meeeee_progress` / `ror2meeeee_progress_reset` | Mostra ou zera o nível da progressão entre runs |
-| `ror2meeeee_spend` | Compras e ouro gasto por jogador na run |
-| `ror2meeeee_effects [top]` | Efeitos visuais mais frequentes (precisa de `Particles.CountSpawns`); com ele ligado, a lista também sai sozinha no console/log a cada fase nova |
-| `ror2meeeee_probe_label <nome>` | Rotula as janelas automáticas seguintes do Probe |
-| `ror2meeeee_probe_begin <nome>` / `ror2meeeee_probe_end` | Inicia e encerra uma fase de medição (grava CSV) |
+| `ror2meeeee_status` | Lists the mod's features, failures and hooks |
+| `ror2meeeee_reload` | Reloads the `.cfg` (`Enabled` already applies immediately, between matches) |
+| `ror2meeeee_drop [name] [amount]` | Drops items from your inventory |
+| `ror2meeeee_drop_menu [name]` | Opens the drop items screen |
+| `ror2meeeee_demo` | Shows the test markers (tombstone and target) for 15 s |
+| `ror2meeeee_progress` / `ror2meeeee_progress_reset` | Shows or resets the progression level between runs |
+| `ror2meeeee_spend` | Purchases and gold spent per player in the run |
+| `ror2meeeee_effects [top]` | Most frequent visual effects (needs `Particles.CountSpawns`); with it on, the list is also printed to the console/log on each new stage |
+| `ror2meeeee_probe_label <name>` | Labels the Probe's following automatic windows |
+| `ror2meeeee_probe_begin <name>` / `ror2meeeee_probe_end` | Starts and ends a measurement phase (writes CSV) |
 
 ---
 
-## Diagnóstico e medição
+## Diagnostics and measurement
 
-- **Sempre ligado:** linhas `[Identidade]`, `[Carga]` (tempo do `Awake` do mod), `[Config]`, `[Estágio]`, `[Vigia]` e erros novos do jogo no `LogOutput.log`.
-- **Falha isolada:** cada feature tem um kill-switch. Se der `MaxFailures` erros, ela se desliga sozinha e o resto do mod
-  continua. `ror2meeeee_status` mostra quem caiu.
-- **Gasto por jogador** (`[Spend]`): conta compras e ouro gasto e grava `BepInEx/ror2meeeee-spend.csv` no fim da run.
-- **Probe** (`[General] ProbeEnabled`): mede FPS, monstros, eventos de cura, ajudantes e itens por janela de 30 s,
-  com alertas de degradação. Grava CSV em `BepInEx/`; `tools/probe-report.py` resume o arquivo.
-- Linhas úteis no log: `[Multiplier]`, `[Difficulty]`, `[Progression]`, `[Tax]`, `[Probe]`, `[ProjectileBudget]`, `[LimitedCalc]`.
+- **Always on:** `[Identidade]`, `[Carga]` (time of the mod's `Awake`), `[Config]`, `[Estágio]`, `[Vigia]` lines and
+  new game errors in `LogOutput.log` (log lines are in Portuguese).
+- **Isolated failure:** each feature has a kill-switch. If it hits `MaxFailures` errors, it turns itself off and the
+  rest of the mod keeps going. `ror2meeeee_status` shows which one fell.
+- **Spending per player** (`[Spend]`): counts purchases and gold spent and writes `BepInEx/ror2meeeee-spend.csv` at the
+  end of the run.
+- **Probe** (`[General] ProbeEnabled`): measures FPS, monsters, healing events, minions and items per 30 s window, with
+  degradation alerts. Writes a CSV to `BepInEx/`; `tools/probe-report.py` summarizes the file.
+- Useful lines in the log: `[Multiplier]`, `[Difficulty]`, `[Progression]`, `[Tax]`, `[Probe]`, `[ProjectileBudget]`,
+  `[LimitedCalc]`.
 
 ---
 
-## Créditos
+## Credits
 
-Desenvolvido e testado por:
+Developed and tested by:
 
 - **SawCunha**
 - **Sleeping_tv_**
@@ -250,65 +270,69 @@ Desenvolvido e testado por:
 
 ---
 
-## Build e desenvolvimento
+## Build and development
 
-### Requisitos
+### Requirements
 
-- .NET SDK 8 (o plugin compila para `netstandard2.1`; os testes rodam em `net8.0`).
-- Risk of Rain 2 instalado. O projeto referencia as DLLs locais de `Risk of Rain 2_Data/Managed`, não o NuGet
-  `RiskOfRain2.GameLibs`.
-- Um perfil do r2modman com as dependências instaladas (é de lá que vêm as DLLs do R2API e do MMHOOK).
+- .NET SDK 8 (the plugin compiles to `netstandard2.1`; tests run on `net8.0`).
+- Risk of Rain 2 installed. The project references the local DLLs from `Risk of Rain 2_Data/Managed`, not the
+  `RiskOfRain2.GameLibs` NuGet.
+- An r2modman profile with the dependencies installed (the R2API and MMHOOK DLLs come from there).
 
-Os caminhos ficam em [`Directory.Build.props`](Directory.Build.props) e podem ser sobrescritos com `-p:` ou variável de
-ambiente:
+The paths are in [`Directory.Build.props`](Directory.Build.props) and can be overridden with `-p:` or an environment
+variable:
 
-| Propriedade | Padrão |
+| Property | Default |
 |---|---|
 | `GameDir` | `~/.steam/debian-installation/steamapps/common/Risk of Rain 2` |
 | `R2modmanProfile` | `~/.config/r2modmanPlus-local/RiskOfRain2/profiles/Default` |
 
-### Comandos
+### Commands
 
 ```bash
-dotnet build -c Debug     # compila o plugin e o Core
-dotnet test               # testes do Ror2Meeeee.Core (xunit.v3)
-tools/pack.sh             # build Release + dist/Sawcunha-Ror2Meeeee-<versão>.zip para o r2modman
+dotnet build -c Debug     # builds the plugin and Core
+dotnet test               # Ror2Meeeee.Core tests (xunit.v3)
+tools/pack.sh             # Release build + dist/Sawcunha-Ror2Meeeee-<version>.zip for r2modman
 ```
 
-O `pack.sh` confere se a versão de `ModInfo.cs` bate com `package/manifest.json` antes de empacotar.
+`pack.sh` checks that the version in `ModInfo.cs` matches `package/manifest.json` before packaging.
 
-### Lançar uma versão
+### Releasing a version
 
-1. Atualize a versão em `src/Ror2Meeeee.Core/ModInfo.cs` e em `package/manifest.json`.
-2. Adicione a entrada em `package/CHANGELOG.md` e, se algo mudou para o jogador, em `package/README.md`.
-3. Rode `dotnet test` e `tools/pack.sh`.
+1. Update the version in `src/Ror2Meeeee.Core/ModInfo.cs` and in `package/manifest.json`.
+2. Add the entry to `package/CHANGELOG.md` (English) and `package/CHANGELOG.pt-BR.md` and, if something changed for the
+   player, to `package/README.md` and `package/README.pt-BR.md`.
+3. Run `dotnet test` and `tools/pack.sh`.
 
-### Estrutura
+### Structure
 
 ```
 src/
-  Ror2Meeeee.Core/     lógica pura (regras, curvas, pipeline do multiplicador). Nunca referencia o jogo; 100% testável
-  Ror2Meeeee/          o plugin BepInEx
-    Plugin.cs          ponto de entrada: registra itens, artefatos e features
-    Common/            base Feature (kill-switch + falha isolada), Cfg, ModItem, diagnóstico, telas F7/F8
-    Features/<Nome>/   uma pasta por mecânica (hooks On.* do MMHOOK)
-    Debug/             comandos de console e Probe
-    Assets/            ícones embutidos no DLL (artifacts/ = ícones dos artefatos, 128×128)
+  Ror2Meeeee.Core/     pure logic (rules, curves, multiplier pipeline). Never references the game; 100% testable
+  Ror2Meeeee/          the BepInEx plugin
+    Plugin.cs          entry point: registers items, artifacts and features
+    Common/            Feature base (kill-switch + isolated failure), Cfg, Loc (languages), ModItem, diagnostics, F7/F8 screens
+    Features/<Name>/   one folder per mechanic (MMHOOK On.* hooks)
+    Debug/             console commands and Probe
+    Assets/            icons embedded in the DLL (artifacts/ = artifact icons, 128×128)
 tests/Ror2Meeeee.Core.Tests/
-package/               manifest.json, README.md e CHANGELOG.md do pacote Thunderstore/r2modman
+package/               manifest.json, README and CHANGELOG (English + .pt-BR.md) of the Thunderstore/r2modman package
 tools/                 pack.sh, probe-report.py
-docs/                  artes originais e relatórios de teste e medição
-_bmad-output/          planejamento (PRD, GDD, arquitetura, stories)
+docs/                  original art and test and measurement reports
+_bmad-output/          planning (PRD, GDD, architecture, stories)
 ```
 
-### Regras do código
+### Code rules
 
-As regras completas estão em [`_bmad-output/project-context.md`](_bmad-output/project-context.md) e
-[`_bmad-output/game-architecture.md`](_bmad-output/game-architecture.md). As que mais quebram:
+The full rules are in [`_bmad-output/project-context.md`](_bmad-output/project-context.md) and
+[`_bmad-output/game-architecture.md`](_bmad-output/game-architecture.md). The ones that break most:
 
-- Todo hook `On.*` chama `orig`.
-- Lógica de gameplay só com `NetworkServer.active` (host).
-- Nada de alocação por tick no caminho quente.
-- `Ror2Meeeee.Core` nunca referencia o jogo.
-- Comportamento do jogo se confirma descompilando o `RoR2.dll` (ex.: `ilspycmd`) e medindo, não por suposição.
-- Itens e artefatos novos usam `ModItem.Register` e `TitheArtifact.LoadIcon` (ícones embutidos como `EmbeddedResource`).
+- Every `On.*` hook calls `orig`.
+- Gameplay logic only with `NetworkServer.active` (host).
+- No per-tick allocation on the hot path.
+- `Ror2Meeeee.Core` never references the game.
+- Game behavior is confirmed by decompiling `RoR2.dll` (e.g. `ilspycmd`) and measuring, not by assumption.
+- New items and artifacts use `ModItem.Register` and `TitheArtifact.LoadIcon` (icons embedded as `EmbeddedResource`).
+- Player-visible text always in both languages, through `Loc` (`Common/Loc.cs`): `Loc.Add(token, en, pt)` for game
+  tokens, `Loc.T(en, pt)` for local screens, `Loc.Broadcast(token, args)` for chat and `Cfg.Bind(..., en, pt)` for
+  config. Logs stay in Portuguese.

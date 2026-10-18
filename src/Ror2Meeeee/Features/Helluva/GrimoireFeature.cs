@@ -19,6 +19,7 @@ namespace Ror2Meeeee
     {
         public const string EquipName = "Ror2MeeeeeStolasGrimoire";
         public const string Token = "ROR2MEEEEE_EQUIP_GRIMOIRE";
+        private const string ChatToken = Token + "_CHAT";
 
         private static EquipmentDef _def;
         private static GameObject _boom; // cada LegacyResourcesAPI.Load abre um handle novo do Addressables
@@ -43,13 +44,25 @@ namespace Ror2Meeeee
                     icon, model, cooldown: 60f, canDrop: true, enigmaCompatible: false, isBoss: false, isLunar: true,
                     passiveBuffDef: null, unlockableDef: null, colorIndex: ColorCatalog.ColorIndex.LunarItem,
                     itemDisplayRules: Array.Empty<ItemDisplayRule>());
-                LanguageAPI.Add(Token + "_NAME", "Grimório do Stolas");
-                LanguageAPI.Add(Token + "_PICKUP", "Abre um portal até um aliado. <style=cDeath>Todo contrato tem um preço.</style>");
-                LanguageAPI.Add(Token + "_DESC",
+                Loc.Add(Token + "_NAME", "Stolas' Grimoire", "Grimório do Stolas");
+                Loc.Add(Token + "_PICKUP", "Opens a portal to an ally. <style=cDeath>Every contract has a price.</style>", "Abre um portal até um aliado. <style=cDeath>Todo contrato tem um preço.</style>");
+                Loc.Add(Token + "_DESC",
+                    "Teleports you near the <style=cIsUtility>first living ally</style> found; with no allies, to the stage's " +
+                    "<style=cIsUtility>teleporter</style>. " +
+                    "<style=cDeath>Each use gives credit to the director: a wave of enemies is on its way.</style>",
                     "Teleporta você para perto do <style=cIsUtility>primeiro aliado vivo</style> que encontrar; sem aliados, para o " +
                     "<style=cIsUtility>teleportador</style> do estágio. " +
                     "<style=cDeath>Cada uso dá crédito ao diretor: uma onda de inimigos está a caminho.</style>");
-                LanguageAPI.Add(Token + "_LORE", "Emprestado. Sem pedir. De novo.");
+                const string S = "<color=#7aa2f7>Stolas:</color> ";
+                Loc.Add(ChatToken + "_ALLY_PAID", S + "{0} used the grimoire and went to {1}. The contract was charged: {2} credit for the director.",
+                    S + "{0} usou o grimório e foi até {1}. O contrato foi cobrado: {2} de crédito para o diretor.");
+                Loc.Add(ChatToken + "_ALLY_FREE", S + "{0} used the grimoire and went to {1}. No active director: no wave this time.",
+                    S + "{0} usou o grimório e foi até {1}. Sem diretor ativo: nenhuma onda desta vez.");
+                Loc.Add(ChatToken + "_TP_PAID", S + "{0} used the grimoire and went to the teleporter. The contract was charged: {1} credit for the director.",
+                    S + "{0} usou o grimório e foi até o teleportador. O contrato foi cobrado: {1} de crédito para o diretor.");
+                Loc.Add(ChatToken + "_TP_FREE", S + "{0} used the grimoire and went to the teleporter. No active director: no wave this time.",
+                    S + "{0} usou o grimório e foi até o teleportador. Sem diretor ativo: nenhuma onda desta vez.");
+                Loc.Add(Token + "_LORE", "Borrowed. Without asking. Again.", "Emprestado. Sem pedir. De novo.");
 
                 if (!ItemAPI.Add(equip)) { log.LogError("Grimório: ItemAPI.Add recusou o equipamento."); return; }
                 _def = equip.EquipmentDef;
@@ -63,19 +76,19 @@ namespace Ror2Meeeee
         }
 
         public GrimoireFeature(Cfg cfg, ManualLogSource log) : base("Grimoire", cfg, log,
-            "Equipamento lunar Grimório do Stolas: teleporta para perto do primeiro aliado vivo (sozinho: para o teleportador do estágio), mas cada uso dá crédito ao diretor (onda de inimigos). Desligado: o equipamento existe mas não faz nada.",
+            "Stolas' Grimoire lunar equipment: teleports you near the first living ally (alone: to the stage's teleporter), but each use gives credit to the director (wave of enemies). Off: the equipment exists but does nothing.", "Equipamento lunar Grimório do Stolas: teleporta para perto do primeiro aliado vivo (sozinho: para o teleportador do estágio), mas cada uso dá crédito ao diretor (onda de inimigos). Desligado: o equipamento existe mas não faz nada.",
             enabledByDefault: true)
         {
             _waveCredit = cfg.Bind("Grimoire", "WaveCredit", 150f,
-                "Crédito de spawn dado ao diretor a cada uso, multiplicado pela dificuldade atual (150 = uma onda média). 0 = sem preço.");
+                "Spawn credit given to the director on each use, multiplied by the current difficulty (150 = an average wave). 0 = no price.", "Crédito de spawn dado ao diretor a cada uso, multiplicado pela dificuldade atual (150 = uma onda média). 0 = sem preço.");
             _waveCreditValue = _waveCredit.Value;
             _waveCredit.SettingChanged += (_, __) => _waveCreditValue = _waveCredit.Value;
             _maxPerUse = cfg.Bind("Grimoire", "MaxCreditPerUse", 600f,
-                "Teto de crédito por uso (a dificuldade multiplica o WaveCredit e, no fim da run, passava de 1400 por uso). 0 = sem teto.");
+                "Cap on credit per use (difficulty multiplies WaveCredit and, late in the run, it went past 1400 per use). 0 = no cap.", "Teto de crédito por uso (a dificuldade multiplica o WaveCredit e, no fim da run, passava de 1400 por uso). 0 = sem teto.");
             _maxPerUseValue = _maxPerUse.Value;
             _maxPerUse.SettingChanged += (_, __) => _maxPerUseValue = _maxPerUse.Value;
             _maxMonsters = cfg.Bind("Grimoire", "MaxMonsters", 80,
-                "Com tantos monstros vivos (ou mais), o uso ainda teleporta mas não dá crédito (já há inimigos demais). 0 = sem trava.");
+                "With this many monsters alive (or more), using it still teleports but gives no credit (there are already too many enemies). 0 = no lock.", "Com tantos monstros vivos (ou mais), o uso ainda teleporta mas não dá crédito (já há inimigos demais). 0 = sem trava.");
             _maxMonstersValue = _maxMonsters.Value;
             _maxMonsters.SettingChanged += (_, __) => _maxMonstersValue = _maxMonsters.Value;
         }
@@ -152,7 +165,7 @@ namespace Ror2Meeeee
             if (!ally) dest = node ?? target + Vector3.up * 2f;
             else dest = node.HasValue && (node.Value - target).sqrMagnitude <= MaxNodeDistance * MaxNodeDistance ? node.Value : BehindAlly(ally);
             // Nome do jogador, sem títulos de elite ("SawCunha", não "SawCunha Flamejante de Ouro").
-            var where = ally ? (ally.master ? Util.GetBestMasterName(ally.master) : Util.GetBestBodyName(ally.gameObject)) : "o teleportador";
+            var where = ally ? (ally.master ? Util.GetBestMasterName(ally.master) : Util.GetBestBodyName(ally.gameObject)) : "teleporter";
 
             if (!_boom) _boom = LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/TeleportOutBoom");
             if (_boom) EffectManager.SpawnEffect(_boom,
@@ -178,11 +191,10 @@ namespace Ror2Meeeee
             }
             var who = body.master ? Util.GetBestMasterName(body.master) : Util.GetBestBodyName(body.gameObject);
             // Sem diretor de combate ativo (Bazar, fim de estágio...) não há onda: a mensagem não promete o que não acontece.
-            var price = n > 0 ? $"O contrato foi cobrado: {credit:F0} de crédito para o diretor." : "Sem diretor ativo: nenhuma onda desta vez.";
-            Chat.SendBroadcastChat(new Chat.SimpleChatMessage
-            {
-                baseToken = $"<color=#7aa2f7>Stolas:</color> {who} usou o grimório e foi até {where}. {price}"
-            });
+            var token = ChatToken + (ally ? "_ALLY" : "_TP") + (n > 0 ? "_PAID" : "_FREE");
+            var price = credit.ToString("F0", Loc.EnCulture);
+            if (ally) Loc.Broadcast(token, who, where, price);
+            else Loc.Broadcast(token, who, price);
             Log.LogInfo($"[Grimoire] {who} teleportado até {where} (chegou a {Vector3.Distance(dest, target):F1} m do destino); +{credit:F0} crédito em {n} diretor(es) (cheio {full:F0}, monstros vivos {alive})");
             return true;
         }

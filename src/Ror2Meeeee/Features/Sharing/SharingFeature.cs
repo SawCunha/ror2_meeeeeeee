@@ -40,10 +40,10 @@ namespace Ror2Meeeee
             // Mesmas definições da MultiplierFeature: o BepInEx devolve a mesma entrada.
             _multiplierEnabled = cfg.BindEnabled("Multiplier");
             _value = cfg.Bind("Multiplier", "Value", MultiplierRules.DefaultMultiplier,
-                $"Quantas cópias no total cada item coletado rende (1 = normal, 2 = dobra, 10 = dez cópias). Menor que 1 volta para {MultiplierRules.DefaultMultiplier}.");
-            _includeLunar = cfg.Bind("Multiplier", "IncludeLunar", true, "Também multiplica itens lunares (azuis). Desligado: lunares vêm em 1 cópia.");
-            _includeVoid = cfg.Bind("Multiplier", "IncludeVoid", true, "Também multiplica itens void (roxos). Desligado: void vêm em 1 cópia.");
-            _stackCap = cfg.Bind("Multiplier", "StackCap", 150, "Teto de cópias de um mesmo item por jogador (qualquer item). A multiplicação e o compartilhamento param no teto; item pego com o stack já no teto some (aviso no chat). Impressora, caldeirão e give_item não passam por aqui. 0 = sem limite.");
+                $"How many copies in total each collected item yields (1 = normal, 2 = double, 10 = ten copies). Less than 1 falls back to {MultiplierRules.DefaultMultiplier}.", $"Quantas cópias no total cada item coletado rende (1 = normal, 2 = dobra, 10 = dez cópias). Menor que 1 volta para {MultiplierRules.DefaultMultiplier}.");
+            _includeLunar = cfg.Bind("Multiplier", "IncludeLunar", true, "Also multiplies lunar (blue) items. Off: lunar items come as 1 copy.", "Também multiplica itens lunares (azuis). Desligado: lunares vêm em 1 cópia.");
+            _includeVoid = cfg.Bind("Multiplier", "IncludeVoid", true, "Also multiplies void (purple) items. Off: void items come as 1 copy.", "Também multiplica itens void (roxos). Desligado: void vêm em 1 cópia.");
+            _stackCap = cfg.Bind("Multiplier", "StackCap", 150, "Cap on copies of the same item per player (any item). Multiplying and sharing stop at the cap; an item picked up with the stack already at the cap disappears (chat notice). Printer, cauldron and give_item don't go through here. 0 = no limit.", "Teto de cópias de um mesmo item por jogador (qualquer item). A multiplicação e o compartilhamento param no teto; item pego com o stack já no teto some (aviso no chat). Impressora, caldeirão e give_item não passam por aqui. 0 = sem limite.");
         }
 
         // Chamar no Awake do plugin (antes de o ArtifactCatalog existir).
@@ -58,8 +58,8 @@ namespace Ror2Meeeee
                 _artifact.smallIconSelectedSprite = TitheArtifact.LoadIcon("comunismo_selecionado.png", new Color32(200, 20, 20, 255));
                 _artifact.smallIconDeselectedSprite = TitheArtifact.LoadIcon("comunismo_desmarcado.png", new Color32(90, 90, 90, 255));
 
-                LanguageAPI.Add(Token + "_NAME", "Artefato do Comunismo");
-                LanguageAPI.Add(Token + "_DESC", "Todo item pego por um jogador também vai para os outros jogadores vivos. Todos os tipos, de todas as expansões.");
+                Loc.Add(Token + "_NAME", "Artifact of Communism", "Artefato do Comunismo");
+                Loc.Add(Token + "_DESC", "Every item picked up by a player also goes to the other living players. All types, from all expansions.", "Todo item pego por um jogador também vai para os outros jogadores vivos. Todos os tipos, de todas as expansões.");
 
                 if (!ContentAddition.AddArtifactDef(_artifact)) { log.LogError("Sharing: ContentAddition recusou o artefato."); _artifact = null; }
                 else log.LogInfo($"Sharing: artefato '{ArtifactName}' registrado.");

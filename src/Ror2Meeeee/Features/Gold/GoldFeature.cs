@@ -29,29 +29,32 @@ namespace Ror2Meeeee
         private ulong _pendingGold;
         private float _lastThank;       // Time.time do último agradecimento
         private int _thankIndex;        // rodízio das frases
+        private const string ThanksToken = "ROR2MEEEEE_TITHE_THANKS_";
         // Elegibilidade por diretor, resolvida uma vez (reflexão só na primeira vez); limpo por run.
         private readonly Dictionary<int, bool> _eligible = new Dictionary<int, bool>();
 
         public GoldFeature(Cfg cfg, ManualLogSource log) : base("Gold", cfg, log,
-            "Artefato do Dízimo: com o artefato ativado no lobby, parte de todo ouro que os jogadores ganham vira crédito para o diretor gerar mais inimigos, e ele agradece no chat. Sem o artefato, nada muda.",
+            "Artifact of Tithe: with the artifact enabled in the lobby, part of all gold the players earn becomes credit for the director to spawn more enemies, and it thanks you in chat. Without the artifact, nothing changes.", "Artefato do Dízimo: com o artefato ativado no lobby, parte de todo ouro que os jogadores ganham vira crédito para o diretor gerar mais inimigos, e ele agradece no chat. Sem o artefato, nada muda.",
             enabledByDefault: true)
         {
             _ratio = cfg.Bind("Gold", "Ratio", 0.1f,
-                "Quanto do ouro ganho vira crédito do diretor (0.1 = 10%). 0 desliga.");
+                "How much of the gold earned becomes director credit (0.1 = 10%). 0 turns it off.", "Quanto do ouro ganho vira crédito do diretor (0.1 = 10%). 0 desliga.");
             _ratioValue = _ratio.Value;
             _ratio.SettingChanged += (_, __) => _ratioValue = _ratio.Value;
             _thankInterval = cfg.Bind("Gold", "ThankIntervalSeconds", 60f,
-                "O diretor agradece no chat o ouro recebido do Dízimo, juntando tudo e falando no máximo 1 vez a cada X segundos (e no fim do estágio). 0 = sem mensagens.");
+                "The director thanks you in chat for the gold received from the Tithe, bundling everything and speaking at most once every X seconds (and at the end of the stage). 0 = no messages.", "O diretor agradece no chat o ouro recebido do Dízimo, juntando tudo e falando no máximo 1 vez a cada X segundos (e no fim do estágio). 0 = sem mensagens.");
             _thankIntervalValue = _thankInterval.Value;
             _thankInterval.SettingChanged += (_, __) => _thankIntervalValue = _thankInterval.Value;
             _maxCredit = cfg.Bind("Gold", "MaxCreditPerSecond", 150f,
-                "Teto de crédito que o Dízimo pode dar por segundo. Evita que uma enxurrada de ouro (centenas de eventos/s) encha o diretor e trave o jogo. 0 = sem teto.");
+                "Cap on the credit the Tithe can give per second. Prevents a flood of gold (hundreds of events/s) from filling the director and freezing the game. 0 = no cap.", "Teto de crédito que o Dízimo pode dar por segundo. Evita que uma enxurrada de ouro (centenas de eventos/s) encha o diretor e trave o jogo. 0 = sem teto.");
             _maxCreditValue = _maxCredit.Value;
             _maxCredit.SettingChanged += (_, __) => _maxCreditValue = _maxCredit.Value;
             _maxMonsters = cfg.Bind("Gold", "MaxMonsters", 80,
-                "Com tantos monstros vivos (ou mais), o Dízimo para de dar crédito até o número cair. Evita a bola de neve ouro -> crédito -> mais inimigos -> lag. 0 = sem trava.");
+                "With this many monsters alive (or more), the Tithe stops giving credit until the number drops. Prevents the snowball gold -> credit -> more enemies -> lag. 0 = no lock.", "Com tantos monstros vivos (ou mais), o Dízimo para de dar crédito até o número cair. Evita a bola de neve ouro -> crédito -> mais inimigos -> lag. 0 = sem trava.");
             _maxMonstersValue = _maxMonsters.Value;
             _maxMonsters.SettingChanged += (_, __) => _maxMonstersValue = _maxMonsters.Value;
+            for (var i = 0; i < TitheThanks.LinesPt.Length; i++)
+                Loc.Add(ThanksToken + i, TitheThanks.PrefixEn + TitheThanks.LinesEn[i], TitheThanks.PrefixPt + TitheThanks.LinesPt[i]);
         }
 
         protected override void OnEnable()
@@ -137,8 +140,7 @@ namespace Ror2Meeeee
 
         private void Thank(float now)
         {
-            var text = TitheThanks.Format(_thankIndex++, _pendingCredit, _pendingGold);
-            Chat.SendBroadcastChat(new Chat.SimpleChatMessage { baseToken = text });
+            Loc.Broadcast(ThanksToken + TitheThanks.Line(_thankIndex++), TitheThanks.Args(_pendingCredit, _pendingGold));
             Log.LogInfo($"[Gold] agradecimento no chat: {_pendingGold} de ouro => {_pendingCredit:F0} de crédito"); // 1 linha por intervalo
             _pendingCredit = 0;
             _pendingGold = 0;

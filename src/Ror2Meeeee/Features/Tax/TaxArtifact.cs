@@ -29,8 +29,8 @@ namespace Ror2Meeeee
                 _def.smallIconSelectedSprite = TitheArtifact.LoadIcon("taxade_selecionado.png", new Color32(190, 40, 40, 255));
                 _def.smallIconDeselectedSprite = TitheArtifact.LoadIcon("taxade_desmarcado.png", new Color32(90, 90, 90, 255));
 
-                LanguageAPI.Add(Token + "_NAME", "Artefato Taxade");
-                LanguageAPI.Add(Token + "_DESC", "Toda compra paga com ouro (baús, santuários, drones...) custa vida ao jogador (30% da vida máxima por padrão).");
+                Loc.Add(Token + "_NAME", "Artifact of Taxade", "Artefato Taxade");
+                Loc.Add(Token + "_DESC", "Every purchase paid with gold (chests, shrines, drones...) costs the player health (30% of max health by default).", "Toda compra paga com ouro (baús, santuários, drones...) custa vida ao jogador (30% da vida máxima por padrão).");
 
                 if (!ContentAddition.AddArtifactDef(_def))
                 {

@@ -54,30 +54,45 @@ namespace Ror2Meeeee
 
         public static void Register(ManualLogSource log)
         {
-            var pt = System.Globalization.CultureInfo.GetCultureInfo("pt-BR");
-            string P(float f) => (f * 100f).ToString("0.##", pt) + "%";
-            string M(float f) => f.ToString("0.#", pt) + " m";
-            var chance = $"Dá <style=cIsUtility>{AegisRules.BlockChancePercent.ToString("0.#", pt)}% de chance de bloquear</style> um ataque " +
-                         "<style=cStack>(não acumula)</style>; vale também qualquer outro bloqueio (Tougher Times, Safer Spaces, parry...). ";
+            System.Globalization.CultureInfo en = Loc.EnCulture, pt = Loc.PtCulture;
+            string P(float f, System.Globalization.CultureInfo c) => (f * 100f).ToString("0.##", c) + "%";
+            string M(float f, System.Globalization.CultureInfo c) => f.ToString("0.#", c) + " m";
+            var chanceEn = $"Grants a <style=cIsUtility>{AegisRules.BlockChancePercent.ToString("0.#", en)}% chance to block</style> an attack " +
+                           "<style=cStack>(does not stack)</style>; any other block also counts (Tougher Times, Safer Spaces, parry...). ";
+            var chancePt = $"Dá <style=cIsUtility>{AegisRules.BlockChancePercent.ToString("0.#", pt)}% de chance de bloquear</style> um ataque " +
+                           "<style=cStack>(não acumula)</style>; vale também qualquer outro bloqueio (Tougher Times, Safer Spaces, parry...). ";
 
             _def = ModItem.Register(ItemName, Token, ItemTier.Tier2, new[] { ItemTag.Healing, ItemTag.Utility, ItemTag.AIBlacklist },
                 "egide_vampirica.png", new Color32(180, 30, 40, 255),
-                "Égide Vampírica",
-                "Se ousar me ferir, pagará com o próprio sangue.",
-                chance + $"Ao bloquear, <style=cIsHealing>roube {P(AegisRules.StealPerStack)} da vida atual do agressor</style> " +
-                $"<style=cStack>(+{P(AegisRules.StealPerStack)} por acúmulo, até {P(AegisRules.StealCap)})</style>, restaurando a sua vida. " +
-                "Só funciona em ataques <style=cIsUtility>bloqueados</style>.",
-                "O cavaleiro não temia ser atingido. Cada golpe recebido apenas prolongava sua vida — e encurtava a de quem ousasse desafiá-lo.",
+                ("Vampiric Aegis",
+                 "Dare to hurt me, and you'll pay with your own blood.",
+                 chanceEn + $"On block, <style=cIsHealing>steal {P(AegisRules.StealPerStack, en)} of the attacker's current health</style> " +
+                 $"<style=cStack>(+{P(AegisRules.StealPerStack, en)} per stack, up to {P(AegisRules.StealCap, en)})</style>, restoring your health. " +
+                 "Only works on <style=cIsUtility>blocked</style> attacks.",
+                 "The knight did not fear being struck. Every blow he took only prolonged his life, and shortened the life of whoever dared challenge him."),
+                ("Égide Vampírica",
+                 "Se ousar me ferir, pagará com o próprio sangue.",
+                 chancePt + $"Ao bloquear, <style=cIsHealing>roube {P(AegisRules.StealPerStack, pt)} da vida atual do agressor</style> " +
+                 $"<style=cStack>(+{P(AegisRules.StealPerStack, pt)} por acúmulo, até {P(AegisRules.StealCap, pt)})</style>, restaurando a sua vida. " +
+                 "Só funciona em ataques <style=cIsUtility>bloqueados</style>.",
+                 "O cavaleiro não temia ser atingido. Cada golpe recebido apenas prolongava sua vida — e encurtava a de quem ousasse desafiá-lo."),
                 log, "RoR2/Base/SprintArmor/PickupBuckler.prefab");
             _voidDef = ModItem.Register(VoidName, VoidToken, ItemTier.VoidTier2, new[] { ItemTag.Healing, ItemTag.Utility, ItemTag.AIBlacklist },
                 "egide_devorador.png", new Color32(150, 60, 200, 255),
-                "Égide do Devorador",
-                "Não importa quem me ataque. Todos pagarão. <style=cIsVoid>Corrompe todas as Égides Vampíricas.</style>",
-                chance + $"Ao bloquear, libere uma onda do Vazio que <style=cIsHealing>rouba {P(AegisRules.VoidPerStack)} da vida atual</style> de cada inimigo " +
-                $"num raio de <style=cIsUtility>{M(AegisRules.VoidBaseRadius)}</style> <style=cStack>(+{P(AegisRules.VoidPerStack)} e +{M(AegisRules.VoidRadiusPerStack)} " +
-                $"por acúmulo, até {P(AegisRules.VoidCap)} e {M(AegisRules.VoidRadiusCap)})</style>, restaurando a sua vida pela soma drenada. " +
-                "<style=cIsVoid>Corrompe todas as Égides Vampíricas.</style>",
-                "O primeiro agressor ofereceu seu sangue. O Vazio considerou a oferta insuficiente e convocou todos os presentes para pagar a diferença.",
+                ("Devourer's Aegis",
+                 "No matter who attacks me. Everyone will pay. <style=cIsVoid>Corrupts all Vampiric Aegises.</style>",
+                 chanceEn + $"On block, release a Void wave that <style=cIsHealing>steals {P(AegisRules.VoidPerStack, en)} of the current health</style> of every enemy " +
+                 $"within <style=cIsUtility>{M(AegisRules.VoidBaseRadius, en)}</style> <style=cStack>(+{P(AegisRules.VoidPerStack, en)} and +{M(AegisRules.VoidRadiusPerStack, en)} " +
+                 $"per stack, up to {P(AegisRules.VoidCap, en)} and {M(AegisRules.VoidRadiusCap, en)})</style>, restoring your health by the total drained. " +
+                 "<style=cIsVoid>Corrupts all Vampiric Aegises.</style>",
+                 "The first attacker offered his blood. The Void found the offer lacking and summoned everyone present to pay the difference."),
+                ("Égide do Devorador",
+                 "Não importa quem me ataque. Todos pagarão. <style=cIsVoid>Corrompe todas as Égides Vampíricas.</style>",
+                 chancePt + $"Ao bloquear, libere uma onda do Vazio que <style=cIsHealing>rouba {P(AegisRules.VoidPerStack, pt)} da vida atual</style> de cada inimigo " +
+                 $"num raio de <style=cIsUtility>{M(AegisRules.VoidBaseRadius, pt)}</style> <style=cStack>(+{P(AegisRules.VoidPerStack, pt)} e +{M(AegisRules.VoidRadiusPerStack, pt)} " +
+                 $"por acúmulo, até {P(AegisRules.VoidCap, pt)} e {M(AegisRules.VoidRadiusCap, pt)})</style>, restaurando a sua vida pela soma drenada. " +
+                 "<style=cIsVoid>Corrompe todas as Égides Vampíricas.</style>",
+                 "O primeiro agressor ofereceu seu sangue. O Vazio considerou a oferta insuficiente e convocou todos os presentes para pagar a diferença."),
                 log, "RoR2/DLC1/BearVoid/PickupBearVoid.prefab");
             ModItem.Corrupt(_def, _voidDef, log);
             if (_def) _def.pickupModelPrefab = ShieldModel(ItemName, new Color32(120, 10, 20, 255), new Color32(200, 160, 60, 255), Color.black, log) ?? _def.pickupModelPrefab;
@@ -116,6 +131,7 @@ namespace Ror2Meeeee
         }
 
         public AegisFeature(Cfg cfg, ManualLogSource log) : base("Aegis", cfg, log,
+            "Vampiric Aegis (green) and Devourer's Aegis (void) items: 5% chance to block; on block, they steal health from the attacker (green) or from all nearby enemies (void). Off: the items exist but do nothing.",
             "Itens Égide Vampírica (verde) e Égide do Devorador (void): 5% de chance de bloquear; ao bloquear, roubam vida do agressor (verde) ou de todos os inimigos próximos (void). Desligado: os itens existem mas não fazem nada.",
             enabledByDefault: true)
         {

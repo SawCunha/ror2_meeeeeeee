@@ -46,19 +46,25 @@ namespace Ror2Meeeee
 
         public static void Register(ManualLogSource log)
         {
-            var pt = System.Globalization.CultureInfo.GetCultureInfo("pt-BR");
-            string P(float f) => (f * 100f).ToString("0.##", pt) + "%";
+            System.Globalization.CultureInfo en = Loc.EnCulture, pt = Loc.PtCulture;
+            string P(float f, System.Globalization.CultureInfo c) => (f * 100f).ToString("0.##", c) + "%";
             _def = ModItem.Register(ItemName, Token, ItemTier.Lunar, new[] { ItemTag.Healing, ItemTag.AIBlacklist },
                 "coracao_pesado.png", new Color32(90, 140, 220, 255),
-                "Coração Pesado",
-                $"Mais vida. <style=cDeath>Cada golpe pesa mais.</style>",
-                $"Aumenta a <style=cIsHealing>vida máxima em {P(HeavyHeart.HealthPerStack)}</style> <style=cStack>(multiplica de novo a cada acúmulo)</style>. " +
-                $"<style=cDeath>Aumenta o dano recebido de inimigos em {P(HeavyHeart.DamageTakenPerStack)}</style> <style=cStack>(multiplica de novo a cada acúmulo)</style>.",
-                "Quanto mais o coração cresce, mais fundo cada ferida chega.",
+                ("Heavy Heart",
+                 "More health. <style=cDeath>Every hit weighs more.</style>",
+                 $"Increases <style=cIsHealing>maximum health by {P(HeavyHeart.HealthPerStack, en)}</style> <style=cStack>(multiplies again with each stack)</style>. " +
+                 $"<style=cDeath>Increases damage taken from enemies by {P(HeavyHeart.DamageTakenPerStack, en)}</style> <style=cStack>(multiplies again with each stack)</style>.",
+                 "The more the heart grows, the deeper every wound reaches."),
+                ("Coração Pesado",
+                 "Mais vida. <style=cDeath>Cada golpe pesa mais.</style>",
+                 $"Aumenta a <style=cIsHealing>vida máxima em {P(HeavyHeart.HealthPerStack, pt)}</style> <style=cStack>(multiplica de novo a cada acúmulo)</style>. " +
+                 $"<style=cDeath>Aumenta o dano recebido de inimigos em {P(HeavyHeart.DamageTakenPerStack, pt)}</style> <style=cStack>(multiplica de novo a cada acúmulo)</style>.",
+                 "Quanto mais o coração cresce, mais fundo cada ferida chega."),
                 log, "RoR2/Base/Pearl/PickupPearl.prefab");
         }
 
         public HeavyHeartFeature(Cfg cfg, ManualLogSource log) : base("HeavyHeart", cfg, log,
+            "Heavy Heart lunar item: each stack multiplies max health by 1.5 and damage taken from enemies by 1.3 (compounding). Off: the item exists but does nothing.",
             "Item lunar Coração Pesado: cada cópia multiplica a vida máxima por 1,5 e o dano recebido de inimigos por 1,3 (composto). Desligado: o item existe mas não faz nada.",
             enabledByDefault: true)
         {

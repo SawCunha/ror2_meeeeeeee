@@ -22,6 +22,7 @@ namespace Ror2Meeeee
     {
         public const string ArtifactName = "Ror2MeeeeeRevive";
         public const string Token = "ROR2MEEEEE_ARTIFACT_REVIVE";
+        private const string FellToken = Token + "_CHAT_FELL", RevivedToken = Token + "_CHAT_REVIVED";
 
         private const float PulseSeconds = 1f;
         private const float PulseWindow = 2f; // o efeito do pulso tem som: só toca nos primeiros segundos da lápide
@@ -64,10 +65,15 @@ namespace Ror2Meeeee
                 _artifact.descriptionToken = Token + "_DESC";
                 _artifact.smallIconSelectedSprite = TitheArtifact.LoadIcon("ressurreicao_selecionado.png", new Color32(240, 220, 120, 255));
                 _artifact.smallIconDeselectedSprite = TitheArtifact.LoadIcon("ressurreicao_desmarcado.png", new Color32(90, 90, 90, 255));
-                LanguageAPI.Add(Token + "_NAME", "Artefato da Ressurreição");
-                LanguageAPI.Add(Token + "_DESC",
+                Loc.Add(Token + "_NAME", "Artifact of Resurrection", "Artefato da Ressurreição");
+                Loc.Add(Token + "_DESC",
+                    "Whoever dies leaves a tombstone. An ally who stays near it for a few seconds revives the player with half health, paying with half of their own health.",
                     "Quem morre deixa uma lápide. Um aliado que fique perto dela por alguns segundos revive o jogador com metade da vida, " +
                     "pagando com metade da própria vida.");
+                Loc.Add(FellToken, "<color=#e5c07b>Tombstone:</color> {0} fell. Stay near the tombstone for {1} s to revive (costs half your health).",
+                    "<color=#e5c07b>Lápide:</color> {0} caiu. Fique perto da lápide por {1} s para reviver (custa metade da sua vida).");
+                Loc.Add(RevivedToken, "<color=#e5c07b>Tombstone:</color> {0} revived {1}! (paid {2} health)",
+                    "<color=#e5c07b>Lápide:</color> {0} reviveu {1}! (pagou {2} de vida)");
                 RegisterSilentPulse(log);
                 RegisterTombModel(log);
                 if (!ContentAddition.AddArtifactDef(_artifact)) { log.LogError("Revive: ContentAddition recusou o artefato."); _artifact = null; }
@@ -147,11 +153,11 @@ namespace Ror2Meeeee
         }
 
         public ReviveFeature(Cfg cfg, ManualLogSource log) : base("Revive", cfg, log,
-            "Artefato da Ressurreição: com o artefato ativado no lobby, quem morre deixa uma lápide; um aliado perto dela por alguns segundos revive o jogador (metade da vida), pagando metade da própria vida. Só faz sentido em multiplayer.",
+            "Artifact of Resurrection: with the artifact enabled in the lobby, whoever dies leaves a tombstone; an ally near it for a few seconds revives the player (half health), paying half of their own health. Only makes sense in multiplayer.", "Artefato da Ressurreição: com o artefato ativado no lobby, quem morre deixa uma lápide; um aliado perto dela por alguns segundos revive o jogador (metade da vida), pagando metade da própria vida. Só faz sentido em multiplayer.",
             enabledByDefault: true)
         {
-            _radius = cfg.Bind("Revive", "Radius", 4f, "Distância (metros) da lápide em que o aliado precisa ficar.");
-            _seconds = cfg.Bind("Revive", "RequiredSeconds", 3f, "Segundos seguidos perto da lápide para reviver. Sair de perto zera o tempo.");
+            _radius = cfg.Bind("Revive", "Radius", 4f, "Distance (meters) from the tombstone the ally needs to stay within.", "Distância (metros) da lápide em que o aliado precisa ficar.");
+            _seconds = cfg.Bind("Revive", "RequiredSeconds", 3f, "Consecutive seconds near the tombstone to revive. Leaving resets the timer.", "Segundos seguidos perto da lápide para reviver. Sair de perto zera o tempo.");
             Refresh();
             _radius.SettingChanged += (_, __) => Refresh();
             _seconds.SettingChanged += (_, __) => Refresh();
@@ -233,13 +239,11 @@ namespace Ror2Meeeee
                 Diag.Tombstones = _tombstones.Count;
                 if (how != "original") Log.LogInfo($"[Revive] posição da lápide ajustada ({how}); morte em {body.footPosition}, lápide em {tomb.Position}.");
                 var who = Util.GetBestMasterName(master);
-                Overlay.Banner($"LÁPIDE: {who} caiu. Fique {_secondsValue:F0} s perto da lápide para reviver (custa metade da sua vida).");
+                Overlay.Banner(Loc.T($"TOMBSTONE: {who} fell. Stay {_secondsValue:F0} s near the tombstone to revive (costs half your health).",
+                    $"LÁPIDE: {who} caiu. Fique {_secondsValue:F0} s perto da lápide para reviver (custa metade da sua vida)."));
                 SetTicking(true);
                 Log.LogInfo($"[Revive] lápide de {Util.GetBestMasterName(master)} criada (raio {Mathf.Sqrt(_radiusSqr):F1} m, {_secondsValue:F1} s).");
-                Chat.SendBroadcastChat(new Chat.SimpleChatMessage
-                {
-                    baseToken = $"<color=#e5c07b>Lápide:</color> {Util.GetBestMasterName(master)} caiu. Fique perto da lápide por {_secondsValue:F0} s para reviver (custa metade da sua vida)."
-                });
+                Loc.Broadcast(FellToken, who, _secondsValue.ToString("F0", Loc.EnCulture));
             }
             catch (Exception e)
             {
@@ -418,10 +422,7 @@ namespace Ror2Meeeee
             }
             var who = Util.GetBestMasterName(t.Master);
             var by = reviver ? Util.GetBestBodyName(reviver.gameObject) : "?";
-            Chat.SendBroadcastChat(new Chat.SimpleChatMessage
-            {
-                baseToken = $"<color=#e5c07b>Lápide:</color> {by} reviveu {who}! (pagou {cost:F0} de vida)"
-            });
+            Loc.Broadcast(RevivedToken, by, who, cost.ToString("F0", Loc.EnCulture));
             Diag.Revives++;
             Log.LogInfo($"[Revive] {by} reviveu {who} após {Time.time - t.Created:F0} s; custo {cost:F0} de vida");
         }
@@ -442,7 +443,7 @@ namespace Ror2Meeeee
             var id = ec && ec.effectData != null ? ec.effectData.genericUInt : 0u;
             var go = id != 0u ? Util.FindNetworkObject(new NetworkInstanceId(id)) : null;
             var master = go ? go.GetComponent<CharacterMaster>() : null;
-            var label = master ? $"LÁPIDE de {Util.GetBestMasterName(master)}" : "LÁPIDE";
+            var label = master ? Loc.T($"{Util.GetBestMasterName(master)}'s TOMBSTONE", $"LÁPIDE de {Util.GetBestMasterName(master)}") : Loc.T("TOMBSTONE", "LÁPIDE");
             Overlay.Mark(this, transform.position + Vector3.up * 2f, label, LabelColor, LabelSize);
             if (!_logged)
             {

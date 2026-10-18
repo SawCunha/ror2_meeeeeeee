@@ -54,8 +54,8 @@ namespace Ror2Meeeee
             Timed("UI", () =>
             {
                 Overlay.Install(gameObject);
-                DropMenu.Install(gameObject, Config.Bind("Drop", "MenuKey", "F7", "Tecla (UnityEngine.KeyCode, ex.: F7, G, Insert) que abre o menu na tela para soltar itens."));
-                StatsPanel.Install(gameObject, Config.Bind("Stats", "MenuKey", "F8", "Tecla (UnityEngine.KeyCode) que abre/fecha a tela de status: atributos atuais e totais da run (dano, cura, dano recebido)."));
+                DropMenu.Install(gameObject, Config.Bind("Drop", "MenuKey", "F7", "Key (UnityEngine.KeyCode, e.g. F7, G, Insert) that opens the on-screen menu to drop items."));
+                StatsPanel.Install(gameObject, Config.Bind("Stats", "MenuKey", "F8", "Key (UnityEngine.KeyCode) that opens/closes the status screen: current stats and run totals (damage, healing, damage taken)."));
             });
             Diag.Install(Logger);
             Timed("TitheArtifact", () => TitheArtifact.Register(Logger));
@@ -131,7 +131,12 @@ namespace Ror2Meeeee
             }
 
             if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.rune580.riskofoptions"))
-                Timed("ModOptions", () => ModOptions.Register(_cfg, Logger));
+                Timed("ModOptions", () =>
+                {
+                    // Risk of Options antigo sem as sobrecargas com token: MissingMethodException ao compilar o Register.
+                    try { ModOptions.Register(_cfg, Logger); }
+                    catch (Exception e) { Logger.LogWarning($"Tela de mods indisponível (Risk of Options desatualizado?): {e.Message}"); }
+                });
 
             // Único ponto de reset por run: início e fim.
             Run.onRunStartGlobal += OnRunBoundary;

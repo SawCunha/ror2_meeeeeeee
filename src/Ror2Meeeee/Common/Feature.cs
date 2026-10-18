@@ -14,9 +14,9 @@ namespace Ror2Meeeee
 
         private readonly System.Collections.Generic.List<string> _hookResults = new System.Collections.Generic.List<string>();
 
-        // `summary`: o que a feature faz, para a descrição do <Nome>.Enabled na tela de mods.
-        protected Feature(string name, Cfg cfg, ManualLogSource log, string summary, bool enabledByDefault = false)
-            : this(name, cfg, log, cfg.BindEnabled(name, summary, enabledByDefault)) { }
+        // `summaryEn`/`summaryPt`: o que a feature faz, para a descrição do <Nome>.Enabled na tela de mods.
+        protected Feature(string name, Cfg cfg, ManualLogSource log, string summaryEn, string summaryPt, bool enabledByDefault = false)
+            : this(name, cfg, log, cfg.BindEnabled(name, summaryEn, summaryPt, enabledByDefault)) { }
 
         // Para features cujo kill-switch vive em outra chave de config (ex.: General.ProbeEnabled).
         // null = sem opção de config: a feature fica sempre ligada (ex.: Sharing, controlada só pelo artefato).

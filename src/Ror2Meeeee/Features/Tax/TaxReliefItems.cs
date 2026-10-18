@@ -74,13 +74,16 @@ namespace Ror2Meeeee
                 item.pickupIconSprite = TitheArtifact.LoadIcon("capitalismo.png", d.Fallback);
                 item.pickupModelPrefab = ModItem.Model("RoR2/DLC1/GoldOnHurt/PickupRollOfPennies.prefab", d.Name, log);
 
-                LanguageAPI.Add(d.Token + "_NAME", d.PtName);
-                LanguageAPI.Add(d.Token + "_PICKUP", $"Reduz em {d.Percent}% a taxa do Artefato Taxade e dá +{d.GoldPercent}% de ouro.");
-                LanguageAPI.Add(d.Token + "_DESC",
+                Loc.Add(d.Token + "_NAME", "Capitalism", d.PtName);
+                Loc.Add(d.Token + "_PICKUP", $"Reduces the Artifact of Taxade's tax by {d.Percent}% and gives +{d.GoldPercent}% gold.", $"Reduz em {d.Percent}% a taxa do Artefato Taxade e dá +{d.GoldPercent}% de ouro.");
+                Loc.Add(d.Token + "_DESC",
+                    $"Reduces the health lost on gold purchases under the Artifact of Taxade by <style=cIsUtility>{d.Percent}%</style> " +
+                    $"and increases all gold earned by <style=cShrine>{d.GoldPercent}%</style>. " +
+                    "Only 1 per player; doesn't stack or duplicate, and no longer drops from chests for those who already have it.",
                     $"Reduz a vida perdida nas compras com ouro sob o Artefato Taxade em <style=cIsUtility>{d.Percent}%</style> " +
                     $"e aumenta todo ouro ganho em <style=cShrine>{d.GoldPercent}%</style>. " +
                     "Só 1 por jogador; não acumula nem duplica, e não sai mais em baús de quem já tem.");
-                LanguageAPI.Add(d.Token + "_LORE", "Alguém sempre encontra uma brecha.");
+                Loc.Add(d.Token + "_LORE", "Someone always finds a loophole.", "Alguém sempre encontra uma brecha.");
 
                 if (!ItemAPI.Add(new CustomItem(item, Array.Empty<ItemDisplayRule>())))
                     log.LogError($"TaxRelief: ItemAPI.Add recusou '{d.Name}'.");

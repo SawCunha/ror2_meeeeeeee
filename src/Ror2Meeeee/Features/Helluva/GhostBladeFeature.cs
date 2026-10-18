@@ -17,11 +17,11 @@ namespace Ror2Meeeee
         private int _windowCount;
 
         public GhostBladeFeature(Cfg cfg, ManualLogSource log) : base("GhostBlades", cfg, log,
-            "Limita quantas Lâminas Fantasmas (item Curse do DLC4) o jogo gera/renova por segundo, para não encher o jogo de projéteis. Só no host.",
+            "Limits how many Ghost Blades (DLC4 Curse item) the game spawns/renews per second, so the game isn't flooded with projectiles. Host only.", "Limita quantas Lâminas Fantasmas (item Curse do DLC4) o jogo gera/renova por segundo, para não encher o jogo de projéteis. Só no host.",
             enabledByDefault: true)
         {
             _max = cfg.Bind("GhostBlades", "MaxPerSecond", 10,
-                "Máximo de gerações/renovações de lâminas por segundo (somadas, todos os jogadores). O jogo chegava a ~700/s; com 100 ficava sempre no teto (2,8 mil projéteis por 30 s). 0 = sem teto.");
+                "Maximum blade spawns/renewals per second (combined, all players). The game reached ~700/s; with 100 it was always at the cap (2.8k projectiles per 30 s). 0 = no cap.", "Máximo de gerações/renovações de lâminas por segundo (somadas, todos os jogadores). O jogo chegava a ~700/s; com 100 ficava sempre no teto (2,8 mil projéteis por 30 s). 0 = sem teto.");
             _maxValue = _max.Value;
             _max.SettingChanged += (_, __) => _maxValue = _max.Value;
         }

@@ -54,34 +54,47 @@ namespace Ror2Meeeee
 
         public static void Register(ManualLogSource log)
         {
-            var pt = System.Globalization.CultureInfo.GetCultureInfo("pt-BR");
-            string P(float f) => (f * 100f).ToString("0.##", pt) + "%";
-            string N(float f) => f.ToString("0.#", pt);
-            var lvl = P(SelfHeal.LevelScaling);
-            string Desc(float flat, float perStack) =>
-                $"Regenera <style=cIsHealing>{N(flat)} de vida</style> por segundo <style=cStack>(+{lvl} por nível)</style> " +
-                $"e mais <style=cIsHealing>{P(perStack)} da vida máxima</style> por segundo <style=cStack>por acúmulo extra</style>, " +
+            System.Globalization.CultureInfo en = Loc.EnCulture, pt = Loc.PtCulture;
+            string P(float f, System.Globalization.CultureInfo c) => (f * 100f).ToString("0.##", c) + "%";
+            string N(float f, System.Globalization.CultureInfo c) => f.ToString("0.#", c);
+            string DescEn(float flat, float perStack) =>
+                $"Regenerates <style=cIsHealing>{N(flat, en)} health</style> per second <style=cStack>(+{P(SelfHeal.LevelScaling, en)} per level)</style> " +
+                $"plus <style=cIsHealing>{P(perStack, en)} of max health</style> per second <style=cStack>per extra stack</style>, " +
+                "<style=cIsUtility>always, moving or standing still</style>. Also heals <style=cIsUtility>your drones, turrets and other minions</style>, " +
+                "wherever they are. <style=cDeath>Does not heal other players.</style>";
+            string DescPt(float flat, float perStack) =>
+                $"Regenera <style=cIsHealing>{N(flat, pt)} de vida</style> por segundo <style=cStack>(+{P(SelfHeal.LevelScaling, pt)} por nível)</style> " +
+                $"e mais <style=cIsHealing>{P(perStack, pt)} da vida máxima</style> por segundo <style=cStack>por acúmulo extra</style>, " +
                 "<style=cIsUtility>sempre, andando ou parado</style>. Cura também <style=cIsUtility>seus drones, torretas e outros ajudantes</style>, " +
                 "onde estiverem. <style=cDeath>Não cura outros jogadores.</style>";
 
             _def = ModItem.Register(ItemName, Token, ItemTier.Tier2, new[] { ItemTag.Healing, ItemTag.AIBlacklist },
                 "fungo_egoista.png", new Color32(120, 200, 90, 255),
-                "Fungo Egoísta",
-                $"Regenera {N(SelfHeal.SelfishFlat)} de vida/s, sempre, em você e nos seus drones e torretas. Só vocês.",
-                Desc(SelfHeal.SelfishFlat, SelfHeal.SelfishPerStack),
-                "Dividir é para os fracos.",
+                ("Selfish Fungus",
+                 $"Regenerates {N(SelfHeal.SelfishFlat, en)} health/s, always, for you and your drones and turrets. Only you.",
+                 DescEn(SelfHeal.SelfishFlat, SelfHeal.SelfishPerStack),
+                 "Sharing is for the weak."),
+                ("Fungo Egoísta",
+                 $"Regenera {N(SelfHeal.SelfishFlat, pt)} de vida/s, sempre, em você e nos seus drones e torretas. Só vocês.",
+                 DescPt(SelfHeal.SelfishFlat, SelfHeal.SelfishPerStack),
+                 "Dividir é para os fracos."),
                 log, "RoR2/Base/Mushroom/PickupMushroom.prefab");
             _voidDef = ModItem.Register(VoidName, VoidToken, ItemTier.VoidTier2, new[] { ItemTag.Healing, ItemTag.AIBlacklist },
                 "fungo_egoista_vazio.png", new Color32(170, 70, 200, 255),
-                "Fungo Egoísta do Vazio",
-                $"Regenera {N(SelfHeal.VoidFlat)} de vida/s, sempre, em você e nos seus drones e torretas. <style=cIsVoid>Corrompe todos os Fungos Egoístas.</style>",
-                Desc(SelfHeal.VoidFlat, SelfHeal.VoidPerStack) + " <style=cIsVoid>Corrompe todos os Fungos Egoístas.</style>",
-                "Tudo o que é seu continua seu. Só que agora é do Vazio também.",
+                ("Selfish Void Fungus",
+                 $"Regenerates {N(SelfHeal.VoidFlat, en)} health/s, always, for you and your drones and turrets. <style=cIsVoid>Corrupts all Selfish Fungi.</style>",
+                 DescEn(SelfHeal.VoidFlat, SelfHeal.VoidPerStack) + " <style=cIsVoid>Corrupts all Selfish Fungi.</style>",
+                 "Everything that is yours stays yours. Except now it belongs to the Void too."),
+                ("Fungo Egoísta do Vazio",
+                 $"Regenera {N(SelfHeal.VoidFlat, pt)} de vida/s, sempre, em você e nos seus drones e torretas. <style=cIsVoid>Corrompe todos os Fungos Egoístas.</style>",
+                 DescPt(SelfHeal.VoidFlat, SelfHeal.VoidPerStack) + " <style=cIsVoid>Corrompe todos os Fungos Egoístas.</style>",
+                 "Tudo o que é seu continua seu. Só que agora é do Vazio também."),
                 log, "RoR2/DLC1/MushroomVoid/PickupMushroomVoid.prefab");
             ModItem.Corrupt(_def, _voidDef, log);
         }
 
         public SelfHealFeature(Cfg cfg, ManualLogSource log) : base("SelfishFungus", cfg, log,
+            "Selfish Fungus (green, 5 health/s) and Selfish Void Fungus (void, 15/s) items, plus % of health per extra stack: they always heal, only you and your minions. Off: the items exist but do nothing.",
             "Itens Fungo Egoísta (verde, 5 de vida/s) e Fungo Egoísta do Vazio (void, 15/s), mais % da vida por cópia extra: curam sempre, só você e seus minions. Desligado: os itens existem mas não fazem nada.",
             enabledByDefault: true)
         {

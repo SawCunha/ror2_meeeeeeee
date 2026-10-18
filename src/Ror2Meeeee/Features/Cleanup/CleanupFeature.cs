@@ -33,11 +33,11 @@ namespace Ror2Meeeee
         private static GameObject _totemAnchor;
 
         public CleanupFeature(Cfg cfg, ManualLogSource log) : base("Cleanup", cfg, log,
-            "Limpeza para o FPS: cadáveres somem rápido, inclusive à vista (máximo e tempo abaixo), e corrige um erro do jogo no Totem dos Lynx que gerava centenas de exceções por partida.",
+            "Cleanup for FPS: corpses disappear quickly, even in view (maximum and time below), and fixes a game bug in the Lynx Totem that produced hundreds of exceptions per match.", "Limpeza para o FPS: cadáveres somem rápido, inclusive à vista (máximo e tempo abaixo), e corrige um erro do jogo no Totem dos Lynx que gerava centenas de exceções por partida.",
             enabledByDefault: true)
         {
-            _maxCorpses = cfg.Bind("Cleanup", "MaxCorpses", 10, "Máximo de cadáveres no mapa (jogo: 25). Os mais antigos somem primeiro, mesmo à vista.");
-            _corpseLifetime = cfg.Bind("Cleanup", "CorpseLifetime", 2f, "Segundos que um cadáver fica antes de sumir (jogo: 6).");
+            _maxCorpses = cfg.Bind("Cleanup", "MaxCorpses", 10, "Maximum corpses on the map (game: 25). The oldest disappear first, even in view.", "Máximo de cadáveres no mapa (jogo: 25). Os mais antigos somem primeiro, mesmo à vista.");
+            _corpseLifetime = cfg.Bind("Cleanup", "CorpseLifetime", 2f, "Seconds a corpse stays before disappearing (game: 6).", "Segundos que um cadáver fica antes de sumir (jogo: 6).");
             _maxCorpses.SettingChanged += (_, __) => { if (Enabled) ApplyCorpses(); };
             _corpseLifetime.SettingChanged += (_, __) => { if (Enabled) ApplyCorpses(); };
         }

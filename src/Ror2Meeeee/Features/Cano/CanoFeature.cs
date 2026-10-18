@@ -51,13 +51,13 @@ namespace Ror2Meeeee
         private bool _fireHooked;
 
         public CanoFeature(Cfg cfg, ManualLogSource log) : base("CanoExtra", cfg, log,
-            "Item Cano Extra (vermelho): cada cópia faz a arma principal disparar +1 tiro em leque (balas, projéteis e flechas; corpo a corpo não). Desligado: o item existe mas não faz nada.",
+            "Extra Barrel item (red): each stack makes the primary weapon fire +1 shot in a spread (bullets, projectiles and arrows; not melee). Off: the item exists but does nothing.", "Item Cano Extra (vermelho): cada cópia faz a arma principal disparar +1 tiro em leque (balas, projéteis e flechas; corpo a corpo não). Desligado: o item existe mas não faz nada.",
             enabledByDefault: true)
         {
             _maxExtra = cfg.Bind("CanoExtra", "MaxExtraShots", 5,
-                "Máximo de tiros extras por disparo, mesmo com mais cópias (protege o FPS). 0 = o item não dispara extras.");
+                "Maximum extra shots per firing, even with more stacks (protects FPS). 0 = the item fires no extra shots.", "Máximo de tiros extras por disparo, mesmo com mais cópias (protege o FPS). 0 = o item não dispara extras.");
             _fanDegrees = cfg.Bind("CanoExtra", "FanDegrees", 5f,
-                "Abertura do leque em graus entre um tiro e o próximo (5 = tiros a ±5°, ±10°...).");
+                "Spread angle in degrees between one shot and the next (5 = shots at ±5°, ±10°...).", "Abertura do leque em graus entre um tiro e o próximo (5 = tiros a ±5°, ±10°...).");
             ReadConfig();
             _maxExtra.SettingChanged += (_, __) => ReadConfig();
             _fanDegrees.SettingChanged += (_, __) => ReadConfig();

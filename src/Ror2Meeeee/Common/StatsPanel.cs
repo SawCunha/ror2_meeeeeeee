@@ -106,22 +106,23 @@ namespace Ror2Meeeee
             _title = me ? $"STATUS — {Util.GetBestMasterName(me)}" : "STATUS";
 
             // Seus atributos, detalhados.
+            var pt = Loc.IsPt;
             _sb.Clear();
             if (body)
             {
                 var hc = body.healthComponent;
-                _sb.Append("Vida ").Append(N(hc ? hc.health : 0f)).Append('/').Append(N(body.maxHealth));
-                if (body.maxShield > 0f) _sb.Append("   Escudo ").Append(N(hc ? hc.shield : 0f)).Append('/').Append(N(body.maxShield));
-                if (hc && hc.barrier > 0f) _sb.Append("   Barreira ").Append(N(hc.barrier));
-                _sb.Append("   Regeneração ").Append(N(body.regen)).Append("/s\n");
-                _sb.Append("Dano ").Append(N(body.damage))
-                   .Append("   Vel. de ataque ").Append(body.attackSpeed.ToString("0.##")).Append('x')
-                   .Append("   Crítico ").Append(body.crit.ToString("0.#")).Append('%')
-                   .Append("   Armadura ").Append(body.armor.ToString("0"))
-                   .Append("   Velocidade ").Append(body.moveSpeed.ToString("0.#"))
-                   .Append("   Nível ").Append(body.level.ToString("0"));
+                _sb.Append(pt ? "Vida " : "Health ").Append(N(hc ? hc.health : 0f)).Append('/').Append(N(body.maxHealth));
+                if (body.maxShield > 0f) _sb.Append(pt ? "   Escudo " : "   Shield ").Append(N(hc ? hc.shield : 0f)).Append('/').Append(N(body.maxShield));
+                if (hc && hc.barrier > 0f) _sb.Append(pt ? "   Barreira " : "   Barrier ").Append(N(hc.barrier));
+                _sb.Append(pt ? "   Regeneração " : "   Regen ").Append(N(body.regen)).Append("/s\n");
+                _sb.Append(pt ? "Dano " : "Damage ").Append(N(body.damage))
+                   .Append(pt ? "   Vel. de ataque " : "   Attack speed ").Append(body.attackSpeed.ToString("0.##")).Append('x')
+                   .Append(pt ? "   Crítico " : "   Crit ").Append(body.crit.ToString("0.#")).Append('%')
+                   .Append(pt ? "   Armadura " : "   Armor ").Append(body.armor.ToString("0"))
+                   .Append(pt ? "   Velocidade " : "   Speed ").Append(body.moveSpeed.ToString("0.#"))
+                   .Append(pt ? "   Nível " : "   Level ").Append(body.level.ToString("0"));
             }
-            else _sb.Append("(sem personagem: morto ou espectando)");
+            else _sb.Append(pt ? "(sem personagem: morto ou espectando)" : "(no character: dead or spectating)");
             _now = _sb.ToString();
 
             // Todos os jogadores: vida, dano e os totais da run.
@@ -133,13 +134,15 @@ namespace Ror2Meeeee
                 var b = m.GetBody();
                 var hc = b ? b.healthComponent : null;
                 _sb.Append(m == me ? "> " : "  ").Append(Util.GetBestMasterName(m)).Append('\n');
-                _sb.Append("    vida ").Append(b ? N(hc ? hc.health : 0f) + "/" + N(b.maxHealth) : "morto")
-                   .Append("   dano ").Append(b ? N(b.damage) : "—").Append('\n');
+                _sb.Append(pt ? "    vida " : "    health ").Append(b ? N(hc ? hc.health : 0f) + "/" + N(b.maxHealth) : pt ? "morto" : "dead")
+                   .Append(pt ? "   dano " : "   damage ").Append(b ? N(b.damage) : "—").Append('\n');
                 if (TryTotals(m, m == me, out var t))
-                    _sb.Append("    causado ").Append(N(t.Dealt)).Append(" (ajudantes ").Append(N(t.Minion)).Append(")   maior golpe ").Append(N(t.Highest))
-                       .Append("\n    cura ").Append(N(t.Healed)).Append("   recebido ").Append(N(t.Taken))
-                       .Append("   abates ").Append(N(t.Kills)).Append("   mortes ").Append(N(t.Deaths)).Append("   itens ").Append(N(t.Items)).Append('\n');
-                else _sb.Append("    totais da run: aguardando o host\n");
+                    _sb.Append(pt ? "    causado " : "    dealt ").Append(N(t.Dealt)).Append(pt ? " (ajudantes " : " (minions ").Append(N(t.Minion))
+                       .Append(pt ? ")   maior golpe " : ")   biggest hit ").Append(N(t.Highest))
+                       .Append(pt ? "\n    cura " : "\n    healed ").Append(N(t.Healed)).Append(pt ? "   recebido " : "   taken ").Append(N(t.Taken))
+                       .Append(pt ? "   abates " : "   kills ").Append(N(t.Kills)).Append(pt ? "   mortes " : "   deaths ").Append(N(t.Deaths))
+                       .Append(pt ? "   itens " : "   items ").Append(N(t.Items)).Append('\n');
+                else _sb.Append(pt ? "    totais da run: aguardando o host\n" : "    run totals: waiting for the host\n");
             }
             _run = _sb.ToString();
         }
@@ -166,11 +169,11 @@ namespace Ror2Meeeee
             GUI.DrawTexture(new Rect(x, y, w, h), Texture2D.whiteTexture);
             GUI.color = bg;
             GUI.Label(new Rect(x + 20, y + 10, w - 40, 36), _title, _big);
-            GUI.Label(new Rect(x + 20, y + 50, w - 40, 26), "VOCÊ AGORA", _head);
+            GUI.Label(new Rect(x + 20, y + 50, w - 40, 26), Loc.T("YOU NOW", "VOCÊ AGORA"), _head);
             GUI.Label(new Rect(x + 20, y + 76, w - 40, 56), _now, _label);
-            GUI.Label(new Rect(x + 20, y + 136, w - 40, 26), "JOGADORES NA RUN", _head);
+            GUI.Label(new Rect(x + 20, y + 136, w - 40, 26), Loc.T("PLAYERS IN THE RUN", "JOGADORES NA RUN"), _head);
             GUI.Label(new Rect(x + 20, y + 162, w - 40, h - 196), _run, _label);
-            GUI.Label(new Rect(x + 20, y + h - 30, w - 40, 26), $"{_key.Value} fecha", _label);
+            GUI.Label(new Rect(x + 20, y + h - 30, w - 40, 26), Loc.T($"{_key.Value} closes", $"{_key.Value} fecha"), _label);
             GUI.matrix = old;
         }
     }

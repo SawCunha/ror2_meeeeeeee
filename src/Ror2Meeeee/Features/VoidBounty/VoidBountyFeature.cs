@@ -41,8 +41,9 @@ namespace Ror2Meeeee
                 _def.descriptionToken = Token + "_DESC";
                 _def.smallIconSelectedSprite = TitheArtifact.LoadIcon("vazio_selecionado.png", new Color32(170, 70, 200, 255));
                 _def.smallIconDeselectedSprite = TitheArtifact.LoadIcon("vazio_desmarcado.png", new Color32(90, 90, 90, 255));
-                LanguageAPI.Add(Token + "_NAME", "Artefato do Vazio");
-                LanguageAPI.Add(Token + "_DESC",
+                Loc.Add(Token + "_NAME", "Artifact of the Void", "Artefato do Vazio");
+                Loc.Add(Token + "_DESC",
+                    "More Void chests appear each stage, and they can contain any Void item. All enemies have 50% more health.",
                     "Mais baús do Vazio aparecem em cada estágio, e eles podem conter qualquer item do Vazio. " +
                     "Todos os inimigos têm 50% a mais de vida.");
 
@@ -77,10 +78,10 @@ namespace Ror2Meeeee
         }
 
         public VoidBountyFeature(Cfg cfg, ManualLogSource log) : base("VoidBounty", cfg, log,
-            "Artefato do Vazio: com ele ativado no lobby, +ExtraChests baús do Vazio por estágio, todos sorteando entre todos os itens do Vazio; inimigos com +50% de vida.",
+            "Artifact of the Void: with it enabled in the lobby, +ExtraChests Void chests per stage, all rolling among all Void items; enemies with +50% health.", "Artefato do Vazio: com ele ativado no lobby, +ExtraChests baús do Vazio por estágio, todos sorteando entre todos os itens do Vazio; inimigos com +50% de vida.",
             enabledByDefault: true)
         {
-            _extra = cfg.Bind("VoidBounty", "ExtraChests", 5, "Baús do Vazio a mais em cada estágio com o artefato ativo.");
+            _extra = cfg.Bind("VoidBounty", "ExtraChests", 5, "Extra Void chests each stage with the artifact active.", "Baús do Vazio a mais em cada estágio com o artefato ativo.");
         }
 
         public override void ResetRunState() { _rng = null; }
