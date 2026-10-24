@@ -106,21 +106,8 @@ namespace Ror2Meeeee
 
                 // NonLethal (sem Lethal): o jogo garante 1 de vida mesmo se algo multiplicar o dano depois deste cálculo
                 // (Coração Pesado, Death Mark, outros mods). O Min acima sozinho não bastava.
-                var type = DamageType.BypassArmor | DamageType.BypassBlock | DamageType.BypassOneShotProtection;
-                if (!_lethalValue) type |= DamageType.NonLethal;
-                // Último passo: o valor acima já usa a vida máxima final; o dano passa direto, sem passos do BodyHooks.
-                BodyHooks.RawDamage = true;
-                try
-                {
-                    hc.TakeDamage(new DamageInfo
-                    {
-                        damage = damage,
-                        position = body.corePosition,
-                        damageType = (DamageTypeCombo)type,
-                        damageColorIndex = DamageColorIndex.Bleed,
-                    });
-                }
-                finally { BodyHooks.RawDamage = false; }
+                // Último passo: o valor acima já usa a vida máxima final; o dano sai só da vida, sem passos do BodyHooks.
+                BodyHooks.Charge(hc, damage, _lethalValue);
                 // Compras são frequentes: loga as 5 primeiras da run e depois 1 a cada 50.
                 if (++_logged <= 5 || _logged % 50 == 0)
                     Log.LogInfo($"[Tax] {Util.GetBestMasterName(ctx.activatorMaster)} comprou {go.name}: -{damage:F0} vida (#{_logged})");

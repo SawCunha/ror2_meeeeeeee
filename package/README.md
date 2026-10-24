@@ -81,8 +81,8 @@ change nothing.
 ### Artifact of Communism
 
 **What it does:** every item someone picks up also goes to the other living players. Works for items of every type and
-expansion, including scrap, temporary and rented items. Equipment and the mod's unique items (Capitalism, Extra Barrel
-and Call of the Horde) are not shared.
+expansion, including scrap, temporary and rented items. Equipment, curses (Hex tier) and the mod's unique items (Capitalism,
+Extra Barrel and Call of the Horde) are not shared.
 
 **How to use:** turn the artifact on in the lobby. It has no options.
 
@@ -147,7 +147,7 @@ off, the item still exists but does nothing. The `give_item` / `give_equipment` 
 
 ### Call of the Horde (white)
 
-**What it does:** each stack the team has increases the number of enemies. Needs *Difficulty* on. Not multiplied or
+**What it does:** each stack the players have increases the number of enemies (turrets and allies don't count). Needs *Difficulty* on. Not multiplied or
 shared.
 
 **How to use:** pick up the item. Options in `[Horde]`: `QuantityPerStack` (default `0.5`, +50% per stack) and
@@ -446,10 +446,11 @@ On by default, so the match can handle huge inventories. None of them change the
 | Section | What it does | Main options |
 |---|---|---|
 | `[Particles]` | Limits how many times per second each type of visual effect appears and is sent to others. | `MaxPerSecond` (10), `Raised`/`RaisedMaxPerSecond` (explosions, 60), `Exempt` (never limited; default Mercenary strikes) |
-| `[ProjectileBudget]` | Items that fire en masse (Sticky Bomb, Molten Perforator, stakes, Fireworks, missiles...) release fewer projectiles, each one stronger. Player projectiles only. | `Prefabs`, `PerTypeMaxPerSecond` (15), `GlobalMaxPerSecond` (40) |
+| `[ProjectileBudget]` | Items that fire en masse (Sticky Bomb, Molten Perforator, stakes, Fireworks, missiles...) release fewer projectiles, each one stronger. Acolyte wights per haunted kill are capped too, with the same total damage. Player projectiles only. | `Prefabs`, `PerTypeMaxPerSecond` (15), `GlobalMaxPerSecond` (40), `WightsPerKill` (3) |
 | `[GhostBlades]` | Limits the Ghost Blades from the Curse item (DLC4), which reached ~700 per second. | `MaxPerSecond` (10) |
 | `[Cleanup]` | Corpses disappear quickly, even in view, and fixes a game bug in the Lynx Totem. | `MaxCorpses` (10), `CorpseLifetime` (2 s) |
 | `[GameFixes]` | Fixes game errors that repeat hundreds of times per match (Runic Lens, Unstable Transmitter, War Bonds), the Void Barnacle spawn errors and the Defective Unit and Dunestrider death errors, the Mimic Chest, the Swarms artifact and Golden drones/monsters that froze with nuggets. | `Enabled` only |
+| `[QoL]` | Items and dead drones that fall off the map come back; ally lava at 2% like monsters; non-damaging skills (Engi bubble, REX Sonic Boom, Loader hook, Railgunner scope) don't put you in combat. | `ItemsReturn`, `DronesReturn`, `AllyLava`, `NonCombatSkills` (all on) |
 
 **Example:** with 100 Sticky Bombs, instead of 100 bombs per second, 15 come out, each with the combined damage of the
 others.

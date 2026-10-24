@@ -162,7 +162,7 @@ namespace Ror2Meeeee
             _swarmWave = I("SwarmWaveSize", 10, 1, 30, "Monsters per wave during the swarm phase (game: 6)." + NextRun, "Monstros por onda na fase de enxame (jogo: 6)." + NextRunPt);
             _finalStage = I("FinalStage", 10, 5, 50, "Stage where the Primordial Teleporter opens the way to Commencement (multiple of 5; 5 = game). Before it, it leads to the next loop." + NextRun, "Estágio em que o Teleportador Primordial abre o caminho para a Commencement (múltiplo de 5; 5 = jogo). Antes dele, leva ao próximo loop." + NextRunPt);
             _blockObliteration = cfg.Bind("Tempest", "BlockObliterationUntilFinalStage", false, "Celestial Portal (Obliteration and A Moment, Whole) only appears from FinalStage on." + NextRun, "Portal Celeste (Obliteração e Um Momento, Inteiro) só aparece a partir do FinalStage." + NextRunPt);
-            _blockVoidling = cfg.Bind("Tempest", "BlockVoidlingUntilFinalStage", false, "Deep Void portal (Voidling) only appears from FinalStage on." + NextRun, "Portal do Vazio Profundo (Voidling) só aparece a partir do FinalStage." + NextRunPt);
+            _blockVoidling = cfg.Bind("Tempest", "BlockVoidlingUntilFinalStage", false, "Deep Void portal (Voidling) only appears from FinalStage on; before it, the Void Locus portal leads to the next normal stage." + NextRun, "Portal do Vazio Profundo (Voidling) só aparece a partir do FinalStage; antes dele, o portal do Void Locus leva ao próximo estágio normal." + NextRunPt);
             _blockFalseSon = cfg.Bind("Tempest", "BlockFalseSonUntilFinalStage", false, "Path of the Colossus portal (False Son) only appears from FinalStage on." + NextRun, "Portal do Caminho do Colosso (Filho Falso) só aparece a partir do FinalStage." + NextRunPt);
             _blockSolus = cfg.Bind("Tempest", "BlockSolusUntilFinalStage", false, "Solus portals (Alloyed Collective) only appear from FinalStage on." + NextRun, "Portais do Solus (Alloyed Collective) só aparecem a partir do FinalStage." + NextRunPt);
             _blockChampRush = cfg.Bind("Tempest", "BlockChampRushUntilFinalStage", false, "Champ Rush portal only appears from FinalStage on." + NextRun, "Portal do Champ Rush só aparece a partir do FinalStage." + NextRunPt);
@@ -254,6 +254,7 @@ namespace Ror2Meeeee
             Track("TeleporterInteraction.Start", () => On.RoR2.TeleporterInteraction.Start += OnTeleporterStart);
             Track("PortalSpawner.Start", () => On.RoR2.PortalSpawner.Start += OnPortalSpawnerStart);
             Track("PortalSpawner.AttemptSpawnPortalServer", () => On.RoR2.PortalSpawner.AttemptSpawnPortalServer += OnPortalAttempt);
+            Track("VoidStageMissionController.OnBatteryActivated", () => On.RoR2.VoidStageMissionController.OnBatteryActivated += OnVoidBatteryActivated);
             Track("HealthComponent.TakeDamageProcess (IL)", () => IL.RoR2.HealthComponent.TakeDamageProcess += ILLensExecute);
             if (!_lensEffect)
                 LegacyResourcesAPI.LoadAsync<GameObject>("Prefabs/Effects/CritGlassesVoidExecuteEffect").Completed += h => _lensEffect = h.Result;
@@ -273,6 +274,7 @@ namespace Ror2Meeeee
             On.RoR2.TeleporterInteraction.Start -= OnTeleporterStart;
             On.RoR2.PortalSpawner.Start -= OnPortalSpawnerStart;
             On.RoR2.PortalSpawner.AttemptSpawnPortalServer -= OnPortalAttempt;
+            On.RoR2.VoidStageMissionController.OnBatteryActivated -= OnVoidBatteryActivated;
             IL.RoR2.HealthComponent.TakeDamageProcess -= ILLensExecute;
             RestoreAll();
             _active = false;
@@ -898,6 +900,33 @@ namespace Ror2Meeeee
                 Fail(e);
             }
             return orig(self);
+        }
+
+        // Void Locus: o portal do Vazio Profundo nasce pelo VoidStageMissionController (não pelo PortalSpawner) na última
+        // bateria. Bloqueado, ele continua aparecendo mas leva ao próximo estágio normal: o Void Locus não tem
+        // teleportador, então o Run.nextStageScene ainda é o sorteado no estágio de onde o jogador entrou no Vazio.
+        private void OnVoidBatteryActivated(On.RoR2.VoidStageMissionController.orig_OnBatteryActivated orig, VoidStageMissionController self)
+        {
+            orig(self);
+            try
+            {
+                if (!NetworkServer.active || !self || self.numBatteriesActivated < self.numBatteriesSpawned) return;
+                EnsureSnapshot();
+                if (!_blockedCards.Contains(VoidlingCards[0]) || !FinalLockedNow() || !Run.instance.nextStageScene) return;
+                // Evento único por estágio: a busca na cena não pesa.
+                foreach (var exit in UnityEngine.Object.FindObjectsOfType<SceneExitController>())
+                {
+                    if (!exit.destinationScene || exit.destinationScene.cachedName != "voidraid") continue;
+                    exit.useRunNextStageScene = true;
+                    Log.LogInfo($"[Tempest] portal do Vazio Profundo redirecionado para {Run.instance.nextStageScene.cachedName} até o estágio {_s.FinalStage}");
+                    return;
+                }
+                Log.LogWarning("[Tempest] portal do Vazio Profundo não encontrado no Void Locus; o caminho para o Voidling continua aberto.");
+            }
+            catch (Exception e)
+            {
+                Fail(e);
+            }
         }
 
         private bool PortalBlocked(PortalSpawner p)

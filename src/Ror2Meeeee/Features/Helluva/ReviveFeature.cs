@@ -406,19 +406,8 @@ namespace Ror2Meeeee
             var cost = hc ? HelluvaRules.ReviverCost(hc.health, ReviverHealthFraction) : 0f;
             if (cost > 0f)
             {
-                // Cobrança, como a taxa do Taxade: passa direto, sem passos do BodyHooks (sem bloqueio nem aumento).
-                BodyHooks.RawDamage = true;
-                try
-                {
-                    hc.TakeDamage(new DamageInfo
-                    {
-                        damage = cost,
-                        position = reviver.corePosition,
-                        damageType = (DamageTypeCombo)(DamageType.BypassArmor | DamageType.BypassBlock | DamageType.BypassOneShotProtection | DamageType.NonLethal),
-                        damageColorIndex = DamageColorIndex.Bleed,
-                    });
-                }
-                finally { BodyHooks.RawDamage = false; }
+                // Cobrança, como a taxa do Taxade: só na vida, sem passos do BodyHooks (sem bloqueio nem aumento).
+                BodyHooks.Charge(hc, cost, false);
             }
             var who = Util.GetBestMasterName(t.Master);
             var by = reviver ? Util.GetBestBodyName(reviver.gameObject) : "?";

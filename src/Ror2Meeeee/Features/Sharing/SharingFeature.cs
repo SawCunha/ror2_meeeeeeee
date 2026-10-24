@@ -13,7 +13,7 @@ using UnityEngine.Networking;
 namespace Ror2Meeeee
 {
     // Artefato do Comunismo: com ele ligado no lobby, todo item pego (todos os tiers, de todas as expansões, sucata,
-    // temporários e alugados) é replicado aos demais jogadores vivos, só no host (v2, Epic 6). Mesmo ponto de
+    // temporários e alugados; menos as maldições Hex) é replicado aos demais jogadores vivos, só no host (v2, Epic 6). Mesmo ponto de
     // interceptação da MultiplierFeature (ItemDef.AttemptGrant), sem referenciá-la: lê as mesmas chaves de config.
     // A concessão usa GiveItemPermanent/Temp/Rented (não passam por AttemptGrant), então não há recursão nem multiplicação dupla.
     public sealed class SharingFeature : Feature
@@ -126,6 +126,7 @@ namespace Ror2Meeeee
                     kind = ItemClassifier.Classify(itemDef, pickup.isTempItem || pickup.isRental);
                 else itemDef = null;
                 if (itemDef && DroppedGrants.IsDropped(itemDef.itemIndex)) itemDef = null; // item solto pelo Drop: não compartilha de novo
+                if (itemDef && itemDef.tier == ItemTier.Hex) itemDef = null; // maldição (DLC4): fica só com quem pegou
             }
             catch (Exception e)
             {

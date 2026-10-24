@@ -79,8 +79,8 @@ Artefatos são ligados no **lobby**, na tela de seleção de artefatos, antes de
 ### Artefato do Comunismo
 
 **O que faz:** todo item que alguém pega também vai para os outros jogadores vivos. Vale para itens de todos os tipos e
-expansões, inclusive sucata, temporários e alugados. Equipamentos e os itens únicos do mod (Capitalismo, Cano Extra e
-Chamado da Horda) não são compartilhados.
+expansões, inclusive sucata, temporários e alugados. Equipamentos, as maldições (tier Hex) e os itens únicos do mod (Capitalismo,
+Cano Extra e Chamado da Horda) não são compartilhados.
 
 **Como usar:** ligue o artefato no lobby. Não tem opções.
 
@@ -145,7 +145,7 @@ o item continua existindo mas não faz nada. Os comandos `give_item` / `give_equ
 
 ### Chamado da Horda (branco)
 
-**O que faz:** cada cópia que o time tiver aumenta a quantidade de inimigos. Precisa da *Dificuldade* ligada. Não é
+**O que faz:** cada cópia que os jogadores tiverem aumenta a quantidade de inimigos (torretas e aliados não contam). Precisa da *Dificuldade* ligada. Não é
 multiplicado nem compartilhado.
 
 **Como usar:** pegue o item. Opções em `[Horde]`: `QuantityPerStack` (padrão `0.5`, +50% por cópia) e
@@ -443,10 +443,11 @@ Ligados por padrão, para a partida aguentar inventários enormes. Nenhum muda o
 | Seção | O que faz | Opções principais |
 |---|---|---|
 | `[Particles]` | Limita quantas vezes por segundo cada tipo de efeito visual aparece e é enviado aos outros. | `MaxPerSecond` (10), `Raised`/`RaisedMaxPerSecond` (explosões, 60), `Exempt` (nunca limitados; padrão golpes do Mercenary) |
-| `[ProjectileBudget]` | Itens que disparam em massa (Sticky Bomb, Molten Perforator, estacas, Fireworks, mísseis...) soltam menos projéteis, cada um mais forte. Só projéteis de jogadores. | `Prefabs`, `PerTypeMaxPerSecond` (15), `GlobalMaxPerSecond` (40) |
+| `[ProjectileBudget]` | Itens que disparam em massa (Sticky Bomb, Molten Perforator, estacas, Fireworks, mísseis...) soltam menos projéteis, cada um mais forte. Os espectros da Acolyte por abate assombrado também têm teto, com o mesmo dano total. Só projéteis de jogadores. | `Prefabs`, `PerTypeMaxPerSecond` (15), `GlobalMaxPerSecond` (40), `WightsPerKill` (3) |
 | `[GhostBlades]` | Limita as Lâminas Fantasmas do item Curse (DLC4), que chegavam a ~700 por segundo. | `MaxPerSecond` (10) |
 | `[Cleanup]` | Cadáveres somem rápido, mesmo à vista, e corrige um erro do jogo no Totem dos Lynx. | `MaxCorpses` (10), `CorpseLifetime` (2 s) |
 | `[GameFixes]` | Corrige erros do jogo que se repetem centenas de vezes por partida (Runic Lens, Unstable Transmitter, War Bonds), os erros de spawn da Craca do Vazio e de morte da Defective Unit e do Dunestrider, do Baú Mímico, o artefato do Enxame e drones/monstros Dourados que travavam com pepitas. | só `Enabled` |
+| `[QoL]` | Itens e drones mortos que caem do mapa voltam; lava nos aliados a 2%, como nos monstros; habilidades sem dano (bolha do Engi, Sonic Boom do REX, gancho do Loader, mira do Railgunner) não colocam em combate. | `ItemsReturn`, `DronesReturn`, `AllyLava`, `NonCombatSkills` (todos ligados) |
 
 **Exemplo:** com 100 Sticky Bombs, em vez de 100 bombas por segundo saem 15, cada uma com o dano somado das outras.
 

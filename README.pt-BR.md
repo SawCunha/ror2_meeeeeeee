@@ -6,7 +6,7 @@ Mod para **Risk of Rain 2** (1.5.0#1224, build Steam 25921972) feito com BepInEx
 multiplica os itens coletados, deixa os inimigos mais fortes e numerosos, adiciona itens, um equipamento e artefatos
 novos, e inclui ferramentas para manter o FPS de pé quando o inventário explode.
 
-- **Versão atual:** 0.11.3 (`src/Ror2Meeeee.Core/ModInfo.cs`; histórico em [`package/CHANGELOG.pt-BR.md`](package/CHANGELOG.pt-BR.md))
+- **Versão atual:** 0.12.0 (`src/Ror2Meeeee.Core/ModInfo.cs`; histórico em [`package/CHANGELOG.pt-BR.md`](package/CHANGELOG.pt-BR.md))
 - **GUID:** `com.sawcunha.ror2meeeee` · **Pacote:** `Sawcunha-Ror2Meeeee`
 - **GitHub:** [https://github.com/SawCunha/ror2_meeeeeeee](https://github.com/SawCunha/ror2_meeeeeeee) · **Thunderstore:** [thunderstore.io/c/riskofrain2/p/SawCunhaOS/Ror2Meeeee](https://thunderstore.io/c/riskofrain2/p/SawCunhaOS/Ror2Meeeee/)
 - **Multiplayer:** todos os jogadores precisam do mesmo mod na mesma versão. A lógica de gameplay roda **só no host**,
@@ -27,7 +27,7 @@ exemplos, está no [`package/README.pt-BR.md`](package/README.pt-BR.md) (em ingl
 1. Gere ou baixe `Sawcunha-Ror2Meeeee-<versão>.zip` (veja [Build](#build-e-desenvolvimento)).
 2. No r2modman: **Settings → Import local mod** e escolha o zip.
 3. As dependências (`package/manifest.json`) são instaladas junto:
-   BepInExPack, HookGenPatcher, RoR2BepInExPack 1.45.0 e os módulos R2API Core, ContentManagement, Difficulty, Elites, Items e
+   BepInExPack, HookGenPatcher, RoR2BepInExPack 1.48.0 e os módulos R2API Core, ContentManagement, Difficulty, Elites, Items e
    Language.
 
 Opcional: **Risk of Options** mostra todas as opções numa tela de mods dentro do jogo.
@@ -90,7 +90,7 @@ Só têm efeito se forem ativados no lobby.
 
 | Artefato | Efeito |
 |---|---|
-| **Comunismo** | Todo item que um jogador pega também vai para os outros jogadores vivos: todos os tipos, de todas as expansões, inclusive sucata, temporários e alugados. Equipamentos e itens únicos do mod não são compartilhados. Não tem opção no config: o artefato é o interruptor |
+| **Comunismo** | Todo item que um jogador pega também vai para os outros jogadores vivos: todos os tipos, de todas as expansões, inclusive sucata, temporários e alugados. Equipamentos, maldições (tier Hex) e itens únicos do mod não são compartilhados. Não tem opção no config: o artefato é o interruptor |
 | **Dízimo** | Parte de todo ouro ganho (`Gold.Ratio`, 10%) vira crédito para o diretor gerar mais inimigos, e o diretor agradece no chat a cada `ThankIntervalSeconds` (60 s). Limites: `MaxCreditPerSecond` (150) e `MaxMonsters` (80 vivos) |
 | **Taxade** | Toda compra paga com ouro (baú, santuário, drone...) custa vida: 30% da vida máxima por padrão (`Tax.Percent`). Compras com outras moedas não pagam. Com `Tax.Lethal = false` (padrão), a taxa nunca mata: deixa 1 de vida. Os itens Capitalismo reduzem a taxa |
 | **Vazio** | +5 baús do Vazio por estágio (`VoidBounty.ExtraChests`), cada um sorteando entre todos os itens do Vazio. Inimigos com +50% de vida |
@@ -221,10 +221,11 @@ Com o multiplicador em 10×, o inventário cresce muito rápido. Estes sistemas 
 | `[LimitedCalc.BustlingFungus]` | Trata o Bustling Fungus como se tivesse no máximo `Limit` cópias (`Mode = Clamp`) | `Off`, limite 10 |
 | `[LimitedCalc.BundleOfFireworks]` | `Aggregate`: menos mísseis, cada um mais forte, mesmo dano total | `Aggregate`, limite 20 |
 | `[LimitedCalc.GhorsTome]` | `Aggregate`: menos pacotes de ouro no chão, cada um vale mais, mesmo ouro esperado | `Aggregate`, limite 5 |
-| `[ProjectileBudget]` | Teto de projéteis dos jogadores e ajudantes (Sticky Bomb, Molten Perforator, estacas, Fireworks, mísseis...): menos projéteis, cada um mais forte, mesmo dano total. Projéteis de monstros não mudam | 15/s por tipo, 40/s no total |
+| `[ProjectileBudget]` | Teto de projéteis dos jogadores e ajudantes (Sticky Bomb, Molten Perforator, estacas, Fireworks, mísseis...): menos projéteis, cada um mais forte, mesmo dano total. Espectros da Acolyte: no máximo 3 por abate assombrado, com o dano dos cortados. Projéteis de monstros não mudam | 15/s por tipo, 40/s no total, 3 espectros por abate |
 | `[GhostBlades]` | Limita quantas Lâminas Fantasmas (item Curse do DLC4) o jogo gera ou renova por segundo | 10/s |
 | `[Cleanup]` | Cadáveres somem rápido, mesmo à vista, e corrige um erro do jogo no Totem dos Lynx que gerava centenas de exceções | 10 corpos, 2 s |
 | `[GameFixes]` | Corrige erros do jogo que se repetiam centenas de vezes por partida e custavam FPS: Runic Lens, Unstable Transmitter, War Bonds e equipamento de corpos sem inventário; também conserta o artefato do Enxame e os drones/monstros Dourados que travavam a partida soltando pepitas de ouro (mesma correção do GildedChunkSpamFix) | ligado |
+| `[QoL]` | Itens e drones mortos que caem do mapa voltam ao chão mais próximo; lava tira 2% de drones e torretas (como nos monstros), e não 10%; bolha do Engi, Sonic Boom do REX, gancho do Loader e mira do Railgunner não colocam em combate. Ideia do WolfoQoL_Gameplay | ligado |
 | `[Particles]` | Teto por segundo (`MaxPerSecond`) para **todo** tipo de efeito, menos os da lista `Exempt`; os da lista `Raised` têm teto próprio maior (`RaisedMaxPerSecond`). Vale para o que você mostra **e para o que você envia** aos outros (host e clientes com o mod). Não muda dano | 10/s por tipo; explosões 60/s; exceção: golpes do Mercenary |
 
 ---

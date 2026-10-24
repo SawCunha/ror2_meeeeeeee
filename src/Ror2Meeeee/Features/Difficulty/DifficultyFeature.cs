@@ -138,7 +138,7 @@ namespace Ror2Meeeee
                 args.requiresAlive = false;
                 args.requiredTeam = TeamIndex.Player;
                 args.requiresConnected = true;
-                args.onlyPlayerControlledCharacters = false;
+                args.onlyPlayerControlledCharacters = true; // torretas do Engi copiam o inventário: contavam como cópias
                 stacks = Util.GetTotalItemCountFromTeam(args);
             }
             var m = HordeCurve.QuantityMultiplier(stacks, _hordePerStack.Value, _hordeMax.Value);

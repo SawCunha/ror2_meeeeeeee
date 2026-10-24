@@ -2,6 +2,57 @@
 
 **Language:** English · [Português (Brasil)](https://github.com/SawCunha/ror2_meeeeeeee/blob/main/package/CHANGELOG.pt-BR.md)
 
+## 0.12.1
+
+- **Call of the Horde** counted the copies on Engineer turrets (which copy their owner's inventory) and on other
+  allies. With 4 real items, the enemy spawn reached x12 instead of x3.8, and the count did not drop when a turret
+  died. Now only the players' copies count.
+- **Communism** no longer shares curses (Hex tier, from DLC4). Before, when someone picked up, for example, Share Items
+  with Enemies, the other players got the curse too.
+- **Freeze diagnostics:** when a frame takes over 1 s, the log now shows what happened inside it: garbage collector (GC)
+  collections and RAM before and after, how many heals and damage events the frame processed, and the monsters alive
+  (including `AffixEarthHealerBody`, the Mending elite's healing orb). The `[Vigia]` warning during the freeze also shows
+  RAM and GC collections.
+- **Main thread sampler:** the first time `[Vigia]` detects a freeze (3 s), it briefly pauses the main thread 20 times
+  over 1 s and logs which C# methods it is running, e.g. `[Vigia] thread principal (20 amostras): 18x RoR2.X:Method ← ...`.
+  This tells whether the freeze comes from the game, this mod or another mod. It only runs during freezes.
+- Three errors from the game itself are now only counted (no longer shown as a "new error"): the Ghost Blades orbit
+  turning NaN, `TeleportOnLowHealthBehavior.OnDisable` (Unstable Transmitter, when the body is destroyed by the portal
+  or on death) and `GlobalEventManager.OnCrit` (an orb arriving after its attacker died).
+
+## 0.12.0
+
+- **New: `[QoL]`** (idea from WolfoQoL_Gameplay by Wolfo, rewritten and checked against game 1.5.0; on by default,
+  each part can be turned off):
+  - **Items that fall off the map** (orbs in flight, items on the ground, Command Cube, Void Potential, Aurelionite
+    Fragment) come back to the nearest ground within 1 s. Host only.
+  - **Dead drones** that fall into a pit or through the ground now leave the broken drone (to repair) on the nearest
+    ground. Before, they just vanished. Host only.
+  - **Lava** deals 2% of health per touch to drones, turrets and other non-player allies, like common monsters, instead
+    of the 10% meant for players. Host only.
+  - **Non-damaging skills** (Engi bubble, REX Sonic Boom, Loader hook, Railgunner scopes) no longer put you in combat,
+    so out-of-combat items (Red Whip, Cautious Slug...) keep working.
+
+## 0.11.5
+
+- **ProjectileBudget, Acolyte wights:** each kill of a haunted enemy released one wight per Haunt stack, and every wight
+  that hit added another stack. With the item multiplier this turned into a chain reaction (over 1,000 wights in 30 s,
+  the game freezing for seconds and Unity memory going past 4 GB). Now each kill releases at most `WightsPerKill` (3)
+  wights, each one carrying the damage of the cut ones, so the total damage stays the same. Host only.
+
+## 0.11.4
+
+- Dependencies: RoR2BepInExPack 1.48.0 and R2API_ContentManagement 1.1.0.
+- **Taxade:** the tax now comes **only out of health**; barrier and shield are left untouched. Before, buying something
+  with gold could break the shield and set off the Kinetic Dampener, whose blast hit nearby enemies and triggered on-hit
+  items (missiles...).
+- **Taxade:** the tax no longer triggers the Razorwire. The game treated the charge as a hit and fired razors at nearby
+  enemies, which also triggered on-hit items. The same two fixes apply to the health cost of reviving (Helluva).
+- **Tempest, `BlockVoidlingUntilFinalStage`:** the block didn't work: the Deep Void portal is created by the Void Locus
+  itself, not by the portal system the mod blocked, and the run could end with the Voidling on stage 5. Now, with the
+  key on and before `FinalStage`, the Void Locus portal still appears but leads to the next normal stage. From
+  `FinalStage` on it leads to the Voidling again. The key stays off by default.
+
 ## 0.11.3
 
 - **Tempest:** protection of new enemies (and on each revive) goes from 10 s to **5 s**. Configs with the old default (3

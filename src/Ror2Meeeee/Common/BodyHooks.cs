@@ -34,14 +34,49 @@ namespace Ror2Meeeee
     //   6. Tormenta: Lentes do Vidente Perdido tiram 90% da vida restante, sem matar
     //
     // Taxa do Taxade: SEMPRE POR ÚLTIMO e sem modificadores. É calculada na compra sobre a vida máxima final (todos os
-    // passos de stats acima já aplicados) e o dano passa direto (RawDamage): nem bloqueio da Égide nem aumento do Coração.
+    // passos de stats acima já aplicados) e o dano passa direto (Charge): só na vida, nem bloqueio da Égide nem aumento do Coração.
     // Na compra, o Taxade também é o último passo do PurchaseHub. O custo de vida do revive é cobrança e também passa direto.
     // Ouro (MoneyHub): o Capitalismo aumenta o ouro antes do jogo; o Dízimo calcula o crédito sobre o valor ORIGINAL,
     // então o efeito do Taxade não entra em nenhum outro cálculo.
     internal static class BodyHooks
     {
         // Dano aplicado enquanto true passa sem nenhum passo (taxa do Taxade). Só na thread principal, dentro de TakeDamage.
-        internal static bool RawDamage;
+        private static bool RawDamage;
+
+        // Cobrança em vida (taxa do Taxade, custo do revive): passa direto, sem passos acima, e sai SÓ da vida.
+        // Barreira e escudo ficam zerados durante o TakeDamage e voltam depois: escudo quebrado soltaria o Amortecimento
+        // Cinético. Thorns na cadeia: o Arame Farpado não solta lâminas. Ambos procavam mísseis etc. nos inimigos.
+        internal static void Charge(HealthComponent hc, float damage, bool lethal)
+        {
+            var type = DamageType.BypassArmor | DamageType.BypassBlock | DamageType.BypassOneShotProtection;
+            if (!lethal) type |= DamageType.NonLethal;
+            var procs = default(ProcChainMask);
+            procs.AddProc(ProcType.Thorns);
+            float barrier = hc.barrier, shield = hc.shield;
+            hc.Networkbarrier = 0f;
+            hc.Networkshield = 0f;
+            RawDamage = true;
+            try
+            {
+                hc.TakeDamage(new DamageInfo
+                {
+                    damage = damage,
+                    position = hc.body ? hc.body.corePosition : hc.transform.position,
+                    damageType = (DamageTypeCombo)type,
+                    damageColorIndex = DamageColorIndex.Bleed,
+                    procChainMask = procs,
+                });
+            }
+            finally
+            {
+                RawDamage = false;
+                if (hc)
+                {
+                    hc.Networkbarrier = barrier;
+                    hc.Networkshield = shield;
+                }
+            }
+        }
 
         internal static HeavyHeartFeature Heart;
         internal static BastionFeature Bastion;

@@ -2,6 +2,59 @@
 
 **Idioma:** [English](https://github.com/SawCunha/ror2_meeeeeeee/blob/main/package/CHANGELOG.md) · Português (Brasil)
 
+## 0.12.1
+
+- **Chamado da Horda** contava as cópias das torretas do Engineer (que copiam o inventário do dono) e de outros aliados.
+  Com 4 itens de verdade, o spawn de inimigos chegava a x12 em vez de x3,8, e a conta não caía quando a torreta morria.
+  Agora só contam as cópias dos jogadores.
+- **Comunismo** não compartilha mais as maldições (tier Hex, do DLC4). Antes, quando alguém pegava, por exemplo,
+  Compartilhar Itens com Inimigos, os outros jogadores também ganhavam a maldição.
+- **Diagnóstico de travadas:** quando um frame passa de 1 s, o log agora mostra o que houve dentro dele: coletas do
+  coletor de memória (GC) e a RAM antes e depois, quantas curas e danos o frame processou e os monstros vivos (inclusive
+  `AffixEarthHealerBody`, o orbe de cura do elite Mending). O aviso `[Vigia]` durante a travada também mostra a RAM e as
+  coletas do GC.
+- **Amostrador da thread principal:** na primeira vez em que o `[Vigia]` detecta uma travada (3 s), ele pausa a thread
+  principal por instantes 20 vezes em 1 s e loga quais métodos C# ela está rodando, por exemplo
+  `[Vigia] thread principal (20 amostras): 18x RoR2.X:Metodo ← ...`. Assim dá para saber se a travada é do jogo, do mod
+  ou de outro mod. Só roda durante travadas.
+- Três erros do próprio jogo passam a ser só contados (não aparecem mais como "erro novo"): a órbita das Lâminas
+  Fantasmas que vira NaN, o `TeleportOnLowHealthBehavior.OnDisable` (Unstable Transmitter, quando o corpo é destruído
+  pelo portal ou na morte) e o `GlobalEventManager.OnCrit` (orbe que chega depois que o atacante morreu).
+
+## 0.12.0
+
+- **Novo: `[QoL]`** (ideia do WolfoQoL_Gameplay, do Wolfo, reescrita e conferida no jogo 1.5.0; ligado por padrão, cada
+  parte pode ser desligada):
+  - **Itens que caem do mapa** (orbe em voo, item no chão, Command Cube, Void Potential, Aurelionite Fragment) voltam ao
+    chão mais próximo em até 1 s. Só no host.
+  - **Drones mortos** que caem num buraco ou atravessam o chão agora deixam o drone quebrado (para consertar) no chão
+    mais próximo. Antes, simplesmente sumiam. Só no host.
+  - **Lava** tira 2% da vida por toque de drones, torretas e outros aliados que não são jogadores, como nos monstros
+    comuns, e não os 10% feitos para o jogador. Só no host.
+  - **Habilidades sem dano** (bolha do Engi, Sonic Boom do REX, gancho do Loader, miras do Railgunner) não colocam mais
+    em combate, então itens de fora de combate (Red Whip, Cautious Slug...) continuam funcionando.
+
+## 0.11.5
+
+- **ProjectileBudget, espectros da Acolyte:** cada abate de inimigo assombrado soltava um espectro por acúmulo de Haunt, e
+  cada espectro que acertava somava outro acúmulo. Com o multiplicador de itens isso virava reação em cadeia (mais de
+  1.000 espectros em 30 s, o jogo travando por segundos e a memória do Unity passando de 4 GB). Agora cada abate solta
+  no máximo `WightsPerKill` (3) espectros, cada um com o dano dos cortados, e o dano total se mantém. Só no host.
+
+## 0.11.4
+
+- Dependências: RoR2BepInExPack 1.48.0 e R2API_ContentManagement 1.1.0.
+- **Taxade:** a taxa agora sai **só da vida**; barreira e escudo ficam intactos. Antes, uma compra com ouro podia quebrar
+  o escudo e disparar o Amortecimento Cinético, cuja explosão acertava os inimigos por perto e ativava os itens de
+  acerto (mísseis...).
+- **Taxade:** a taxa não ativa mais o Arame Farpado. O jogo tratava a cobrança como golpe e soltava lâminas nos inimigos
+  por perto, que também ativavam os itens de acerto. As duas correções valem também para o custo de vida do revive
+  (Helluva).
+- **Tormenta, `BlockVoidlingUntilFinalStage`:** o bloqueio não funcionava: o portal do Vazio Profundo é criado pelo
+  próprio Void Locus, não pelo sistema de portais que o mod bloqueava, e a run podia terminar no Voidling no estágio 5.
+  Agora, com a chave ligada e antes do `FinalStage`, o portal do Void Locus continua aparecendo mas leva ao próximo
+  estágio normal. A partir do `FinalStage` ele volta a levar ao Voidling. A chave continua desligada por padrão.
+
 ## 0.11.3
 
 - **Tormenta:** proteção dos inimigos novos (e a cada revive) de 10 s para **5 s**. Configs com o padrão antigo (3 ou 10)

@@ -66,6 +66,9 @@ namespace Ror2Meeeee
             "Facepunch.Steamworks.Networking.SendP2PPacket", // envio de rede com a Steam já fechada (ao sair do jogo/lobby)
             "HurtBox.SimpleColliderBlockFilter", // tiro atravessa bolha de bloqueio (Enforcer) com o hurtbox atingido já destruído
             "EnableCustomRenderTextureOnLight.OnDisable", // luz desligada ao fechar o jogo com a textura já descarregada
+            "path \"GhostBladesProjectile", // órbita das Lâminas Fantasmas vira NaN (ProjectileOwnerOrbiter do jogo); some quando a lâmina expira
+            "TeleportOnLowHealthBehavior.OnDisable", // Unstable Transmitter: corpo destruído (portal/morte) antes do OnDisable do item
+            "GlobalEventManager.OnCrit", // orbe (ex. DevilOrb) chega depois que o atacante morreu: buff de crítico num corpo já destruído
         };
         private static readonly int[] KnownCounts = new int[KnownNoise.Length];
         private static readonly HashSet<string> SeenUnknown = new HashSet<string>();
@@ -74,6 +77,11 @@ namespace Ror2Meeeee
         private static int _unknownAtStage;
 
         private const float StallSeconds = 3f;
+        // Frame longo: a vigia só sabe QUE travou; ao voltar, a thread principal loga o que houve dentro do frame.
+        private const float LongFrameSeconds = 1f;
+        private static int _gcCount;
+        private static long _gcMemory;
+        private static int _frameHeals, _frameDamage;
         private static ManualLogSource _log;
         private static long _beat; // Stopwatch.GetTimestamp() do último frame
         private static volatile bool _watch;
@@ -110,9 +118,12 @@ namespace Ror2Meeeee
             Stage.onServerStageComplete += OnStageComplete;
             Run.onRunDestroyGlobal += OnRunDestroy;
             GlobalEventManager.onCharacterDeathServer += OnDeath;
+            HealthComponent.onCharacterHealServer += (_, __, ___) => _frameHeals++;
+            GlobalEventManager.onServerDamageDealt += _ => _frameDamage++;
             RoR2Application.onUpdate += OnUpdate;
             Application.logMessageReceivedThreaded += OnUnityLog;
             ReportPreviousSession();
+            MainThreadSampler.Init(); // aqui estamos na thread principal
             new Thread(WatchLoop) { IsBackground = true, Name = "Ror2Meeeee.Watchdog" }.Start();
         }
 
@@ -220,6 +231,12 @@ namespace Ror2Meeeee
             _lastFrameMs = ms;
             FrameMsAvg += (ms - FrameMsAvg) * 0.05f;
             if (ms > _stageWorstMs) _stageWorstMs = ms;
+            var gc = GC.CollectionCount(0);
+            var memory = GC.GetTotalMemory(false);
+            if (dt >= LongFrameSeconds && _watch) LogLongFrame(dt, gc - _gcCount, memory);
+            _gcCount = gc;
+            _gcMemory = memory;
+            _frameHeals = _frameDamage = 0;
             _sampleAcc += dt;
             if (_sampleAcc < 0.5f) return;
             _sampleAcc = 0f;
@@ -229,6 +246,19 @@ namespace Ror2Meeeee
             MonsterSamples++;
             if (n > WindowMaxMonsters) WindowMaxMonsters = n;
             if (n > _stageMaxMonsters) _stageMaxMonsters = n;
+        }
+
+        // Coleta no frame com a RAM caindo = pausa do coletor; muitas curas/danos = enxurrada de eventos; nada disso = outra
+        // coisa (ver os monstros vivos, ex. AffixEarthHealerBody, o orbe de cura do elite Mending).
+        private static void LogLongFrame(float dt, int collections, long memory)
+        {
+            try
+            {
+                const long MB = 1024 * 1024;
+                _log.LogWarning($"[Vigia] frame de {dt:F1} s | coletas do GC no frame {collections}, RAM gerenciada {_gcMemory / MB} -> {memory / MB} MB | "
+                    + $"curas no frame {_frameHeals}, danos no frame {_frameDamage} | monstros: {MonsterBreakdown(8)}");
+            }
+            catch (Exception e) { _log?.LogWarning($"[Vigia] falha no relatório do frame longo: {e.Message}"); }
         }
 
         // Tipos de monstro vivos agora, do mais comum ao menos ("BeetleBody=12, WispBody=8"). Chamar só em eventos raros.
@@ -271,9 +301,12 @@ namespace Ror2Meeeee
                     if (!_watch) { stalled = false; nextReport = StallSeconds; continue; }
                     if (gap >= nextReport)
                     {
+                        // 1ª vez nesta travada: amostra o que a thread principal está rodando (~1 s).
+                        if (!stalled) _log.LogWarning($"[Vigia] {MainThreadSampler.Sample()}");
                         stalled = true;
                         nextReport = (float)gap + 10f;
-                        _log.LogWarning($"[Vigia] jogo sem atualizar há {gap:F0} s (monstros ~{Monsters}, eventos de ouro {GoldEvents}, lápides {Tombstones}).");
+                        _log.LogWarning($"[Vigia] jogo sem atualizar há {gap:F0} s (monstros ~{Monsters}, eventos de ouro {GoldEvents}, lápides {Tombstones}; "
+                            + $"RAM gerenciada {GC.GetTotalMemory(false) / (1024 * 1024)} MB, coletas do GC desde o último frame {GC.CollectionCount(0) - _gcCount}).");
                     }
                     else if (gap < StallSeconds && stalled)
                     {

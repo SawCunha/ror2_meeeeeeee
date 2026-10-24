@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using RoR2;
@@ -17,12 +18,18 @@ namespace Ror2Meeeee
     //  - global, para todo projétil de jogador (GlobalMaxPerSecond).
     // Disparo acima do teto não sai: o dano dele vai para o próximo disparo permitido do mesmo tipo (Core.Limits.ProjectileBudget),
     // então o dano total se mantém. Projéteis de monstros nunca são tocados.
+    // Espectros da Acolyte (WightLauncher): cada abate de alvo assombrado solta 1 espectro por acúmulo do DoT Haunt, e cada
+    // espectro que acerta aplica mais Haunt. Com o multiplicador isso vira reação em cadeia (1.200 espectros em 30 s, jogo
+    // travando por segundos). O lançador é limitado a WightsPerKill espectros, cada um com o dano dos cortados.
     public sealed class ProjectileBudgetFeature : Feature
     {
         private readonly ConfigEntry<string> _list;
         private readonly ConfigEntry<int> _perType;
         private readonly ConfigEntry<int> _global;
-        private int _perTypeValue, _globalValue;
+        private readonly ConfigEntry<int> _wights;
+        private int _perTypeValue, _globalValue, _wightsValue;
+        private static readonly FieldInfo WightDamageField = typeof(WightLauncher).GetField("damageCoefficient", BindingFlags.Instance | BindingFlags.NonPublic);
+        private long _wightsCut;
 
         private readonly HashSet<string> _names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<int, bool> _listed = new Dictionary<int, bool>();        // prefab -> está na lista (cache)
@@ -40,7 +47,10 @@ namespace Ror2Meeeee
                 "Maximum per second of each listed projectile (all players combined). 0 = no per-type cap.", "Máximo por segundo de cada projétil da lista (todos os jogadores somados). 0 = sem teto por tipo.");
             _global = cfg.Bind("ProjectileBudget", "GlobalMaxPerSecond", 40,
                 "Maximum per second of projectiles from players and minions, of any type. 0 = no global cap.", "Máximo por segundo de projéteis de jogadores e ajudantes, de qualquer tipo. 0 = sem teto global.");
+            _wights = cfg.Bind("ProjectileBudget", "WightsPerKill", 3,
+                "Maximum Acolyte wights released per haunted kill; the cut ones add their damage to the rest. 0 = no cap.", "Máximo de espectros da Acolyte soltos por abate assombrado; os cortados somam o dano aos restantes. 0 = sem teto.");
             ReadConfig();
+            _wights.SettingChanged += (_, __) => ReadConfig();
             _list.SettingChanged += (_, __) => ReadConfig();
             _perType.SettingChanged += (_, __) => ReadConfig();
             _global.SettingChanged += (_, __) => ReadConfig();
@@ -50,6 +60,7 @@ namespace Ror2Meeeee
         {
             _perTypeValue = _perType.Value;
             _globalValue = _global.Value;
+            _wightsValue = _wights.Value;
             _names.Clear();
             foreach (var raw in (_list.Value ?? "").Split(','))
             {
@@ -65,16 +76,42 @@ namespace Ror2Meeeee
             _globalWindow = default;
             if (_skipped > 0) Log.LogInfo($"[ProjectileBudget] run: {_skipped} projéteis de jogadores agregados (dano somado aos seguintes).");
             _skipped = 0;
+            if (_wightsCut > 0) Log.LogInfo($"[ProjectileBudget] run: {_wightsCut} espectros da Acolyte cortados (dano somado aos restantes).");
+            _wightsCut = 0;
         }
 
         protected override void OnEnable()
         {
             Track("ProjectileManager.FireProjectile", () => On.RoR2.Projectile.ProjectileManager.FireProjectile_FireProjectileInfo += OnFireProjectile);
+            if (WightDamageField != null) Track("WightLauncher.FixedUpdate", () => On.RoR2.WightLauncher.FixedUpdate += OnWightLauncherFixedUpdate);
+            else Log.LogWarning("[ProjectileBudget] WightLauncher.damageCoefficient não encontrado; espectros da Acolyte sem teto.");
         }
 
         protected override void OnDisable()
         {
             On.RoR2.Projectile.ProjectileManager.FireProjectile_FireProjectileInfo -= OnFireProjectile;
+            On.RoR2.WightLauncher.FixedUpdate -= OnWightLauncherFixedUpdate;
+        }
+
+        // Só age uma vez por lançador: depois do corte, remaining <= teto.
+        private void OnWightLauncherFixedUpdate(On.RoR2.WightLauncher.orig_FixedUpdate orig, WightLauncher self)
+        {
+            try
+            {
+                var cap = _wightsValue;
+                if (NetworkServer.active && cap > 0 && self.remaining > cap)
+                {
+                    var coef = (float)WightDamageField.GetValue(self);
+                    WightDamageField.SetValue(self, coef * self.remaining / cap);
+                    _wightsCut += self.remaining - cap;
+                    self.remaining = cap;
+                }
+            }
+            catch (Exception e)
+            {
+                Fail(e);
+            }
+            orig(self);
         }
 
         private bool Listed(GameObject prefab)

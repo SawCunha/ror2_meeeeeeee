@@ -110,6 +110,7 @@ namespace Ror2Meeeee
             _features.Add(new RustyNailFeature(_cfg, Logger));
             _features.Add(new ProjectileBudgetFeature(_cfg, Logger));
             _features.Add(new GameFixesFeature(_cfg, Logger));
+            _features.Add(new QoLFeature(_cfg, Logger));
             _features.Add(new BazaarFeature(_cfg, Logger));
             _features.Add(new ElitesFeature(_cfg, Logger));
             _features.Add(new TempestFeature(_cfg, Logger));

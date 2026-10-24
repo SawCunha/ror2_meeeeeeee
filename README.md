@@ -6,7 +6,7 @@ A **Risk of Rain 2** mod (1.5.0#1224, Steam build 25921972) made with BepInEx 5 
 chaotic: multiplies collected items, makes enemies stronger and more numerous, adds new items, an equipment and
 artifacts, and includes tools to keep FPS up when the inventory explodes.
 
-- **Current version:** 0.11.3 (`src/Ror2Meeeee.Core/ModInfo.cs`; history in [`package/CHANGELOG.md`](package/CHANGELOG.md))
+- **Current version:** 0.12.0 (`src/Ror2Meeeee.Core/ModInfo.cs`; history in [`package/CHANGELOG.md`](package/CHANGELOG.md))
 - **GUID:** `com.sawcunha.ror2meeeee` · **Package:** `Sawcunha-Ror2Meeeee`
 - **GitHub:** [https://github.com/SawCunha/ror2_meeeeeeee](https://github.com/SawCunha/ror2_meeeeeeee) · **Thunderstore:** [thunderstore.io/c/riskofrain2/p/SawCunhaOS/Ror2Meeeee](https://thunderstore.io/c/riskofrain2/p/SawCunhaOS/Ror2Meeeee/)
 - **Multiplayer:** every player needs the same mod on the same version. Gameplay logic runs **only on the host**, so
@@ -28,7 +28,7 @@ with examples, is in [`package/README.md`](package/README.md), which is the mod'
 1. Build or download `Sawcunha-Ror2Meeeee-<version>.zip` (see [Build](#build-and-development)).
 2. In r2modman: **Settings → Import local mod** and pick the zip.
 3. The dependencies (`package/manifest.json`) are installed along with it:
-   BepInExPack, HookGenPatcher, RoR2BepInExPack 1.45.0 and the R2API Core, ContentManagement, Difficulty, Elites, Items and Language
+   BepInExPack, HookGenPatcher, RoR2BepInExPack 1.48.0 and the R2API Core, ContentManagement, Difficulty, Elites, Items and Language
    modules.
 
 Optional: **Risk of Options** shows every option on an in-game mod settings screen.
@@ -92,7 +92,7 @@ They only take effect if enabled in the lobby.
 
 | Artifact | Effect |
 |---|---|
-| **Communism** | Every item a player picks up also goes to the other living players: all types, from all expansions, including scrap, temporary and rented items. Equipment and the mod's unique items are not shared. No config option: the artifact is the switch |
+| **Communism** | Every item a player picks up also goes to the other living players: all types, from all expansions, including scrap, temporary and rented items. Equipment, curses (Hex tier) and the mod's unique items are not shared. No config option: the artifact is the switch |
 | **Tithe** | Part of all gold earned (`Gold.Ratio`, 10%) becomes credit for the director to spawn more enemies, and the director thanks you in chat every `ThankIntervalSeconds` (60 s). Limits: `MaxCreditPerSecond` (150) and `MaxMonsters` (80 alive) |
 | **Taxade** | Every purchase paid with gold (chest, shrine, drone...) costs health: 30% of max health by default (`Tax.Percent`). Purchases with other currencies don't pay. With `Tax.Lethal = false` (default), the tax never kills: it leaves 1 health. The Capitalism items reduce the tax |
 | **Void** | +5 Void chests per stage (`VoidBounty.ExtraChests`), each rolling among all Void items. Enemies with +50% health |
@@ -226,10 +226,11 @@ effect:
 | `[LimitedCalc.BustlingFungus]` | Treats Bustling Fungus as if it had at most `Limit` stacks (`Mode = Clamp`) | `Off`, limit 10 |
 | `[LimitedCalc.BundleOfFireworks]` | `Aggregate`: fewer missiles, each one stronger, same total damage | `Aggregate`, limit 20 |
 | `[LimitedCalc.GhorsTome]` | `Aggregate`: fewer gold packs on the ground, each worth more, same expected gold | `Aggregate`, limit 5 |
-| `[ProjectileBudget]` | Cap on projectiles from players and minions (Sticky Bomb, Molten Perforator, stakes, Fireworks, missiles...): fewer projectiles, each one stronger, same total damage. Monster projectiles don't change | 15/s per type, 40/s total |
+| `[ProjectileBudget]` | Cap on projectiles from players and minions (Sticky Bomb, Molten Perforator, stakes, Fireworks, missiles...): fewer projectiles, each one stronger, same total damage. Acolyte wights: at most 3 per haunted kill, with the damage of the cut ones. Monster projectiles don't change | 15/s per type, 40/s total, 3 wights per kill |
 | `[GhostBlades]` | Limits how many Ghost Blades (DLC4 Curse item) the game spawns or renews per second | 10/s |
 | `[Cleanup]` | Corpses disappear quickly, even in view, and fixes a game bug in the Lynx Totem that produced hundreds of exceptions | 10 bodies, 2 s |
 | `[GameFixes]` | Fixes game errors that repeated hundreds of times per match and cost FPS: Runic Lens, Unstable Transmitter, War Bonds and equipment on bodies without an inventory; also fixes the Swarms artifact and the Golden drones/monsters that froze the match dropping gold nuggets (same fix as GildedChunkSpamFix) | on |
+| `[QoL]` | Items and dead drones that fall off the map come back to the nearest ground; lava deals 2% to drones and turrets (like monsters) instead of 10%; Engi bubble, REX Sonic Boom, Loader hook and Railgunner scope don't put you in combat. Idea from WolfoQoL_Gameplay | on |
 | `[Particles]` | Per-second cap (`MaxPerSecond`) for **every** type of effect, except those in the `Exempt` list; those in the `Raised` list have their own higher cap (`RaisedMaxPerSecond`). Applies to what you show **and to what you send** to others (host and clients with the mod). Doesn't change damage | 10/s per type; explosions 60/s; exception: Mercenary strikes |
 
 ---
